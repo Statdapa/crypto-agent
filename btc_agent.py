@@ -20,30 +20,48 @@ llm = ChatGroq(model="llama-3.1-8b-instant", api_key=GROQ_API_KEY)
 # ─────────────────────────────────────────
 
 def get_btc_price():
-    r = requests.get(
-        "https://api.coingecko.com/api/v3/simple/price",
-        params={"ids": "bitcoin", "vs_currencies": "usd", "include_24hr_change": "true"}
-    )
-    data = r.json()["bitcoin"]
-    return {
-        "price": data["usd"],
-        "change_24h": data.get("usd_24h_change", 0)
-    }
+    try:
+        r = requests.get(
+            "https://api.coingecko.com/api/v3/simple/price",
+            params={"ids": "bitcoin", "vs_currencies": "usd", "include_24hr_change": "true"},
+            timeout=10
+        )
+        data = r.json()
+        if "bitcoin" not in data:
+            print("❌ CoinGecko rate limit, coba lagi...")
+            time.sleep(10)
+            return get_btc_price()
+        return {
+            "price": data["bitcoin"]["usd"],
+            "change_24h": data["bitcoin"].get("usd_24h_change", 0)
+        }
+    except Exception as e:
+        print(f"❌ Error get BTC price: {e}")
+        return {"price": 0, "change_24h": 0}
 
 def get_fear_greed():
-    r = requests.get("https://api.alternative.me/fng/?limit=1")
-    data = r.json()["data"][0]
-    return {
-        "value": int(data["value"]),
-        "label": data["value_classification"]
-    }
+    try:
+        r = requests.get("https://api.alternative.me/fng/?limit=1", timeout=10)
+        data = r.json()["data"][0]
+        return {
+            "value": int(data["value"]),
+            "label": data["value_classification"]
+        }
+    except Exception as e:
+        print(f"❌ Error get Fear & Greed: {e}")
+        return {"value": 50, "label": "Neutral"}
 
 def get_btc_ohlc():
-    r = requests.get(
-        "https://api.coingecko.com/api/v3/coins/bitcoin/ohlc",
-        params={"vs_currency": "usd", "days": "14"}
-    )
-    return r.json()
+    try:
+        r = requests.get(
+            "https://api.coingecko.com/api/v3/coins/bitcoin/ohlc",
+            params={"vs_currency": "usd", "days": "14"},
+            timeout=10
+        )
+        return r.json()
+    except Exception as e:
+        print(f"❌ Error get OHLC: {e}")
+        return []
 
 # ─────────────────────────────────────────
 # 2. ANALISIS TEKNIKAL
@@ -71,6 +89,8 @@ def calculate_rsi(closes, period=14):
 
 def get_analysis():
     ohlc = get_btc_ohlc()
+    if not ohlc:
+        return {"ma7": "N/A", "ma14": "N/A", "rsi": "N/A"}
     closes = [candle[4] for candle in ohlc]
     ma7  = calculate_ma(closes, 7)
     ma14 = calculate_ma(closes, 14)
@@ -92,7 +112,7 @@ def send_telegram(message):
             "chat_id": TELEGRAM_CHAT_ID,
             "text": message,
             "parse_mode": "Markdown"
-        })
+        }, timeout=10)
         print("✅ Notifikasi terkirim ke Telegram!")
     except Exception as e:
         print(f"❌ Gagal kirim Telegram: {e}")
@@ -100,7 +120,7 @@ def send_telegram(message):
 def handle_telegram_updates():
     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/getUpdates"
     try:
-        r = requests.get(url, params={"timeout": 10, "offset": handle_telegram_updates.offset})
+        r = requests.get(url, params={"timeout": 10, "offset": handle_telegram_updates.offset}, timeout=15)
         updates = r.json().get("result", [])
         for update in updates:
             handle_telegram_updates.offset = update["update_id"] + 1
