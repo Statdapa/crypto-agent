@@ -1,0 +1,9 @@
+langchain-groq
+langchain-core
+requests
+schedule
+python-dotenv
+livekit-agents
+livekit-plugins-groq
+livekit-plugins-silero
+livekit-plugins-elevenlabs
