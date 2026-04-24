@@ -3,7 +3,9 @@ langchain-core
 requests
 schedule
 python-dotenv
+feedparser
 livekit-agents
 livekit-plugins-groq
 livekit-plugins-silero
 livekit-plugins-elevenlabs
+websockets
