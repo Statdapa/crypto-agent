@@ -1,0 +1,12 @@
+# requirements_web3.txt
+# Dependencies TAMBAHAN untuk Web3 upgrade
+# (selain yang sudah ada di btc_agent_okx.py)
+#
+# Install: pip install -r requirements_web3.txt
+
+# Wajib — untuk data on-chain via Etherscan API
+requests>=2.31.0           # sudah ada di btc_agent_okx.py ✓
+
+# Opsional — untuk koneksi real-time ke Ethereum node (Infura/Alchemy/local)
+# Hanya perlu jika INFURA_PROJECT_ID diset di .env
+web3>=6.0.0
