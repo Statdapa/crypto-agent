@@ -14,7 +14,7 @@ Crypto treasury holders — from individual traders to small enterprises in Sout
 FinSight Agent combines AI agents with on-chain execution monitoring:
 
 - **Real-time anomaly detection** on wallet transactions using Z-score statistical analysis
-- **AI signals** (BUY/SELL/HOLD) generated from RSI, MACD, Bollinger Bands across 60+ coins
+- **Unvalidated rule-based signals** (BUY/SELL/HOLD) based on technical indicators
 - **Proactive alerts** via Telegram — no dashboard needed to stay informed
 - **Web dashboard** for enterprise-grade visualization and historical analysis
 - **OKX integration** — both CEX balance and DEX wallet monitoring
@@ -26,7 +26,7 @@ FinSight Agent combines AI agents with on-chain execution monitoring:
 ```
 .env (API keys)
     │
-    ├── btc_agent_okx.py    ← Telegram bot + AI agent (LangChain + Groq)
+    ├── crypto_intelligence_agent.py    ← Telegram bot + AI agent (LangChain + Groq)
     ├── web3_upgrade.py     ← Etherscan + OKX DEX integration
     ├── anomaly_detector.py ← Statistical anomaly detection engine
     └── app.py              ← Flask backend serving dashboard.html
@@ -35,7 +35,7 @@ FinSight Agent combines AI agents with on-chain execution monitoring:
 **Data flow:**
 ```
 OKX API / Etherscan → anomaly_detector.py → SQLite DB → Flask API → Dashboard
-Binance / CoinGecko → btc_agent_okx.py   → Telegram alerts
+Binance / CoinGecko → crypto_intelligence_agent.py   → Telegram alerts
 ```
 
 ---
@@ -97,7 +97,7 @@ DASHBOARD_TOKEN=any_password_you_want
 
 ```bash
 # Terminal 1 — Telegram bot
-python btc_agent_okx.py
+python crypto_intelligence_agent.py
 
 # Terminal 2 — Web dashboard
 python app.py
@@ -180,7 +180,7 @@ AI AGENT/
 ├── .env                  ← API keys (never commit this)
 ├── .env.example          ← Template
 ├── requirements.txt      ← Python dependencies
-├── btc_agent_okx.py      ← Main Telegram bot
+├── crypto_intelligence_agent.py      ← Main Telegram bot
 ├── web3_upgrade.py       ← Web3/Etherscan/OKX DEX
 ├── anomaly_detector.py   ← Anomaly detection engine
 ├── app.py                ← Flask backend
@@ -197,3 +197,12 @@ Track: Data & Intelligence
 Team: FinSight
 
 *Not financial advice. Always verify alerts manually before taking action.*
+
+## 2026 safety update
+
+- Set `DASHBOARD_TOKEN` in the server's `.env`, then enter it in the dashboard prompt. Sensitive API routes require the `X-Dashboard-Token` header. Never put the token in a query string.
+- Agent and Flask app must share `DB_PATH=crypto_intelligence_agent.db`.
+- The dashboard does not calculate audited profit, win rate or live portfolio PnL. It does not execute trades; its indicators are not probability-calibrated.
+- Web chat is a read-only helper, not a connection to the Groq agent. No historical strategy backtest is implemented in this repository.
+- Run tests with `python -m unittest discover -s tests -v`. GitHub Actions checks Python and embedded JavaScript syntax.
+- Do not use OKX withdrawal-enabled API keys.

@@ -799,9 +799,9 @@ function toggleSigDet(i){
   const p=prices[s.id]||0;
   const pstr=p?'$'+p.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:p>10?2:4}):'...';
   const chg=s.change24h!=null?(s.change24h>=0?`<span class="up">+${s.change24h.toFixed(2)}%</span>`:`<span class="down">${s.change24h.toFixed(2)}%</span>`):'—';
-  const rsiClrVal=s.rsi>70?'var(--red)':s.rsi<30?'var(--green)':'var(--text-primary)';
-  const rsiDesc=s.rsi>70?'Overbought — consider reducing exposure':s.rsi<30?'Oversold — potential accumulation zone':'Neutral — no strong directional bias';
-  const signalDesc={buy:'Bullish setup detected. RSI in oversold-to-neutral range with positive momentum. Consider gradual accumulation.',sell:'Bearish setup. RSI in overbought territory. Consider reducing position or setting tight stop-loss.',hold:'No strong signal. RSI in neutral range. Hold current position and monitor for breakout.'};
+  const rsiClrVal=s.rsi==null?'var(--text-muted)':s.rsi>70?'var(--red)':s.rsi<30?'var(--green)':'var(--text-primary)';
+  const rsiDesc=s.rsi==null?'No stored RSI reading available.':s.rsi>70?'Overbought indicator; verify before acting.':s.rsi<30?'Oversold indicator; verify before acting.':'Neutral technical indicator; not a prediction.';
+  const signalDesc={buy:'Unvalidated rule-based buy signal.',sell:'Unvalidated rule-based sell signal.',hold:'Unvalidated rule-based neutral signal.',unavailable:'No recorded rule-based signal.'};
   det.innerHTML=`
     <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.75rem">
       <div><div style="font-size:11px;color:var(--text-muted);margin-bottom:2px">${s.name}</div><div style="font-size:18px;font-weight:600">${s.sym} / USDT</div></div>
@@ -809,7 +809,7 @@ function toggleSigDet(i){
     </div>
     <div class="sig-det-stats">
       <div class="sds"><div class="sds-l">Signal</div><div class="sds-v"><span class="badge ${s.badge}" style="font-size:12px">${s.badge.toUpperCase()}</span></div></div>
-      <div class="sds"><div class="sds-l">RSI (14)</div><div class="sds-v" style="color:${rsiClrVal}">${s.rsi}</div></div>
+      <div class="sds"><div class="sds-l">RSI (14)</div><div class="sds-v" style="color:${rsiClrVal}">${s.rsi??"—"}</div></div>
       <div class="sds"><div class="sds-l">24h Change</div><div class="sds-v">${chg}</div></div>
       <div class="sds"><div class="sds-l">Confidence</div><div class="sds-v">${'Uncalibrated'}</div></div>
     </div>
