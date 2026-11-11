@@ -60,6 +60,10 @@ class ApiTests(unittest.TestCase):
         self.app.DASHBOARD_TOKEN=""
         self.assertEqual(self.client.get("/api/signals").status_code,503)
 
+    def test_source_code_and_env_cannot_be_served_as_static_files(self):
+        for path in ["/app.py", "/.env", "/data_repository.py", "/crypto_intelligence_agent.py"]:
+            self.assertEqual(self.client.get(path).status_code,404)
+
     def test_no_wildcard_cors(self):
         r=self.client.get("/api/health",headers={"Origin":"https://attacker.test"})
         self.assertNotIn("Access-Control-Allow-Origin",r.headers)

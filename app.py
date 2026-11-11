@@ -26,7 +26,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-app = Flask(__name__, static_folder=".")
+app = Flask(__name__, static_folder=None)
 # Serve the dashboard same-origin. Do not allow wildcard CORS on account endpoints.
 
 ETHERSCAN_KEY   = os.getenv("ETHERSCAN_API_KEY", "")
