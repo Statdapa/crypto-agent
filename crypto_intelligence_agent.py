@@ -1621,6 +1621,9 @@ HELP_MSG = """<b>Crypto Intelligence Agent - Commands</b>
 <b>Utility</b>
 /coins - Available coin symbols
 /help - Show this menu
+/paper - Demo balance, PnL and active position
+/position - Current demo position and SL/TP
+/trades - Most recent demo fills
 
 Free text also works as an intelligence question over stored context."""
 
@@ -1745,6 +1748,19 @@ def handle_telegram_updates() -> None:
                 send_telegram(HELP_MSG, chat_id=chat_id)
             elif text_lower == "/coins":
                 send_telegram(coins_message(), chat_id=chat_id)
+            elif text_lower in ("/paper", "/position", "/trades"):
+                if not CFG.telegram_default_chat_id or str(chat_id) != str(CFG.telegram_default_chat_id):
+                    send_telegram("Perintah demo terbatas untuk chat pemilik yang dikonfigurasi.", chat_id=chat_id)
+                    continue
+                try:
+                    from trading_engine import PaperTrader
+                    from paper_demo import format_status, format_trades
+                    trader = PaperTrader(os.getenv("PAPER_DB_PATH", "data/paper_trading.db"))
+                    answer = format_trades(trader) if text_lower == "/trades" else format_status(trader)
+                    send_telegram(answer, chat_id=chat_id)
+                except Exception as exc:
+                    print("Paper command failed:", type(exc).__name__)
+                    send_telegram("Status paper trading tidak tersedia. Periksa terminal.", chat_id=chat_id)
             elif text_lower.startswith("/analisis"):
                 try:
                     coin = parse_coin_from_text(text)

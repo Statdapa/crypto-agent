@@ -249,3 +249,34 @@ The CSV must contain `timestamp,open,high,low,close` with explicit timezone-awar
 Requests for BTC, ETH and SOL now validate CoinGecko's response **id** and **symbol**, compare the USD quote against an independent public Binance spot USDT ticker, and reject discrepancies greater than 8%. This is deliberately fail-closed: if the independent reference API is blocked/unavailable, the agent skips that snapshot rather than risking a mislabeled asset price. All symbols have their CoinGecko identity checked. Snapshot writes also require the requested coin and quoted coin to match. Unknown explicit coin symbols are no longer silently interpreted as BTC.
 
 For Telegram use `/analisis sol` or `/status sol` (not unsupported shorthand `/sol`). If old database rows are suspect, retain the database for audit and request a new verified snapshot rather than changing historical prices by hand. Testing: `python -m unittest discover -s tests -v`.
+
+## Demo paper trading with virtual SL/TP and Telegram alerts
+
+This is simulated spot trading, **not actual exchange demo/testnet orders**.
+Use the same database/ledger on both processes. Make sure the Telegram token
+and owner chat ID are configured in your local .env. Never commit them.
+
+Start the intelligence agent in terminal 1:
+
+    python crypto_intelligence_agent.py
+
+Start independently verified live-quote paper monitoring in terminal 2:
+
+    python paper_trade.py demo-watch --poll-seconds 60
+
+Check without leaving Telegram: /paper, /position, /trades.
+On actual paper BUY/SELL fills the watcher sends simulated OPEN/CLOSE alerts,
+entry, virtual SL/TP, and net realized PnL. Polling evaluates stop/take only
+at observed quotes: price gaps can exceed intended stop loss. Market quote
+validation rejects mismatched/unavailable sources. Sizing and risk controls
+remain from the paper ledger. A Telegram delivery failure leaves a fill queued
+for retry, including with:
+
+    python paper_trade.py notify
+
+Delivery is at-least-once (a process crash between Telegram delivery and
+acknowledgement can duplicate a message). The existing watch command remains
+available but does NOT have verified live-quote monitoring; use demo-watch for
+this workflow. No fabricated trades or win rates are displayed. Orders are
+never submitted to a real or demo exchange. Do not run multiple demo-watch
+workers on the same ledger.
