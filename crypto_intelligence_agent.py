@@ -303,6 +303,15 @@ def fmt_price(n: Any) -> str:
     return f"${value:.8f}"
 
 
+def fmt_pct(n: Any) -> str:
+    if n is None:
+        return "N/A"
+    try:
+        return f"{float(n):+.2f}%"
+    except (TypeError, ValueError):
+        return "N/A"
+
+
 def fmt_num(n: Any) -> str:
     if n is None or n == "N/A":
         return "N/A"
@@ -1109,7 +1118,7 @@ Score reasons: {reasons}
 RSI: {analysis['rsi']}
 MACD: {analysis['macd']} vs signal {analysis['macd_signal']}
 24h change: {price_data['change_24h']:.2f}%
-7d change: {price_data['change_7d']:.2f}%
+7d change: {fmt_pct(price_data.get('change_7d'))}
 Fear & Greed: {fg['value']} ({fg['label']})
 Entry zone: ${signal_data['entry_low']:,.8f} - ${signal_data['entry_high']:,.8f}
 Target: ${signal_data['target']:,.8f}
@@ -1136,7 +1145,7 @@ def build_signal_message(coin_symbol: str, price_data: dict[str, Any], analysis:
 <b>Market Snapshot</b>
 Price: <b>{html_escape(fmt_price(price_data['price']))}</b>
 24h: {price_data['change_24h']:+.2f}%
-7d: {price_data['change_7d']:+.2f}%
+7d: {fmt_pct(price_data.get('change_7d'))}
 Volume: {html_escape(fmt_num(price_data['volume']))}
 Market cap: {html_escape(fmt_num(price_data['market_cap']))}
 
@@ -1449,6 +1458,8 @@ def run_full_analysis(coin_symbol: str) -> str:
         return f"Gagal ambil data {html_escape(coin_symbol)}. Coba lagi nanti."
     fg = get_fear_greed()
     analysis = get_analysis(coin_symbol)
+    if not is_number(analysis.get("rsi")) or not is_number(analysis.get("macd")):
+        return f"Data candle {html_escape(coin_symbol)} belum cukup untuk menghasilkan sinyal valid."
     signal_data = generate_signal(price_data, analysis, fg)
     ai_comment = get_ai_commentary(coin_symbol, price_data, analysis, fg, signal_data)
     save_market_snapshot(coin_symbol, price_data, analysis, fg, signal_data)
@@ -1463,6 +1474,9 @@ def auto_report(coin_symbol: str = "BTC") -> None:
         return
     fg = get_fear_greed()
     analysis = get_analysis(coin_symbol)
+    if not is_number(analysis.get("rsi")) or not is_number(analysis.get("macd")):
+        print(f"Skipping {coin_symbol}: insufficient verified completed candles")
+        return
     signal_data = generate_signal(price_data, analysis, fg)
     ai_comment = get_ai_commentary(coin_symbol, price_data, analysis, fg, signal_data)
     save_market_snapshot(coin_symbol, price_data, analysis, fg, signal_data)
@@ -1790,6 +1804,9 @@ def handle_telegram_updates() -> None:
                     continue
                 fg = get_fear_greed()
                 analysis = get_analysis(coin)
+                if not is_number(analysis.get("rsi")) or not is_number(analysis.get("macd")):
+                    send_telegram("Candle belum cukup untuk analisis " + html_escape(coin), chat_id=chat_id)
+                    continue
                 signal_data = generate_signal(price_data, analysis, fg)
                 save_market_snapshot(coin, price_data, analysis, fg, signal_data)
                 send_telegram(format_status_message(coin, price_data, analysis, fg, signal_data), chat_id=chat_id)
