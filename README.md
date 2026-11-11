@@ -237,3 +237,9 @@ python paper_trade.py stats
 ```
 
 The watch process polls only the already saved agent snapshot; it neither calls private exchange endpoints nor places exchange orders. Only a new, recent, timezone-aware snapshot can cause a paper fill. Metrics include **closed-paper-trade win rate** (not the trading strategy's real out-of-sample win rate). Stopping the watch process does not place exchange-side stops; no real order protections exist.
+
+### Causal backtesting baseline (separate from the agent strategy)
+
+`python backtest_baseline.py --csv data/raw/BTC_USDT_4h.csv --fast 20 --slow 50 --output data/reports/sma_baseline.json`
+
+The CSV must contain `timestamp,open,high,low,close` with explicit timezone-aware ISO-8601 timestamps, sorted ascending. **This SMA baseline is not a backtest of the existing AI/market-regime strategy.** Signals are computed only from bars through t−1, trades are assumed filled at bar t open, and same-bar stop-and-target touches are resolved pessimistically (stop first). Fees and slippage are modeled, but exchange constraints, market impact, data gaps, corporate or microstructure issues and funding costs are not. In-sample backtest performance does not imply live win rate. Never feed unfinished candles.
