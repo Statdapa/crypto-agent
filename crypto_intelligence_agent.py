@@ -18,6 +18,7 @@ from typing import Any, Optional
 import feedparser
 import requests
 import schedule
+from binance_universe import BinanceSpotUniverse, MarketUnavailable
 from market_data_guard import (
     MarketDataValidationError, validate_coingecko_asset,
     validate_binance_reference, validate_snapshot_identity,
@@ -238,6 +239,8 @@ COINS: dict[str, dict[str, str]] = {
     "BOME": {"id": "book-of-meme", "name": "BOME", "tv": "BINANCE:BOMEUSDT"},
 }
 
+BINANCE_MARKETS = BinanceSpotUniverse(timeout=CFG.http_timeout)
+
 RSS_FEEDS = {
     "CoinDesk": "https://www.coindesk.com/arc/outboundfeeds/rss/",
     "Cointelegraph": "https://cointelegraph.com/rss",
@@ -275,8 +278,10 @@ def html_escape(value: Any) -> str:
 
 def normalize_coin(coin_symbol: str | None = None) -> str:
     coin = (coin_symbol or CFG.default_coin or "BTC").upper().strip()
-    if coin not in COINS:
-        raise ValueError(f"Unsupported coin symbol: {coin}")
+    try:
+        BINANCE_MARKETS.require(coin)
+    except MarketUnavailable as exc:
+        raise ValueError(f"Coin {coin} tidak memiliki pair spot USDT aktif di Binance: {exc}") from exc
     return coin
 
 
@@ -494,50 +499,29 @@ def get_state(key: str, default: str = "") -> str:
 # ---------------------------------------------------------------------------
 
 def get_price(coin_symbol: str = "BTC") -> Optional[dict[str, Any]]:
+    """Use verified Binance spot USDT prices for every active coin."""
     coin_symbol = normalize_coin(coin_symbol)
-    coin_id = COINS[coin_symbol]["id"]
     try:
-        response = HTTP.get(
-            f"https://api.coingecko.com/api/v3/coins/{coin_id}",
-            params={
-                "localization": "false",
-                "tickers": "false",
-                "market_data": "true",
-                "community_data": "false",
-                "developer_data": "false",
-                "sparkline": "false",
-            },
-            timeout=CFG.http_timeout,
-        )
-        data = safe_json_dict(response)
-        current_price = validate_coingecko_asset(data, coin_symbol, coin_id)
-        md = data["market_data"]
-
-        # Independent exchange-price verification for actively monitored core coins.
-        # Any failure blocks analysis rather than silently using another asset's price.
+        result = BINANCE_MARKETS.ticker_24h(coin_symbol)
+        # Verify BTC/ETH/SOL against an independent source to prevent mixups.
         if coin_symbol in ("BTC", "ETH", "SOL"):
-            reference_response = HTTP.get(
-                "https://data-api.binance.vision/api/v3/ticker/price",
-                params={"symbol": f"{coin_symbol}USDT"},
-                timeout=CFG.http_timeout,
+            coingecko_id = COINS[coin_symbol]["id"]
+            response = HTTP.get(
+                f"https://api.coingecko.com/api/v3/coins/{coingecko_id}",
+                params={
+                    "localization": "false", "tickers": "false",
+                    "market_data": "true", "community_data": "false",
+                    "developer_data": "false", "sparkline": "false",
+                }, timeout=CFG.http_timeout,
             )
-            reference_data = safe_json_dict(reference_response)
-            validate_binance_reference(reference_data, coin_symbol, current_price)
-
-        return {
-            "coin": coin_symbol,
-            "price": float(current_price),
-            "change_24h": float(md.get("price_change_percentage_24h") or 0),
-            "change_7d": float(md.get("price_change_percentage_7d") or 0),
-            "change_30d": float(md.get("price_change_percentage_30d") or 0),
-            "high_24h": float(md.get("high_24h", {}).get("usd") or 0),
-            "low_24h": float(md.get("low_24h", {}).get("usd") or 0),
-            "volume": float(md.get("total_volume", {}).get("usd") or 0),
-            "market_cap": float(md.get("market_cap", {}).get("usd") or 0),
-            "ath": float(md.get("ath", {}).get("usd") or 0),
-            "ath_change": float(md.get("ath_change_percentage", {}).get("usd") or 0),
-            "fetched_at": utc_iso(),
-        }
+            reference = validate_coingecko_asset(
+                safe_json_dict(response), coin_symbol, coingecko_id
+            )
+            validate_binance_reference(
+                {"symbol": result["pair"], "price": result["price"]},
+                coin_symbol, reference
+            )
+        return result
     except Exception as exc:
         print(f"Error get_price {coin_symbol}: {exc}")
         return None
@@ -562,16 +546,10 @@ def get_fear_greed() -> dict[str, Any]:
 
 
 def get_ohlc(coin_symbol: str = "BTC", days: int = 30) -> list[list[Any]]:
+    """4h completed Binance candles for technical analysis of all spot pairs."""
     coin_symbol = normalize_coin(coin_symbol)
-    coin_id = COINS[coin_symbol]["id"]
     try:
-        response = HTTP.get(
-            f"https://api.coingecko.com/api/v3/coins/{coin_id}/ohlc",
-            params={"vs_currency": "usd", "days": str(days)},
-            timeout=CFG.http_timeout,
-        )
-        data = safe_json_list(response)
-        return [row for row in data if isinstance(row, list) and len(row) >= 5]
+        return BINANCE_MARKETS.candles(coin_symbol, interval="4h", limit=180)
     except Exception as exc:
         print(f"Error get_ohlc {coin_symbol}: {exc}")
         return []
@@ -1146,7 +1124,7 @@ Stop loss: ${signal_data['stop_loss']:,.8f}
 
 def build_signal_message(coin_symbol: str, price_data: dict[str, Any], analysis: dict[str, Any], fg: dict[str, Any], signal_data: dict[str, Any], ai_comment: str) -> str:
     coin_symbol = normalize_coin(coin_symbol)
-    tv_link = COINS.get(coin_symbol, {}).get("tv", "BINANCE:BTCUSDT")
+    tv_link = f"BINANCE:{coin_symbol}USDT"
     tv_url = f"https://www.tradingview.com/chart/?symbol={tv_link}"
     reasons = signal_data.get("reasons", [])
     reasons_text = "\n".join([f"- {html_escape(r)}" for r in reasons[:8]]) or "- No rule explanation available"
@@ -1229,7 +1207,7 @@ def save_intelligence_report(report_type: str, coin: Optional[str], content: str
 def extract_coins_from_text(text: str) -> list[str]:
     upper = text.upper()
     found = []
-    for sym in COINS:
+    for sym in BINANCE_MARKETS.catalog():
         if re.search(rf"\b{re.escape(sym)}\b", upper):
             found.append(sym)
     return found or [normalize_coin()]
@@ -1516,10 +1494,11 @@ Evidence: <code>{html_escape(json.dumps(anomaly.get('evidence', {}), ensure_asci
 
 def run_anomaly_scan() -> None:
     for coin in CFG.market_coins:
-        if coin not in COINS:
-            print(f"Skipping unsupported market coin: {coin}")
+        try:
+            coin = normalize_coin(coin)
+        except ValueError as exc:
+            print(f"Skipping unsupported market coin: {exc}")
             continue
-        coin = normalize_coin(coin)
         if not get_recent_snapshots(coin, limit=1):
             msg = run_full_analysis(coin)
             print(f"Snapshot created for {coin}: {len(msg)} chars")
@@ -1619,7 +1598,9 @@ HELP_MSG = """<b>Crypto Intelligence Agent - Commands</b>
 /eth - Ethereum network status
 
 <b>Utility</b>
-/coins - Available coin symbols
+/coins - Jumlah pair spot USDT dan simbol pertama
+/scanall - Scan semua pair spot USDT, top movers likuid
+/analisis [symbol] - Analisis indikator Binance spot 4h
 /help - Show this menu
 /paper - Demo balance, PnL and active position
 /position - Current demo position and SL/TP
@@ -1629,10 +1610,30 @@ Free text also works as an intelligence question over stored context."""
 
 
 def coins_message() -> str:
-    lines = ["<b>Available Coins</b>", ""]
-    for sym, info in COINS.items():
-        lines.append(f"- <b>{html_escape(sym)}</b> - {html_escape(info['name'])} ({html_escape(info['tv'])})")
-    lines.append("\nUse: /analisis [symbol]")
+    markets = BINANCE_MARKETS.catalog()
+    lines = [
+        f"<b>Binance Spot USDT: {len(markets)} pair aktif</b>",
+        "60 simbol pertama (alfabetis):",
+        ", ".join(html_escape(coin) for coin in sorted(markets)[:60]),
+        "Gunakan /analisis [coin], /status [coin], atau /scanall.",
+    ]
+    return "\n".join(lines)
+
+
+def scan_all_message() -> str:
+    info = BINANCE_MARKETS.scan(min_quote_volume=1_000_000, top=15)
+    lines = [
+        "<b>Binance Spot USDT scanner</b>",
+        f"Pair aktif: {info['total_spot_usdt_pairs']}",
+        f"Pair likuid, volume 24h >= 1 juta USDT: {info['liquid_pairs_count']}",
+        "Top 15 perubahan absolut 24h (bukan sinyal BUY):",
+    ]
+    for item in info["top_movers"]:
+        lines.append(
+            f"{html_escape(item['coin'])}/USDT: {item['change_24h']:+.2f}% | "
+            f"USD {item['price']:,.8f} | vol USD {item['quote_volume']:,.0f}"
+        )
+    lines.append("Scanner informatif; bukan rekomendasi entry.")
     return "\n".join(lines)
 
 
@@ -1747,7 +1748,15 @@ def handle_telegram_updates() -> None:
             if text_lower in ("/start", "/help"):
                 send_telegram(HELP_MSG, chat_id=chat_id)
             elif text_lower == "/coins":
-                send_telegram(coins_message(), chat_id=chat_id)
+                try:
+                    send_telegram(coins_message(), chat_id=chat_id)
+                except Exception as exc:
+                    send_telegram("Daftar Binance tidak tersedia: " + html_escape(str(exc)), chat_id=chat_id)
+            elif text_lower in ("/scanall", "/scanmarket"):
+                try:
+                    send_telegram(scan_all_message(), chat_id=chat_id)
+                except Exception as exc:
+                    send_telegram("Scanner Binance tidak tersedia: " + html_escape(str(exc)), chat_id=chat_id)
             elif text_lower in ("/paper", "/position", "/trades"):
                 if not CFG.telegram_default_chat_id or str(chat_id) != str(CFG.telegram_default_chat_id):
                     send_telegram("Perintah demo terbatas untuk chat pemilik yang dikonfigurasi.", chat_id=chat_id)
@@ -1882,11 +1891,15 @@ def handle_telegram_updates() -> None:
 
 def schedule_jobs() -> None:
     for coin in CFG.market_coins:
-        if coin not in COINS:
-            print(f"Skipping unsupported scheduled coin: {coin}")
+        try:
+            coin = normalize_coin(coin)
+        except ValueError as exc:
+            print(f"Skipping unsupported scheduled coin: {exc}")
             continue
-        coin = normalize_coin(coin)
         schedule.every(CFG.snapshot_interval_minutes).minutes.do(lambda c=coin: auto_report(c))
+    schedule.every(CFG.snapshot_interval_minutes).minutes.do(
+        lambda: print(scan_all_message())
+    )
     schedule.every(CFG.news_interval_minutes).minutes.do(check_and_push_news)
     schedule.every(CFG.anomaly_interval_minutes).minutes.do(run_anomaly_scan)
     schedule.every().saturday.at("08:00").do(lambda: send_telegram(get_weekly_summary("BTC")))
@@ -1901,11 +1914,15 @@ def validate_startup_config() -> list[str]:
         warnings.append("TELEGRAM_TOKEN missing: Telegram bot cannot run.")
     if not CFG.telegram_default_chat_id:
         warnings.append("TELEGRAM_CHAT_ID missing: default scheduled alerts cannot be sent, but replies can still use incoming chat_id.")
-    if CFG.default_coin not in COINS:
-        warnings.append(f"DEFAULT_COIN {CFG.default_coin} is not supported. BTC will be used.")
-    unsupported = [c for c in CFG.market_coins if c not in COINS]
-    if unsupported:
-        warnings.append(f"Unsupported MARKET_COINS ignored by normalize_coin: {', '.join(unsupported)}")
+    try:
+        active = BINANCE_MARKETS.catalog()
+        if CFG.default_coin not in active:
+            warnings.append(f"DEFAULT_COIN {CFG.default_coin} not an active Binance USDT spot pair.")
+        unsupported = [c for c in CFG.market_coins if c not in active]
+        if unsupported:
+            warnings.append(f"Inactive Binance spot USDT coins: {', '.join(unsupported)}")
+    except Exception as exc:
+        warnings.append(f"Binance market discovery unavailable: {exc}")
     return warnings
 
 
@@ -1914,7 +1931,8 @@ def main() -> None:
     print("Crypto Intelligence Agent - active")
     print(f"Timezone: {CFG.app_timezone_name}")
     print(f"Database: {CFG.db_path}")
-    print(f"Market coins: {', '.join(CFG.market_coins)}")
+    print(f"Detailed scheduled coins: {', '.join(CFG.market_coins)}")
+    print("Binance-wide USDT spot scan: enabled")
     for warning in validate_startup_config():
         print(f"CONFIG WARNING: {warning}")
 
