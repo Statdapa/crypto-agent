@@ -167,7 +167,36 @@ class PaperTrader:
                     signal_key TEXT PRIMARY KEY, at TEXT NOT NULL, action TEXT NOT NULL,
                     reason TEXT NOT NULL
                 );
+                CREATE TABLE IF NOT EXISTS paper_settings (
+                    id INTEGER PRIMARY KEY CHECK (id=1),
+                    symbol TEXT NOT NULL, initial_cash TEXT NOT NULL,
+                    max_risk_fraction TEXT NOT NULL,
+                    max_position_fraction TEXT NOT NULL,
+                    stop_fraction TEXT NOT NULL, take_fraction TEXT NOT NULL,
+                    fee_bps TEXT NOT NULL, slippage_bps TEXT NOT NULL,
+                    max_daily_loss_fraction TEXT NOT NULL,
+                    max_drawdown_fraction TEXT NOT NULL,
+                    max_entries_per_day INTEGER NOT NULL
+                );
             """)
+            settings = (
+                self.limits.allowed_symbol, str(self.limits.initial_cash),
+                str(self.limits.max_risk_fraction),
+                str(self.limits.max_position_fraction),
+                str(self.limits.stop_fraction), str(self.limits.take_fraction),
+                str(self.limits.fee_bps), str(self.limits.slippage_bps),
+                str(self.limits.max_daily_loss_fraction),
+                str(self.limits.max_drawdown_fraction),
+                self.limits.max_entries_per_day,
+            )
+            existing = db.execute("SELECT * FROM paper_settings WHERE id=1").fetchone()
+            if existing:
+                if tuple(existing)[1:] != settings:
+                    raise ValueError("Paper ledger risk configuration differs from initial settings; use a new ledger")
+            else:
+                db.execute(
+                    "INSERT INTO paper_settings VALUES(1,?,?,?,?,?,?,?,?,?,?,?)", settings
+                )
             present = db.execute("SELECT 1 FROM paper_account WHERE id=1").fetchone()
             if not present:
                 cash = str(self.limits.initial_cash)

@@ -24,9 +24,9 @@ class EngineTests(unittest.TestCase):
         for value in ["NaN", "Infinity", "-1", "0"]:
             with self.assertRaises(ValueError):
                 self.sig(price=value)
-        with self.assertRaises(ValueError):
+        self.assertEqual(
             self.trader.tick(MarketSignal("ETH/USDT", D("100"), "BUY", self.today),
-                             now=self.today)
+                             now=self.today)["reason"], "symbol_not_allowed")
         with self.assertRaises(ValueError):
             D(True)
 
@@ -88,6 +88,12 @@ class EngineTests(unittest.TestCase):
         self.trader.resume()
         res=self.trader.tick(self.sig("BUY","100",3),now=self.today+timedelta(minutes=3))
         self.assertEqual(res["action"],"BUY")
+
+    def test_restart_cannot_change_risk_profile(self):
+        self.trader.tick(self.sig(), now=self.today)
+        with self.assertRaises(ValueError):
+            PaperTrader(self.path, RiskLimits(max_position_fraction="0.9"))
+        self.assertEqual(PaperTrader(self.path).status()["fill_count"],1)
 
     def test_daily_entry_limit(self):
         limits=RiskLimits(max_entries_per_day=1)
