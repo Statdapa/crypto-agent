@@ -74,7 +74,7 @@ def backtest_sma(candles, limits: RiskLimits = RiskLimits(), fast=20, slow=50):
     close_prices=[x.close for x in candles]
     fees=limits.fee_rate
     slip=limits.slip_rate
-    for i in range(slow, len(candles)):
+    for i in range(slow + 1, len(candles)):
         bar=candles[i]
         prev=i-1
         prevprev=i-2
@@ -144,7 +144,7 @@ def backtest_sma(candles, limits: RiskLimits = RiskLimits(), fast=20, slow=50):
     return {
         "benchmark": f"SMA({fast},{slow}) cross / next-open / conservative stop-first",
         "input_bars":len(candles),
-        "processed_bars":len(candles)-slow,
+        "processed_bars":len(candles)-slow-1,
         "initial_equity":str(limits.initial_cash),
         "ending_mark_to_market_equity":str(last_equity),
         "net_return_pct":float((last_equity/limits.initial_cash-D(1))*D(100)),
