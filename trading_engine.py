@@ -8,6 +8,7 @@ from __future__ import annotations
 import math
 import os
 import sqlite3
+from contextlib import contextmanager, closing
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from decimal import Decimal, ROUND_DOWN
@@ -135,12 +136,22 @@ class PaperTrader:
         Path(self.path).parent.mkdir(parents=True, exist_ok=True)
         self._initialize()
 
+    @contextmanager
     def _connect(self):
+        """Transaction-safe SQLite connection that always closes its file handle.
+
+        sqlite3.Connection.__exit__ commits/rolls back but does *not* close.
+        Explicit close is required on Windows to release a temporary database.
+        """
         conn = sqlite3.connect(self.path, timeout=10)
-        conn.row_factory = sqlite3.Row
-        conn.execute("PRAGMA busy_timeout = 10000")
-        conn.execute("PRAGMA journal_mode = WAL")
-        return conn
+        try:
+            conn.row_factory = sqlite3.Row
+            conn.execute("PRAGMA busy_timeout = 10000")
+            conn.execute("PRAGMA journal_mode = WAL")
+            with conn:
+                yield conn
+        finally:
+            conn.close()
 
     def _initialize(self):
         with self._connect() as db:
@@ -405,7 +416,7 @@ def load_latest_agent_signal(db_path: str, symbol: str) -> Optional[MarketSignal
     if not os.path.isfile(db_path):
         return None
     coin = symbol.split("/")[0].upper()
-    with sqlite3.connect(f"file:{Path(db_path).resolve()}?mode=ro", uri=True) as db:
+    with closing(sqlite3.connect(f"file:{Path(db_path).resolve()}?mode=ro", uri=True)) as db:
         tables = {r[0] for r in db.execute("SELECT name FROM sqlite_master WHERE type='table'")}
         if "market_snapshots" not in tables:
             return None

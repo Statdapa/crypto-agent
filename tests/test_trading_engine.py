@@ -1,5 +1,6 @@
 """Deterministic tests: no internet, exchange API, or real-money orders."""
 import sqlite3
+from contextlib import closing
 import tempfile
 import unittest
 from datetime import datetime, timedelta, timezone
@@ -124,9 +125,19 @@ class EngineTests(unittest.TestCase):
         self.assertEqual(s["wins"],1)
         self.assertEqual(s["win_rate"],1.0)
 
+    def test_sqlite_handles_close_when_context_exits(self):
+        with self.trader._connect() as conn:
+            self.assertEqual(conn.execute("SELECT 1").fetchone()[0], 1)
+        with self.assertRaises(sqlite3.ProgrammingError):
+            conn.execute("SELECT 1")
+        self.trader.status()
+        # Windows only permits deletion once all SQLite handles are closed.
+        Path(self.path).unlink()
+        self.assertFalse(Path(self.path).exists())
+
     def test_db_adapter_reads_saved_signals(self):
         dbpath=str(Path(self.temp.name)/"agent.db")
-        with sqlite3.connect(dbpath) as c:
+        with closing(sqlite3.connect(dbpath)) as c, c:
             c.execute("""CREATE TABLE market_snapshots (
                 id INTEGER PRIMARY KEY, coin TEXT, price REAL, signal TEXT, created_at TEXT)""")
             c.execute("INSERT INTO market_snapshots(coin,price,signal,created_at) VALUES(?,?,?,?)",
