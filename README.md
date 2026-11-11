@@ -280,3 +280,27 @@ available but does NOT have verified live-quote monitoring; use demo-watch for
 this workflow. No fabricated trades or win rates are displayed. Orders are
 never submitted to a real or demo exchange. Do not run multiple demo-watch
 workers on the same ledger.
+
+## Binance-wide dynamic spot market discovery
+
+All **currently active Binance spot USDT** pairs are discovered from the public
+exchangeInfo endpoint instead of being hard-coded. The market scanner polls the
+full exchange-wide 24h ticker in a batch every SNAPSHOT_INTERVAL_MINUTES and
+reports the top 15 absolute 24h movers filtered by >= 1 million USDT volume.
+Telegram commands: /scanall (all-market scan), /coins (catalog size and examples),
+/analisis [symbol] or /status [symbol] for a deep analysis of any active
+Binance spot USDT base symbol. Full RSI/MA/MACD analysis uses historical
+completed 4h candles, not every pair's 24h ticker data. Pairs with too little
+OHLCV data cannot produce an actionable rule-based signal. CoinGecko independent
+price cross-check remains on BTC, ETH, SOL; other pairs have exchangeInfo symbol
+identity checks on ticker and OHLCV (one Binance source). Missing 7-day
+market data is displayed as N/A, not invented.
+
+To control rate limits and Groq calls, the scheduled deep analysis remains
+MARKET_COINS=BTC,ETH,SOL by default; use MARKET_COINS=BTC,ETH,SOL,AVAX,... for
+a small, explicit scheduled deep-watchlist. Scanning the entire catalog does
+NOT automatically create BUY/SELL snapshots, nor submit paper or live orders
+on all coins. For one additional paper instrument use a distinct ledger and
+--symbol (e.g. SOL/USDT), but the Telegram account status command currently
+reads only PAPER_DB_PATH. Do not run separate ledgers as if they shared one
+portfolio risk budget. None of this uses or requires real exchange API keys.

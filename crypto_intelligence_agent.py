@@ -1634,6 +1634,13 @@ def coins_message() -> str:
     return "\n".join(lines)
 
 
+def auto_scan_all() -> None:
+    try:
+        print(scan_all_message(), flush=True)
+    except Exception as exc:
+        print(f"Binance-wide scanner temporarily unavailable: {exc}", flush=True)
+
+
 def scan_all_message() -> str:
     info = BINANCE_MARKETS.scan(min_quote_volume=1_000_000, top=15)
     lines = [
@@ -1914,9 +1921,7 @@ def schedule_jobs() -> None:
             print(f"Skipping unsupported scheduled coin: {exc}")
             continue
         schedule.every(CFG.snapshot_interval_minutes).minutes.do(lambda c=coin: auto_report(c))
-    schedule.every(CFG.snapshot_interval_minutes).minutes.do(
-        lambda: print(scan_all_message())
-    )
+    schedule.every(CFG.snapshot_interval_minutes).minutes.do(auto_scan_all)
     schedule.every(CFG.news_interval_minutes).minutes.do(check_and_push_news)
     schedule.every(CFG.anomaly_interval_minutes).minutes.do(run_anomaly_scan)
     schedule.every().saturday.at("08:00").do(lambda: send_telegram(get_weekly_summary("BTC")))
