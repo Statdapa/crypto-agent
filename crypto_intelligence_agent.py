@@ -18,6 +18,10 @@ from typing import Any, Optional
 import feedparser
 import requests
 import schedule
+from market_data_guard import (
+    MarketDataValidationError, validate_coingecko_asset,
+    validate_binance_reference, validate_snapshot_identity,
+)
 from dotenv import load_dotenv
 from langchain_core.messages import HumanMessage
 from langchain_groq import ChatGroq
@@ -271,7 +275,9 @@ def html_escape(value: Any) -> str:
 
 def normalize_coin(coin_symbol: str | None = None) -> str:
     coin = (coin_symbol or CFG.default_coin or "BTC").upper().strip()
-    return coin if coin in COINS else (CFG.default_coin if CFG.default_coin in COINS else "BTC")
+    if coin not in COINS:
+        raise ValueError(f"Unsupported coin symbol: {coin}")
+    return coin
 
 
 def is_number(value: Any) -> bool:
@@ -504,13 +510,19 @@ def get_price(coin_symbol: str = "BTC") -> Optional[dict[str, Any]]:
             timeout=CFG.http_timeout,
         )
         data = safe_json_dict(response)
-        md = data.get("market_data")
-        if not isinstance(md, dict):
-            raise ValueError("market_data tidak tersedia")
+        current_price = validate_coingecko_asset(data, coin_symbol, coin_id)
+        md = data["market_data"]
 
-        current_price = md.get("current_price", {}).get("usd")
-        if current_price is None:
-            raise ValueError("Harga USD tidak tersedia")
+        # Independent exchange-price verification for actively monitored core coins.
+        # Any failure blocks analysis rather than silently using another asset's price.
+        if coin_symbol in ("BTC", "ETH", "SOL"):
+            reference_response = HTTP.get(
+                "https://data-api.binance.vision/api/v3/ticker/price",
+                params={"symbol": f"{coin_symbol}USDT"},
+                timeout=CFG.http_timeout,
+            )
+            reference_data = safe_json_dict(reference_response)
+            validate_binance_reference(reference_data, coin_symbol, current_price)
 
         return {
             "coin": coin_symbol,
@@ -768,6 +780,8 @@ def to_db_number(value: Any) -> Optional[float]:
 
 
 def save_market_snapshot(coin_symbol: str, price_data: dict[str, Any], analysis: dict[str, Any], fg: dict[str, Any], signal_data: dict[str, Any]) -> None:
+    coin_symbol = normalize_coin(coin_symbol)
+    validate_snapshot_identity(coin_symbol, price_data)
     conn = db_connect()
     try:
         conn.execute(
@@ -1222,6 +1236,15 @@ def extract_coins_from_text(text: str) -> list[str]:
 
 
 def parse_coin_from_text(text: str) -> str:
+    # Telegram command arguments take precedence over other coin mentions.
+    # Unknown explicit symbols must not silently become BTC.
+    parts = text.strip().split()
+    if parts and parts[0].lower().split("@")[0] in ("/analisis", "/status", "/mingguan"):
+        if len(parts) > 1:
+            aliases = {"SOLANA": "SOL", "BITCOIN": "BTC", "ETHEREUM": "ETH"}
+            symbol = aliases.get(parts[1].upper(), parts[1].upper())
+            return normalize_coin(symbol)
+        return normalize_coin()
     coins = extract_coins_from_text(text)
     return coins[0] if coins else normalize_coin()
 
@@ -1493,6 +1516,9 @@ Evidence: <code>{html_escape(json.dumps(anomaly.get('evidence', {}), ensure_asci
 
 def run_anomaly_scan() -> None:
     for coin in CFG.market_coins:
+        if coin not in COINS:
+            print(f"Skipping unsupported market coin: {coin}")
+            continue
         coin = normalize_coin(coin)
         if not get_recent_snapshots(coin, limit=1):
             msg = run_full_analysis(coin)
@@ -1720,11 +1746,19 @@ def handle_telegram_updates() -> None:
             elif text_lower == "/coins":
                 send_telegram(coins_message(), chat_id=chat_id)
             elif text_lower.startswith("/analisis"):
-                coin = parse_coin_from_text(text)
+                try:
+                    coin = parse_coin_from_text(text)
+                except ValueError as exc:
+                    send_telegram(html_escape(exc) + ". Gunakan /coins.", chat_id=chat_id)
+                    continue
                 send_telegram(f"Menganalisis {html_escape(coin)}/USDT...", chat_id=chat_id)
                 send_telegram(run_full_analysis(coin), chat_id=chat_id)
             elif text_lower.startswith("/status"):
-                coin = parse_coin_from_text(text)
+                try:
+                    coin = parse_coin_from_text(text)
+                except ValueError as exc:
+                    send_telegram(html_escape(exc) + ". Gunakan /coins.", chat_id=chat_id)
+                    continue
                 price_data = get_price(coin)
                 if not price_data:
                     send_telegram(f"Gagal ambil data {html_escape(coin)}.", chat_id=chat_id)
@@ -1750,7 +1784,11 @@ def handle_telegram_updates() -> None:
             elif text_lower == "/topnews":
                 send_telegram(get_news_for_telegram(top_n=3), chat_id=chat_id)
             elif text_lower.startswith("/mingguan"):
-                coin = parse_coin_from_text(text)
+                try:
+                    coin = parse_coin_from_text(text)
+                except ValueError as exc:
+                    send_telegram(html_escape(exc) + ". Gunakan /coins.", chat_id=chat_id)
+                    continue
                 send_telegram(get_weekly_summary(coin), chat_id=chat_id)
             elif text_lower in ("/anomaly", "/anomali"):
                 send_telegram(recent_anomalies(), chat_id=chat_id)
@@ -1828,6 +1866,9 @@ def handle_telegram_updates() -> None:
 
 def schedule_jobs() -> None:
     for coin in CFG.market_coins:
+        if coin not in COINS:
+            print(f"Skipping unsupported scheduled coin: {coin}")
+            continue
         coin = normalize_coin(coin)
         schedule.every(CFG.snapshot_interval_minutes).minutes.do(lambda c=coin: auto_report(c))
     schedule.every(CFG.news_interval_minutes).minutes.do(check_and_push_news)

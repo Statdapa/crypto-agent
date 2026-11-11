@@ -243,3 +243,9 @@ The watch process polls only the already saved agent snapshot; it neither calls 
 `python backtest_baseline.py --csv data/raw/BTC_USDT_4h.csv --fast 20 --slow 50 --output data/reports/sma_baseline.json`
 
 The CSV must contain `timestamp,open,high,low,close` with explicit timezone-aware ISO-8601 timestamps, sorted ascending. **This SMA baseline is not a backtest of the existing AI/market-regime strategy.** Signals are computed only from bars through t−1, trades are assumed filled at bar t open, and same-bar stop-and-target touches are resolved pessimistically (stop first). Fees and slippage are modeled, but exchange constraints, market impact, data gaps, corporate or microstructure issues and funding costs are not. In-sample backtest performance does not imply live win rate. Never feed unfinished candles.
+
+### Market-data identity safeguard (SOL/BTC/ETH)
+
+Requests for BTC, ETH and SOL now validate CoinGecko's response **id** and **symbol**, compare the USD quote against an independent public Binance spot USDT ticker, and reject discrepancies greater than 8%. This is deliberately fail-closed: if the independent reference API is blocked/unavailable, the agent skips that snapshot rather than risking a mislabeled asset price. All symbols have their CoinGecko identity checked. Snapshot writes also require the requested coin and quoted coin to match. Unknown explicit coin symbols are no longer silently interpreted as BTC.
+
+For Telegram use `/analisis sol` or `/status sol` (not unsupported shorthand `/sol`). If old database rows are suspect, retain the database for audit and request a new verified snapshot rather than changing historical prices by hand. Testing: `python -m unittest discover -s tests -v`.
