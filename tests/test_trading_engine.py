@@ -112,6 +112,18 @@ class EngineTests(unittest.TestCase):
         self.assertEqual(res["reason"],"risk_or_manual_kill")
         self.assertTrue(t.status()["halted"])
 
+    def test_performance_reports_closed_trades_only(self):
+        s=self.trader.stats()
+        self.assertEqual(s["closed_trades"],0)
+        self.assertIsNone(s["win_rate"])
+        self.trader.tick(self.sig(),now=self.today)
+        self.assertEqual(self.trader.stats()["open_or_unclosed_entries"],1)
+        self.trader.tick(self.sig("HOLD","107",5),now=self.today+timedelta(minutes=5))
+        s=self.trader.stats()
+        self.assertEqual(s["closed_trades"],1)
+        self.assertEqual(s["wins"],1)
+        self.assertEqual(s["win_rate"],1.0)
+
     def test_db_adapter_reads_saved_signals(self):
         dbpath=str(Path(self.temp.name)/"agent.db")
         with sqlite3.connect(dbpath) as c:

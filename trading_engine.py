@@ -248,6 +248,35 @@ class PaperTrader:
                               (min(max(1,limit),1000),)).fetchall()
             return [dict(r) for r in rows]
 
+    def stats(self):
+        """Realized performance of CLOSED paper trades, not predictive win rate."""
+        with self._connect() as db:
+            rows = db.execute(
+                "SELECT realized_pnl, fee FROM paper_fills WHERE side='SELL' ORDER BY id"
+            ).fetchall()
+            buys = db.execute(
+                "SELECT COUNT(*) FROM paper_fills WHERE side='BUY'"
+            ).fetchone()[0]
+        profits = [D(row["realized_pnl"]) for row in rows]
+        total = sum(profits, D(0))
+        wins = sum(p > 0 for p in profits)
+        losses = sum(p < 0 for p in profits)
+        gross_winners = sum((p for p in profits if p > 0), D(0))
+        gross_losers = -sum((p for p in profits if p < 0), D(0))
+        return {
+            "mode": "PAPER_ONLY",
+            "open_or_unclosed_entries": buys - len(rows),
+            "closed_trades": len(profits),
+            "wins": wins,
+            "losses": losses,
+            "breakeven": len(profits) - wins - losses,
+            "win_rate": float(D(wins) / D(len(profits))) if profits else None,
+            "realized_net_pnl": str(total),
+            "profit_factor": (float(gross_winners / gross_losers)
+                              if gross_losers else None),
+            "warning": "Observed paper fills only; no predictive accuracy or live execution guarantee",
+        }
+
     def _entry_count(self, db, day: str) -> int:
         return db.execute(
             "SELECT COUNT(*) FROM paper_fills WHERE side='BUY' AND substr(at,1,10)=?",

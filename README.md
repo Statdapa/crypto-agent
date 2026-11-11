@@ -227,3 +227,13 @@ python -m unittest discover -s tests -v
 ```
 
 Default limits: BTC/USDT spot only, $1,000 virtual cash, 1% equity at risk per trade, 20% maximum position, 3% stop, 5% take-profit, maximum 3 entries per day, 3% daily equity loss stop, 10% maximum drawdown and 45-minute signal expiry. Fees and slippage are both modeled; no leverage, shorting, real orders or profit guarantee. Stops are evaluated on **ticks supplied to the simulator**, not exchange stop orders. Gaps and missing ticks can cause losses greater than the limits. Live execution should not be connected until exchange-specific filters, idempotent placement, reconciliation, manual risk review and walk-forward validation are implemented and tested.
+
+### Paper monitoring and accounting
+
+```bash
+python paper_trade.py watch --poll-seconds 60
+python paper_trade.py watch --poll-seconds 10 --max-cycles 2
+python paper_trade.py stats
+```
+
+The watch process polls only the already saved agent snapshot; it neither calls private exchange endpoints nor places exchange orders. Only a new, recent, timezone-aware snapshot can cause a paper fill. Metrics include **closed-paper-trade win rate** (not the trading strategy's real out-of-sample win rate). Stopping the watch process does not place exchange-side stops; no real order protections exist.
