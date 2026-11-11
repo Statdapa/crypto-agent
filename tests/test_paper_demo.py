@@ -38,7 +38,8 @@ class DemoTests(unittest.TestCase):
             first=cycle(self.engine,self.source,"BTC/USDT",lambda _:self.q())
             self.assertEqual(first["signal_action"],"BUY")
             self.assertEqual(self.engine.status()["fill_count"],1)
-            second=cycle(self.engine,self.source,"BTC/USDT",lambda _:self.q("107",2))
+            second=cycle(self.engine,self.source,"BTC/USDT",
+                         lambda _: (D("107"),datetime.now(timezone.utc)))
         self.assertEqual(second["mark_action"],"SELL")
         self.assertEqual(second["mark_reason"],"take_profit_triggered")
         self.assertEqual(second["signal_action"],"DUPLICATE")
