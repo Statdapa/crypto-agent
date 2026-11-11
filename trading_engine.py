@@ -178,6 +178,11 @@ class PaperTrader:
                     signal_key TEXT PRIMARY KEY, at TEXT NOT NULL, action TEXT NOT NULL,
                     reason TEXT NOT NULL
                 );
+                CREATE TABLE IF NOT EXISTS paper_notifications (
+                    fill_id INTEGER PRIMARY KEY,
+                    delivered_at TEXT NOT NULL,
+                    FOREIGN KEY(fill_id) REFERENCES paper_fills(id)
+                );
                 CREATE TABLE IF NOT EXISTS paper_settings (
                     id INTEGER PRIMARY KEY CHECK (id=1),
                     symbol TEXT NOT NULL, initial_cash TEXT NOT NULL,
@@ -240,6 +245,16 @@ class PaperTrader:
                 "last_price": account["last_price"],
                 "last_at": account["last_at"],
                 "position": dict(pos) if pos else None,
+                "unrealized_net_pnl_estimate": (
+                    str(
+                        D(pos["qty"]) * (mark * (D(1) - self.limits.slip_rate)
+                        - D(pos["entry_price"]))
+                        - D(pos["entry_fee"])
+                        - D(pos["qty"]) * mark * (D(1) - self.limits.slip_rate)
+                        * self.limits.fee_rate
+                    )
+                    if pos and account["last_price"] is not None else None
+                ),
                 "fill_count": fills,
             }
 
@@ -258,6 +273,91 @@ class PaperTrader:
             rows = db.execute("SELECT * FROM paper_fills ORDER BY id DESC LIMIT ?",
                               (min(max(1,limit),1000),)).fetchall()
             return [dict(r) for r in rows]
+
+    def pending_notifications(self, limit: int = 20):
+        """Oldest paper fills not yet acknowledged by the Telegram notifier."""
+        with self._connect() as db:
+            rows = db.execute(
+                "SELECT f.* FROM paper_fills f "
+                "LEFT JOIN paper_notifications n ON n.fill_id=f.id "
+                "WHERE n.fill_id IS NULL ORDER BY f.id ASC LIMIT ?",
+                (min(max(1, limit), 100),),
+            ).fetchall()
+            return [dict(r) for r in rows]
+
+    def acknowledge_notification(self, fill_id: int):
+        """Only acknowledge after Telegram confirms the message was accepted."""
+        with self._connect() as db:
+            if not db.execute("SELECT 1 FROM paper_fills WHERE id=?", (fill_id,)).fetchone():
+                raise ValueError("Cannot acknowledge unknown paper fill")
+            db.execute(
+                "INSERT OR IGNORE INTO paper_notifications(fill_id,delivered_at) VALUES(?,?)",
+                (fill_id, ts(datetime.now(timezone.utc))),
+            )
+
+    def entry_for_close(self, close_id: int):
+        with self._connect() as db:
+            row = db.execute(
+                "SELECT * FROM paper_fills WHERE side='BUY' AND id<? "
+                "ORDER BY id DESC LIMIT 1", (close_id,),
+            ).fetchone()
+            return dict(row) if row else None
+
+    def observe_price(self, symbol: str, price, observed_at=None):
+        """Update paper mark and evaluate SL/TP using a NEW, verified spot quote.
+
+        Called even when no new strategy signal exists. Never opens a position.
+        """
+        now = utc_time(observed_at or datetime.now(timezone.utc))
+        if symbol.upper() != self.limits.allowed_symbol:
+            return {"action": "REJECT", "reason": "symbol_not_allowed"}
+        price = D(price)
+        if price <= 0:
+            return {"action": "REJECT", "reason": "invalid_price"}
+        if (now-datetime.now(timezone.utc)).total_seconds() > 60:
+            return {"action": "REJECT", "reason": "future_quote"}
+        with self._connect() as db:
+            db.execute("BEGIN IMMEDIATE")
+            acc = db.execute("SELECT * FROM paper_account WHERE id=1").fetchone()
+            if acc["last_at"] and now <= utc_time(acc["last_at"]):
+                return {"action": "SKIP", "reason": "out_of_order_quote"}
+            position = db.execute(
+                "SELECT * FROM paper_position WHERE symbol=?", (symbol.upper(),)
+            ).fetchone()
+            cash = D(acc["cash"])
+            equity = cash + (D(position["qty"])*price if position else D(0))
+            day = now.date().isoformat()
+            start = D(acc["daily_start_equity"])
+            if day != acc["day"]:
+                start = equity
+                db.execute(
+                    "UPDATE paper_account SET day=?,daily_start_equity=? WHERE id=1",
+                    (day,str(start)),
+                )
+            peak = max(D(acc["peak_equity"]), equity)
+            daily_loss = (start-equity)/start if start>0 else D(1)
+            drawdown = (peak-equity)/peak if peak>0 else D(1)
+            halted = bool(acc["halted"]) or (
+                daily_loss >= self.limits.max_daily_loss_fraction or
+                drawdown >= self.limits.max_drawdown_fraction
+            )
+            db.execute(
+                "UPDATE paper_account SET last_price=?,last_at=?,peak_equity=?,halted=? "
+                "WHERE id=1", (str(price),ts(now),str(peak),int(halted)),
+            )
+            if not position:
+                return {"action": "HOLD", "reason": "no_open_position", "halted": halted}
+            if halted:
+                reason = "risk_or_manual_kill"
+            elif price <= D(position["stop_price"]):
+                reason = "stop_triggered"
+            elif price >= D(position["take_price"]):
+                reason = "take_profit_triggered"
+            else:
+                return {"action": "HOLD", "reason": "position_open", "halted": False}
+            quote = MarketSignal(symbol,price,"HOLD",now)
+            action,reason = self._sell(db,quote,position,cash,now,reason)
+            return {"action":action,"reason":reason,"halted":halted}
 
     def stats(self):
         """Realized performance of CLOSED paper trades, not predictive win rate."""
@@ -361,8 +461,15 @@ class PaperTrader:
                           (signal.key,)).fetchone():
                 return {"action": "DUPLICATE", "reason": "signal_already_processed"}
             acc = db.execute("SELECT * FROM paper_account WHERE id=1").fetchone()
-            if acc["last_at"] and signal.observed_at <= utc_time(acc["last_at"]):
-                return {"action": "REJECT", "reason": "out_of_order_snapshot"}
+            last = db.execute(
+                "SELECT signal_key FROM paper_decisions ORDER BY rowid DESC LIMIT 1"
+            ).fetchone()
+            if last:
+                previous = last["signal_key"].split(":", 1)[-1]
+                if signal.observed_at <= utc_time(previous):
+                    return {"action": "REJECT", "reason": "out_of_order_snapshot"}
+            if acc["last_at"] and now < utc_time(acc["last_at"]):
+                return {"action": "REJECT", "reason": "out_of_order_clock"}
             cash = D(acc["cash"])
             position = db.execute("SELECT * FROM paper_position WHERE symbol=?",
                                   (signal.symbol,)).fetchone()
