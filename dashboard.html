@@ -317,16 +317,16 @@ tr:last-child td{border-bottom:none}
 
     <!-- Wallets -->
     <div class="card">
-      <div class="ch"><span class="ct">Monitored Wallets</span><span class="cs">2 active</span></div>
-      <div class="wr" onclick="showToast('Etherscan: 0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045')">
+      <div class="ch"><span class="ct">Monitored Wallets</span><span class="cs">Not verified</span></div>
+      <div class="wr" >
         <div class="wdot"></div><span class="cpill">ETH</span>
-        <div><div class="waddr">0xd8dA...6045</div><div class="wlbl">Ethereum Mainnet</div></div>
-        <div class="wbal"><div class="weth">4.21 ETH</div><div class="wusd" id="eth-wal-usd">$—</div></div>
+        <div><div class="waddr">Not connected</div><div class="wlbl">Ethereum Mainnet</div></div>
+        <div class="wbal"><div class="weth">— ETH</div><div class="wusd" id="eth-wal-usd">$—</div></div>
       </div>
-      <div class="wr" onclick="showToast('OKX DEX wallet — connect backend for live balance')">
+      <div class="wr" >
         <div class="wdot"></div><span class="cpill">OKX</span>
-        <div><div class="waddr">0x9Fa2...3a1F</div><div class="wlbl">OKX DEX / Solana</div></div>
-        <div class="wbal"><div class="weth">12,867 USDT</div><div class="wusd">$12,867</div></div>
+        <div><div class="waddr">Not connected</div><div class="wlbl">OKX DEX / Solana</div></div>
+        <div class="wbal"><div class="weth">— USDT</div><div class="wusd">$—</div></div>
       </div>
       <button class="btn" onclick="navigate('portfolio')"><i class="ti ti-wallet"></i>View full portfolio</button>
     </div>
@@ -334,7 +334,7 @@ tr:last-child td{border-bottom:none}
 
   <!-- Signals -->
   <div class="card">
-    <div class="ch"><span class="ct">AI Signals</span><span class="cs" id="sig-time">live</span></div>
+    <div class="ch"><span class="ct">AI Signals</span><span class="cs" id="sig-time">No verified signals</span></div>
     <div class="sig-tabs">
       <button class="sig-tab active" onclick="filterSigs(this,'all')">All</button>
       <button class="sig-tab" onclick="filterSigs(this,'buy')">Buy</button>
@@ -382,10 +382,10 @@ tr:last-child td{border-bottom:none}
 <!-- ══ PORTFOLIO ══ -->
 <div class="page" id="page-portfolio">
   <div class="metrics">
-    <div class="metric m-green"><div class="ml">Total Value</div><div class="mv">$24,830</div><div class="ms up">+$312 today</div></div>
+    <div class="metric m-green"><div class="ml">Total Value</div><div class="mv">$—</div><div class="ms up">Unverified</div></div>
     <div class="metric m-blue"><div class="ml">ETH Wallet</div><div class="mv" id="port-eth">$—</div><div class="ms neu">4.21 ETH</div></div>
-    <div class="metric m-amber"><div class="ml">OKX Balance</div><div class="mv">$12,867</div><div class="ms neu">USDT</div></div>
-    <div class="metric m-purple"><div class="ml">PnL (30d)</div><div class="mv up">+8.2%</div><div class="ms up">+$1,882</div></div>
+    <div class="metric m-amber"><div class="ml">OKX Balance</div><div class="mv" id="port-okx">$—</div><div class="ms neu">USDT</div></div>
+    <div class="metric m-purple"><div class="ml">PnL (30d)</div><div class="mv up">—</div><div class="ms up">Unverified</div></div>
   </div>
   <div class="card">
     <div class="ch"><span class="ct">Holdings</span><span class="cs">live prices</span></div>
@@ -399,12 +399,7 @@ tr:last-child td{border-bottom:none}
   <div class="card">
     <div class="ch"><span class="ct">Recent Transactions</span><span class="cs">Etherscan + OKX</span></div>
     <table><thead><tr><th>Time</th><th>Type</th><th>Asset</th><th>Amount (ETH)</th><th>Value (USD)</th><th>Status</th><th>Tx Hash</th></tr></thead>
-    <tbody>
-      <tr><td>14 May 00:12</td><td><span class="sev c" style="font-size:10px">OUT</span></td><td>ETH</td><td style="text-align:right;color:var(--red)">-8.2400</td><td style="text-align:right">$23,412</td><td style="text-align:right"><span class="up">Confirmed</span></td><td style="text-align:right;font-family:var(--mono);font-size:10px;color:var(--text-muted)">0xabc...def</td></tr>
-      <tr><td>13 May 23:48</td><td><span class="sev m" style="font-size:10px">IN</span></td><td>ETH</td><td style="text-align:right;color:var(--green)">+3.1000</td><td style="text-align:right">$8,804</td><td style="text-align:right"><span class="up">Confirmed</span></td><td style="text-align:right;font-family:var(--mono);font-size:10px;color:var(--text-muted)">0x123...456</td></tr>
-      <tr><td>13 May 22:30</td><td><span class="sev m" style="font-size:10px">OUT</span></td><td>ETH</td><td style="text-align:right;color:var(--red)">-0.0500</td><td style="text-align:right">$142</td><td style="text-align:right"><span class="up">Confirmed</span></td><td style="text-align:right;font-family:var(--mono);font-size:10px;color:var(--text-muted)">0x789...abc</td></tr>
-      <tr><td>12 May 18:00</td><td><span class="sev m" style="font-size:10px">IN</span></td><td>USDT</td><td style="text-align:right;color:var(--green)">+5,000</td><td style="text-align:right">$5,000</td><td style="text-align:right"><span class="up">Confirmed</span></td><td style="text-align:right;font-family:var(--mono);font-size:10px;color:var(--text-muted)">0xfed...321</td></tr>
-    </tbody></table>
+    <tbody id="transactions-tbody"><tr><td colspan="7">No verified transactions loaded.</td></tr></tbody></table>
   </div>
 </div>
 
@@ -427,7 +422,7 @@ tr:last-child td{border-bottom:none}
 <!-- ══ AI AGENT ══ -->
 <div class="page" id="page-agent">
   <div class="card">
-    <div class="ch"><span class="ct">AI Agent — FinSight</span><span class="cs">Groq / Llama 3.1</span></div>
+    <div class="ch"><span class="ct">AI Agent — FinSight</span><span class="cs">Read-only helper (LLM not connected)</span></div>
     <div id="chat-log" style="display:flex;flex-direction:column;gap:10px;margin-bottom:1rem;min-height:200px;max-height:400px;overflow-y:auto;padding-right:4px"></div>
     <div style="display:flex;gap:8px">
       <input id="chat-input" type="text" placeholder="Ask: Is my wallet safe? BTC signal? ETH price? Show alerts..." style="flex:1;background:var(--bg-surface);border:.5px solid var(--border-med);border-radius:var(--r);padding:9px 12px;color:var(--text-primary);font-size:13px;font-family:var(--font);outline:none;transition:border-color .15s" onkeydown="if(event.key==='Enter')sendChat()"/>
@@ -446,13 +441,13 @@ tr:last-child td{border-bottom:none}
 <!-- ══ REPORTS ══ -->
 <div class="page" id="page-reports">
   <div class="card"><div class="ch"><span class="ct">Reports</span></div>
-    <p style="font-size:12px;color:var(--text-secondary);line-height:1.8">Weekly auto-reports are generated every Monday 08:00 WIB and delivered via Telegram. Reports include: 7-day PnL summary, top anomalies detected, signal performance, and portfolio movement.<br><br>Connect Flask backend to enable PDF export and historical archive.</p>
+    <p style="font-size:12px;color:var(--text-secondary);line-height:1.8">Weekly summaries require saved market snapshots; Telegram scheduling depends on a separately running agent. Trading PnL requires a real trade ledger.<br><br>PDF export has not been implemented.</p>
   </div>
 </div>
 
 <!-- ══ SETTINGS ══ -->
 <div class="page" id="page-settings">
-  <div class="card"><div class="ch"><span class="ct">Settings</span></div>
+  <div class="card"><div class="ch"><span class="ct">Settings</span><button class="btn" onclick="configureAccess()">Set access token</button></div>
     <p style="font-size:12px;color:var(--text-secondary);line-height:1.8">All credentials and thresholds are managed via your <span style="font-family:var(--mono);color:var(--blue)">.env</span> file:<br><br>
     <span style="font-family:var(--mono);font-size:11px;color:var(--text-secondary)">GROQ_API_KEY=<br>OKX_API_KEY=<br>OKX_SECRET_KEY=<br>OKX_PASSPHRASE=<br>ETHERSCAN_API_KEY=<br>TELEGRAM_BOT_TOKEN=<br>TELEGRAM_CHAT_ID=</span><br><br>Connect Flask backend to enable live configuration from this UI.</p>
   </div>
@@ -466,21 +461,21 @@ tr:last-child td{border-bottom:none}
 <script>
 // ── Data ──
 const SIGNALS=[
-  {id:'bitcoin',     sym:'BTC', name:'Bitcoin',   badge:'hold',rsi:58,rsiClr:'var(--blue)'},
-  {id:'ethereum',    sym:'ETH', name:'Ethereum',  badge:'buy', rsi:38,rsiClr:'var(--green)'},
-  {id:'solana',      sym:'SOL', name:'Solana',    badge:'buy', rsi:33,rsiClr:'var(--green)'},
-  {id:'binancecoin', sym:'BNB', name:'BNB',       badge:'hold',rsi:52,rsiClr:'var(--blue)'},
-  {id:'dogecoin',    sym:'DOGE',name:'Dogecoin',  badge:'sell',rsi:74,rsiClr:'var(--red)'},
-  {id:'avalanche-2', sym:'AVAX',name:'Avalanche', badge:'buy', rsi:29,rsiClr:'var(--green)'},
-  {id:'ripple',      sym:'XRP', name:'XRP',       badge:'buy', rsi:41,rsiClr:'var(--green)'},
-  {id:'cardano',     sym:'ADA', name:'Cardano',   badge:'hold',rsi:55,rsiClr:'var(--blue)'},
-  {id:'polkadot',    sym:'DOT', name:'Polkadot',  badge:'buy', rsi:35,rsiClr:'var(--green)'},
+  {id:'bitcoin',sym:'BTC',name:'Bitcoin',badge:'unavailable',rsi:null,rsiClr:'var(--blue)'},
+  {id:'ethereum',sym:'ETH',name:'Ethereum',badge:'unavailable',rsi:null,rsiClr:'var(--blue)'},
+  {id:'solana',sym:'SOL',name:'Solana',badge:'unavailable',rsi:null,rsiClr:'var(--blue)'},
+  {id:'binancecoin',sym:'BNB',name:'BNB',badge:'unavailable',rsi:null,rsiClr:'var(--blue)'},
+  {id:'dogecoin',sym:'DOGE',name:'Dogecoin',badge:'unavailable',rsi:null,rsiClr:'var(--blue)'},
+  {id:'avalanche-2',sym:'AVAX',name:'Avalanche',badge:'unavailable',rsi:null,rsiClr:'var(--blue)'},
+  {id:'ripple',sym:'XRP',name:'XRP',badge:'unavailable',rsi:null,rsiClr:'var(--blue)'},
+  {id:'cardano',sym:'ADA',name:'Cardano',badge:'unavailable',rsi:null,rsiClr:'var(--blue)'},
+  {id:'polkadot',sym:'DOT',name:'Polkadot',badge:'unavailable',rsi:null,rsiClr:'var(--blue)'},
 ];
 
 const PORTFOLIO=[
-  {sym:'ETH', name:'Ethereum',amount:4.21, id:'ethereum',   avgBuy:2400},
-  {sym:'USDT',name:'Tether',  amount:12867,id:null,         price:1,chg:0},
-  {sym:'BNB', name:'BNB',     amount:1.5,  id:'binancecoin',avgBuy:550},
+
+
+
 ];
 
 let prices={}, priceChart=null, selSig=null, sigFilter='all', mktData=[], mktFilter='all', chartDays=1, chartType='line';
@@ -493,6 +488,7 @@ function navigate(p){
   document.getElementById('page-title').textContent=T[p]||p;
   if(p==='market') fetchMarket();
   if(p==='portfolio') fetchPortfolio();
+  if(p==='transactions') loadTransactions();
 }
 document.querySelectorAll('.nav-item[data-page]').forEach(el=>el.addEventListener('click',()=>navigate(el.dataset.page)));
 
@@ -500,7 +496,7 @@ document.querySelectorAll('.nav-item[data-page]').forEach(el=>el.addEventListene
 function tick(){
   const n=new Date(),pad=x=>String(x).padStart(2,'0');
   document.getElementById('clock').innerHTML=`<i class="ti ti-clock" style="font-size:12px"></i>${pad(n.getHours())}:${pad(n.getMinutes())}:${pad(n.getSeconds())}`;
-  const se=document.getElementById('sig-time');if(se)se.textContent=`updated ${pad(n.getHours())}:${pad(n.getMinutes())}`;
+  // Signal timestamps are displayed only when backed by recorded data.
 }
 setInterval(tick,1000);tick();
 
@@ -509,12 +505,2063 @@ function showToast(m){const t=document.getElementById('toast');t.textContent=m;t
 
 // ── Alerts ──
 // Alerts are loaded only from the backend. No frontend demo alerts are rendered or counted.
-const ALERT_ENDPOINTS=['/api/alerts','/api/anomaly-log','/api/anomalies'];
+const ALERT_ENDPOINTS=['/api/scan/history'];
 let alertsData=[];
 let alertsSource='loading';
 
 function esc(v){
   return String(v ?? '').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+}
+
+let dashboardToken='';
+function authHeaders(){return dashboardToken?{'X-Dashboard-Token':dashboardToken}:{};}
+function configureAccess(){
+  dashboardToken=prompt('Enter DASHBOARD_TOKEN from server .env (not a public API key):') || '';
+  if(!dashboardToken){showToast('Private API is unavailable until authenticated');return;}
+  loadSignals();loadAlerts();loadWallets();loadTransactions();
+}
+async function loadSignals(){
+  try{
+    const data=await fetchJson('/api/signals'),rows=Array.isArray(data.signals)?data.signals:[];
+    const byCoin=Object.fromEntries(rows.map(x=>[String(x.coin).toUpperCase(),x]));
+    for(const s of SIGNALS){
+      const x=byCoin[s.sym];
+      s.badge=['BUY','SELL','HOLD'].includes(x?.signal)?x.signal.toLowerCase():'unavailable';
+      s.rsi=x?.rsi!=null && Number.isFinite(Number(x.rsi))?Number(x.rsi):null;
+      s.rsiClr=s.rsi!=null&&s.rsi<30?'var(--green)':s.rsi!=null&&s.rsi>70?'var(--red)':'var(--blue)';
+    }
+    const dates=rows.map(x=>x.updated_at).filter(Boolean).sort();
+    document.getElementById('sig-time').textContent=dates.length?'Recorded '+dates[dates.length-1]:'No recorded signals';
+  }catch(e){document.getElementById('sig-time').textContent='Signals unavailable';}
+  renderSignals();
+}
+async function loadWallets(){
+  try{
+    const eth=await fetchJson('/api/wallet/balance');
+    if(eth.address){
+      const val=Number(eth.balance_usd);
+      document.getElementById('eth-wal-usd').textContent=Number.isFinite(val)?'v){
+  return String(v||'ANOMALY').replace(/_/g,' ').replace(/\w\S*/g,t=>t[0].toUpperCase()+t.slice(1).toLowerCase());
+}
+
+function normalizeSeverity(v){
+  const s=String(v||'MEDIUM').toUpperCase();
+  if(['CRITICAL','CRIT','C'].includes(s)) return {severity:'CRITICAL',lvl:'c'};
+  if(['HIGH','H'].includes(s)) return {severity:'HIGH',lvl:'h'};
+  return {severity:s==='LOW'?'LOW':'MEDIUM',lvl:'m'};
+}
+
+function alertIcon(type,lvl){
+  const t=String(type||'').toUpperCase();
+  if(t.includes('RAPID')||lvl==='c') return 'ti-alert-triangle';
+  if(t.includes('TRANSFER')) return 'ti-trending-down';
+  if(t.includes('FREQUENCY')) return 'ti-activity';
+  if(t.includes('DUST')) return 'ti-sparkles';
+  return 'ti-bell';
+}
+
+function parseAlertDate(v){
+  if(!v) return null;
+  const d=new Date(v);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+function formatAlertTime(v, fallback='—'){
+  const d=parseAlertDate(v);
+  if(!d) return fallback || '—';
+  const now=new Date();
+  const sameDay=d.toDateString()===now.toDateString();
+  return sameDay
+    ? d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})
+    : d.toLocaleDateString([],{day:'2-digit',month:'short'})+' '+d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+}
+
+function inferActiveWindowHours(type){
+  const t=String(type||'').toUpperCase();
+  if(t.includes('RAPID_DRAIN')) return 6;
+  if(t.includes('FREQUENCY')) return 2;
+  if(t.includes('DUST')) return 24;
+  if(t.includes('LARGE_TRANSFER')) return 24;
+  if(t.includes('NEW_ADDRESS')) return 24;
+  return 24;
+}
+
+function inferAlertStatus(raw,type,timestamp){
+  const explicit=String(raw.status||raw.state||'').toLowerCase();
+  if(raw.resolved_at || raw.closed_at || ['resolved','closed','dismissed','inactive','historical'].includes(explicit)) return 'resolved';
+  if(['active','open','new','unresolved'].includes(explicit)) return 'active';
+  const d=parseAlertDate(timestamp);
+  if(!d) return 'active';
+
+  const ageHours=(Date.now()-d.getTime())/36e5;
+  return ageHours <= inferActiveWindowHours(type) ? 'active' : 'resolved';
+}
+
+function normalizeDetail(raw,type,severity,status,timestamp){
+  const src=raw.detail || raw.details || raw.metadata || {};
+  const detail=(src && typeof src==='object' && !Array.isArray(src)) ? {...src} : {};
+  if(type && !detail['Alert type']) detail['Alert type']=type;
+  if(raw.wallet || raw.address || raw.wallet_address) detail['Wallet']=raw.wallet || raw.address || raw.wallet_address;
+  if(raw.tx_hash || raw.transaction_hash) detail['Tx hash']=raw.tx_hash || raw.transaction_hash;
+  if(raw.value || raw.amount || raw.amount_eth) detail['Value']=raw.value || raw.amount || raw.amount_eth;
+  if(raw.threshold) detail['Threshold']=raw.threshold;
+  if(timestamp) detail['Detected at']=formatAlertTime(timestamp);
+  detail['Severity']=severity;
+  detail['Status']=status==='active'?'ACTIVE':'RESOLVED / HISTORICAL';
+  return detail;
+}
+
+function normalizeAlert(raw={},idx=0,source='backend'){
+  const sev=normalizeSeverity(raw.severity || raw.level || raw.lvl || raw.priority || raw.alert_severity);
+  const type=raw.alert_type || raw.type || raw.category || raw.kind || 'ANOMALY';
+  const timestamp=raw.created_at || raw.detected_at || raw.timestamp || raw.time_iso || raw.updated_at || null;
+  const status=inferAlertStatus(raw,type,timestamp);
+  const amount=raw.amount_eth || raw.amount || raw.value || '';
+  const fallbackTitle=`[${sev.severity}] ${humanizeAlertType(type)}${amount ? ' — '+amount : ''}`;
+  const title=raw.title || raw.alert_title || raw.name || fallbackTitle;
+  const desc=raw.description || raw.desc || raw.message || raw.summary || 'No description provided by backend.';
+  return {
+    lvl: raw.lvl || sev.lvl,
+    severity: sev.severity,
+    icon: raw.icon || alertIcon(type,sev.lvl),
+    title,
+    desc,
+    time: raw.time || formatAlertTime(timestamp),
+    status,
+    source,
+    timestamp,
+    detail: normalizeDetail(raw,type,sev.severity,status,timestamp)
+  };
+}
+
+function isActiveAlert(a){
+  return a.status==='active';
+}
+
+function severityCounts(list){
+  return {
+    c:list.filter(a=>a.lvl==='c').length,
+    h:list.filter(a=>a.lvl==='h').length,
+    m:list.filter(a=>a.lvl==='m').length
+  };
+}
+
+function renderSeverityRow(id,list,includeResolved=false){
+  const row=document.getElementById(id); if(!row) return;
+  const c=severityCounts(list);
+  const resolved=includeResolved ? list.filter(a=>!isActiveAlert(a)).length : 0;
+  row.innerHTML=
+    `<span class="sev c">${c.c} Critical</span>`+
+    `<span class="sev h">${c.h} High</span>`+
+    `<span class="sev m">${c.m} Medium</span>`+
+    (includeResolved?`<span class="sev r">${resolved} Resolved/Historical</span>`:'');
+}
+
+function updateAlertSummary(){
+  const active=alertsData.filter(isActiveAlert);
+  const counts=severityCounts(active);
+  const total=active.length;
+  const topTag=document.getElementById('top-alert-tag');
+  if(topTag){
+    topTag.className='tag'+(total>0?' warn':'');
+    topTag.innerHTML=`<i class="ti ti-alert-triangle" style="font-size:12px"></i><span id="top-alert-count">${total} active alert${total===1?'':'s'}</span>`;
+  }
+
+  const navBadge=document.getElementById('nav-alert-badge');
+  if(navBadge){
+    navBadge.textContent=String(total);
+    navBadge.style.display=total>0?'inline-block':'none';
+  }
+
+  const activeCount=document.getElementById('active-alert-count');
+  if(activeCount){
+    activeCount.textContent=String(total);
+    activeCount.style.color=total>0?'var(--red)':'var(--green)';
+  }
+
+  const breakdown=document.getElementById('active-alert-breakdown');
+  if(breakdown){
+    breakdown.className='ms '+(total>0?'down':'up');
+    breakdown.textContent=total>0
+      ? `${counts.c} critical, ${counts.h} high, ${counts.m} medium`
+      : ''; 
+  }
+
+  renderSeverityRow('dash-sev-row',active,false);
+  renderSeverityRow('all-sev-row',alertsData,true);
+}
+
+function renderAlerts(id,opts={}){
+  const c=document.getElementById(id); if(!c) return;
+  const onlyActive=!!opts.onlyActive;
+  const list=onlyActive ? alertsData.filter(isActiveAlert) : alertsData;
+  c.innerHTML='';
+
+  if(list.length===0){
+    const msg=onlyActive
+      ? ''
+      : 'No anomaly alerts found in the backend log.';
+    c.innerHTML = msg ? `<div class="empty-alerts">${esc(msg)}</div>` : '';
+    return;
+  }
+
+  list.forEach((a,i)=>{
+    const statusCls=a.status==='active'?'active':'resolved';
+    const statusText=a.status==='active'?'ACTIVE':'RESOLVED';
+    const rows=Object.entries(a.detail||{}).map(([k,v])=>`<div class="adr"><span class="adl">${esc(k)}</span><span class="adv">${esc(v)}</span></div>`).join('');
+    const div=document.createElement('div');
+    div.className=`ar ${a.lvl}`;
+    div.innerHTML=
+      `<div class="ar-main">`+
+        `<div class="ai"><i class="ti ${esc(a.icon)}"></i></div>`+
+        `<div class="ab"><div class="at">${esc(a.title)} <span class="alert-status ${statusCls}">${statusText}</span></div><div class="ad">${esc(a.desc)}</div></div>`+
+        `<div class="atime">${esc(a.time)}</div><i class="ti ti-chevron-down achev" id="chev-${id}-${i}"></i>`+
+      `</div><div class="adet" id="det-${id}-${i}">${rows}</div>`;
+    div.querySelector('.ar-main').addEventListener('click',()=>{
+      document.getElementById(`det-${id}-${i}`).classList.toggle('open');
+      document.getElementById(`chev-${id}-${i}`).classList.toggle('open');
+    });
+    c.appendChild(div);
+  });
+}
+
+function updateAlertViews(){
+  updateAlertSummary();
+  renderAlerts('dash-alerts',{onlyActive:true});
+  renderAlerts('all-alerts',{onlyActive:false});
+}
+
+async function fetchJson(url,opts={}){
+  const ctrl=new AbortController();
+  const timer=setTimeout(()=>ctrl.abort(),6000);
+  try{
+    const r=await fetch(url,{...opts,cache:'no-store',headers:{...authHeaders(),...(opts.headers||{})},signal:ctrl.signal});
+    if(!r.ok) throw new Error(`${url} returned ${r.status}`);
+    return await r.json();
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function extractAlertArray(data){
+  if(Array.isArray(data)) return data;
+  return data?.alerts || data?.data || data?.results || data?.rows || [];
+}
+
+async function loadAlerts(){
+  for(const endpoint of ALERT_ENDPOINTS){
+    try{
+      const data=await fetchJson(endpoint);
+      const rows=extractAlertArray(data);
+      if(!Array.isArray(rows)) throw new Error('alert payload is not an array');
+      alertsData=rows.map((a,i)=>normalizeAlert(a,i,'backend'));
+      alertsSource=endpoint;
+      updateAlertViews();
+      return;
+    } catch(e) {
+      console.warn('Alert endpoint failed:', endpoint, e);
+    }
+  }
+
+  // No backend endpoint found. Do not show demo/fake alerts.
+  alertsData=[];
+  alertsSource='unavailable';
+  updateAlertViews();
+}
+
+function alertSummaryText(onlyActive=false){
+  const list=onlyActive ? alertsData.filter(isActiveAlert) : alertsData;
+  if(list.length===0) return onlyActive ? 'No active anomaly alerts.' : 'No anomaly alerts found.';
+  return list.map(a=>`${a.status==='active'?'[ACTIVE]':'[RESOLVED]'} ${a.title} (${a.time})`).join('\n');
+}
+
+// ── Signals ──
+function filterSigs(btn,f){
+  document.querySelectorAll('.sig-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');sigFilter=f;renderSignals();
+}
+
+function renderSignals(){
+  const g=document.getElementById('signal-grid');if(!g)return;g.innerHTML='';
+  const filtered=sigFilter==='all'?SIGNALS:SIGNALS.filter(s=>s.badge===sigFilter);
+  if(filtered.length===0){g.innerHTML=`<div style="grid-column:1/-1;text-align:center;color:var(--text-muted);font-size:12px;padding:1.5rem">No signals for filter: ${sigFilter}</div>`;return;}
+  filtered.forEach((s,i)=>{
+    const gi=SIGNALS.indexOf(s);
+    const p=prices[s.id];const pstr=p?'$'+p.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:p>10?2:4}):'...';
+    const chg=s.change24h!=null?(s.change24h>=0?`<span class="up">+${s.change24h.toFixed(2)}%</span>`:`<span class="down">${s.change24h.toFixed(2)}%</span>`):'';
+    const div=document.createElement('div');div.className='sc'+(selSig===gi?' sel':'');
+    div.innerHTML=`<div class="sc-coin">${s.sym}</div><div class="sc-price">${pstr}</div><div class="sc-chg">${chg}</div><div class="sc-row"><span class="badge ${s.badge}">${s.badge.toUpperCase()}</span><span class="rsi-lbl">RSI ${s.rsi??"—"}</span></div><div class="rsi-bar"><div class="rsi-fill" style="width:${s.rsi??0}%;background:${s.rsiClr}"></div></div>`;
+    div.addEventListener('click',()=>toggleSigDet(gi));
+    g.appendChild(div);
+  });
+}
+
+function toggleSigDet(i){
+  const det=document.getElementById('signal-detail');const s=SIGNALS[i];
+  if(selSig===i){selSig=null;det.classList.remove('open');renderSignals();return;}
+  selSig=i;
+  const p=prices[s.id]||0;
+  const pstr=p?'$'+p.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:p>10?2:4}):'...';
+  const chg=s.change24h!=null?(s.change24h>=0?`<span class="up">+${s.change24h.toFixed(2)}%</span>`:`<span class="down">${s.change24h.toFixed(2)}%</span>`):'—';
+  const rsiClrVal=s.rsi==null?'var(--text-muted)':s.rsi>70?'var(--red)':s.rsi<30?'var(--green)':'var(--text-primary)';
+  const rsiDesc=s.rsi==null?'No verified RSI snapshot available':s.rsi>70?'Overbought; confirmation required':s.rsi<30?'Oversold; confirmation required':'Neutral reading; not a validated forecast';
+  const signalDesc={buy:'Rule-based bullish indication, not a validated forecast.',sell:'Rule-based bearish indication, not a validated forecast.',hold:'Rule-based neutral indication, not a validated forecast.',unavailable:'No saved signal available.'};
+  det.innerHTML=`
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.75rem">
+      <div><div style="font-size:11px;color:var(--text-muted);margin-bottom:2px">${s.name}</div><div style="font-size:18px;font-weight:600">${s.sym} / USDT</div></div>
+      <div style="text-align:right"><div style="font-size:24px;font-weight:600;letter-spacing:-.5px">${pstr}</div><div style="font-size:12px;margin-top:2px">${chg} 24h</div></div>
+    </div>
+    <div class="sig-det-stats">
+      <div class="sds"><div class="sds-l">Signal</div><div class="sds-v"><span class="badge ${s.badge}" style="font-size:12px">${s.badge.toUpperCase()}</span></div></div>
+      <div class="sds"><div class="sds-l">RSI (14)</div><div class="sds-v" style="color:${rsiClrVal}">${s.rsi}</div></div>
+      <div class="sds"><div class="sds-l">24h Change</div><div class="sds-v">${chg}</div></div>
+      <div class="sds"><div class="sds-l">Confidence</div><div class="sds-v">${'Not calibrated'}</div></div>
+    </div>
+    <div style="margin-top:12px;padding:10px 12px;background:var(--bg-card);border-radius:var(--r);font-size:11px;color:var(--text-secondary);line-height:1.7">
+      <span style="color:var(--text-muted);font-size:10px;text-transform:uppercase;letter-spacing:.05em">RSI Analysis</span><br>${rsiDesc}<br><br>
+      <span style="color:var(--text-muted);font-size:10px;text-transform:uppercase;letter-spacing:.05em">Signal Rationale</span><br>${signalDesc[s.badge]}
+    </div>
+    <button class="btn" style="margin-top:8px" onclick="loadChartForCoin('${s.id}')"><i class="ti ti-chart-line"></i>View ${s.sym} chart</button>`;
+  det.classList.add('open');renderSignals();
+}
+
+// ── Chart ──
+function setInterval_(btn,days){
+  document.querySelectorAll('.interval-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');chartDays=days;loadChart();
+}
+function setChartType(btn,type){
+  document.querySelectorAll('.chart-type-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');chartType=type;loadChart();
+}
+function loadChartForCoin(coinId){
+  // 1. Pindah ke dashboard dulu
+  navigate('dashboard');
+  // 2. Tunggu DOM ready, baru set coin dan load
+  setTimeout(()=>{
+    const sel=document.getElementById('chart-coin');
+    if(!sel) return;
+    // Cek apakah coinId ada di options, kalau tidak tambahkan
+    const exists=Array.from(sel.options).some(o=>o.value===coinId);
+    if(!exists){
+      const opt=document.createElement('option');
+      opt.value=coinId;
+      opt.text=coinId.toUpperCase().replace(/-/g,' ');
+      sel.appendChild(opt);
+    }
+    sel.value=coinId;
+    chartDays=1;
+    document.querySelectorAll('.interval-btn').forEach(b=>b.classList.remove('active'));
+    const d1=document.querySelector('.interval-btn[data-days="1"]');
+    if(d1) d1.classList.add('active');
+    loadChart();
+  },200);
+}
+
+function loadChart(){
+  const coin=document.getElementById('chart-coin').value;
+  const days=chartDays;
+  const interval=days<=1?'hourly':days<=30?'daily':'daily';
+  document.getElementById('chart-src').textContent='Loading...';
+  fetch(`/api/chart?coin=${coin}&days=${days}`)
+    .then(r=>r.json()).then(data=>{
+      const raw=data.prices;
+      const labels=raw.map(p=>{
+        const d=new Date(p[0]);
+        if(days<=1) return d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+        if(days<=30) return `${d.getDate()} ${d.toLocaleString('en',{month:'short'})}`;
+        return `${d.toLocaleString('en',{month:'short'})} '${String(d.getFullYear()).slice(2)}`;
+      });
+      const vals=raw.map(p=>p[1]);
+      const minV=Math.min(...vals),maxV=Math.max(...vals);
+      const isUp=vals[vals.length-1]>=vals[0];
+      const clr=isUp?'#3ecf8e':'#f25f5c';
+      const bgClr=isUp?'rgba(62,207,142,0.07)':'rgba(242,95,92,0.07)';
+
+      // Stats bar
+      const change=((vals[vals.length-1]-vals[0])/vals[0]*100).toFixed(2);
+      const sym=document.getElementById('chart-coin').options[document.getElementById('chart-coin').selectedIndex].text;
+      document.getElementById('chart-src').textContent=`CoinGecko — live`;
+      document.getElementById('chart-stats').innerHTML=`<span>Open: $${vals[0].toLocaleString(undefined,{maximumFractionDigits:2})}</span><span>High: $${maxV.toLocaleString(undefined,{maximumFractionDigits:2})}</span><span>Low: $${minV.toLocaleString(undefined,{maximumFractionDigits:2})}</span><span>Close: $${vals[vals.length-1].toLocaleString(undefined,{maximumFractionDigits:2})}</span><span class="${isUp?'up':'down'}">${isUp?'+':''}${change}%</span>`;
+
+      if(priceChart) priceChart.destroy();
+      priceChart=new Chart(document.getElementById('priceChart'),{
+        type:chartType==='bar'?'bar':'line',
+        data:{labels,datasets:[{label:sym+'/USDT',data:vals,
+          borderColor:clr,borderWidth:chartType==='bar'?0:1.5,
+          backgroundColor:chartType==='bar'?clr:bgClr,
+          fill:chartType!=='bar',tension:0.4,pointRadius:0,pointHoverRadius:5,
+          pointHoverBackgroundColor:clr,pointHoverBorderColor:'#fff',pointHoverBorderWidth:2
+        }]},
+        options:{
+          responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+          plugins:{
+            legend:{display:false},
+            tooltip:{
+              backgroundColor:'#1c1f25',borderColor:'rgba(255,255,255,0.1)',borderWidth:1,
+              titleColor:'#8b8fa8',bodyColor:'#f0f0f0',titleFont:{size:10},bodyFont:{size:13,weight:'600'},
+              callbacks:{
+                label:ctx=>'$'+ctx.parsed.y.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}),
+                afterLabel:ctx=>{
+                  if(ctx.dataIndex>0){const chg=((ctx.parsed.y-vals[ctx.dataIndex-1])/vals[ctx.dataIndex-1]*100).toFixed(2);return (chg>=0?'+':'')+chg+'%';}
+                  return '';
+                }
+              }
+            }
+          },
+          scales:{
+            x:{grid:{display:false},border:{display:false},ticks:{font:{size:10},color:'#555a6e',maxRotation:0,maxTicksLimit:8,autoSkip:true}},
+            y:{grid:{color:'rgba(255,255,255,0.04)'},border:{display:false},ticks:{font:{size:10},color:'#555a6e',callback:v=>v>=1000?'$'+(v/1000).toFixed(0)+'k':'$'+v.toFixed(v<1?4:2)}}
+          },
+          onHover:(evt,els)=>{
+            if(els.length){const d=els[0];document.getElementById('chart-price-display').textContent='$'+vals[d.index].toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});}
+          }
+        }
+      });
+    }).catch(()=>{document.getElementById('chart-src').textContent='Rate limit — wait 60s';});
+}
+
+// ── Market ──
+function fetchMarket(){
+  const tbody=document.getElementById('mkt-tbody');if(!tbody)return;
+  tbody.innerHTML=`<tr><td colspan="9" class="lrow"><i class="ti ti-loader spin"></i> Fetching top 20...</td></tr>`;
+  fetch('/api/market')
+    .then(r=>r.json()).then(data=>{
+      mktData=data;renderMarket();
+      document.getElementById('mkt-upd').textContent='updated '+new Date().toLocaleTimeString();
+    }).catch(()=>{tbody.innerHTML=`<tr><td colspan="9" class="lrow" style="color:var(--amber)">CoinGecko rate limit — wait 60s</td></tr>`;});
+}
+
+function renderMarket(){
+  const tbody=document.getElementById('mkt-tbody');if(!tbody)return;
+  let data=mktData;
+  if(mktFilter==='gainers') data=data.filter(c=>c.price_change_percentage_24h>0).sort((a,b)=>b.price_change_percentage_24h-a.price_change_percentage_24h);
+  else if(mktFilter==='losers') data=data.filter(c=>c.price_change_percentage_24h<0).sort((a,b)=>a.price_change_percentage_24h-b.price_change_percentage_24h);
+  else if(mktFilter==='buy') data=data.filter(c=>getSig(c.id)==='buy');
+  const q=document.getElementById('mkt-search')?.value.toLowerCase();
+  if(q) data=data.filter(c=>c.name.toLowerCase().includes(q)||c.symbol.toLowerCase().includes(q));
+  tbody.innerHTML='';
+  data.forEach((c,i)=>{
+    const sig=getSig(c.id);const badge=sig?`<span class="badge ${sig}">${sig.toUpperCase()}</span>`:'<span class="badge" style="background:var(--bg-hover);color:var(--text-muted)">...</span>';
+    const p1h=c.price_change_percentage_1h_in_currency?.toFixed(2);
+    const p24=c.price_change_percentage_24h?.toFixed(2);
+    const p7d=c.price_change_percentage_7d_in_currency?.toFixed(2);
+    const fmtChg=(v)=>v!=null?`<span class="${v>=0?'up':'down'}">${v>=0?'+':''}${v}%</span>`:'—';
+    const mcap=c.market_cap>=1e9?'$'+(c.market_cap/1e9).toFixed(1)+'B':'$'+(c.market_cap/1e6).toFixed(0)+'M';
+    const vol=c.total_volume>=1e9?'$'+(c.total_volume/1e9).toFixed(1)+'B':'$'+(c.total_volume/1e6).toFixed(0)+'M';
+    const tr=document.createElement('tr');tr.className='mkt-row';tr.id=`mrow-${c.id}`;
+    tr.innerHTML=`<td style="color:var(--text-muted)">${i+1}</td><td><div style="display:flex;align-items:center"><div class="coin-logo"><img src="${c.image}" onerror="this.style.display='none'" alt=""/></div><div><div class="coin-nm">${c.name}</div><div class="coin-sy">${c.symbol.toUpperCase()}</div></div></div></td><td>$${c.current_price.toLocaleString()}</td><td>${fmtChg(p1h)}</td><td>${fmtChg(p24)}</td><td>${fmtChg(p7d)}</td><td>${mcap}</td><td>${vol}</td><td id="sig-cell-${c.id}">${badge}</td>`;
+    tr.addEventListener('click',()=>toggleMktDetail(c,tr));
+    tbody.appendChild(tr);
+    // Detail row
+    const dtr=document.createElement('tr');dtr.className='mkt-detail-row';dtr.id=`mdet-${c.id}`;
+    dtr.innerHTML=`<td colspan="9"><div class="mkt-detail-inner">
+      <div class="mkt-detail-grid">
+        <div><div class="mdt">All-time High</div><div class="mdv">$${c.ath?.toLocaleString()}</div><div style="font-size:10px;color:var(--red)">${c.ath_change_percentage?.toFixed(1)}% from ATH</div></div>
+        <div><div class="mdt">All-time Low</div><div class="mdv">$${c.atl?.toLocaleString(undefined,{maximumFractionDigits:4})}</div><div style="font-size:10px;color:var(--green)">+${c.atl_change_percentage?.toFixed(0)}% from ATL</div></div>
+        <div><div class="mdt">Circulating Supply</div><div class="mdv">${c.circulating_supply?.toLocaleString(undefined,{maximumFractionDigits:0})} ${c.symbol?.toUpperCase()}</div></div>
+        <div><div class="mdt">AI Signal</div><div class="mdv" style="margin-top:6px" id="sig-badge-${c.id}"><span style="color:var(--text-muted);font-size:11px">Analyzing...</span></div></div>
+        <div><div class="mdt">Action</div><div class="mdv"><button class="btn" style="margin-top:6px;padding:5px 10px;width:auto" onclick="loadChartForCoin('${c.id}')"><i class="ti ti-chart-line" style="font-size:13px"></i>View Chart</button></div></div>
+      </div>
+      <div id="sig-reason-${c.id}" style="margin-top:12px;padding:10px 12px;background:var(--bg-card);border-radius:var(--r);font-size:11px;color:var(--text-secondary);line-height:1.7;display:none">
+        <span style="font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted)">AI Analysis</span><br>
+        <span id="sig-reason-text-${c.id}"></span>
+      </div>
+    </div></td>`;
+    // Fetch AI signal for this coin
+    fetchAndComputeSignal(c.id, c.price_change_percentage_24h, c.price_change_percentage_7d_in_currency).then(sig=>{
+      const badgeEl=document.getElementById('sig-badge-${c.id}');
+      const reasonEl=document.getElementById('sig-reason-${c.id}');
+      const reasonText=document.getElementById('sig-reason-text-${c.id}');
+      if(badgeEl) badgeEl.innerHTML=`<span class="badge ${sig.badge}">${sig.badge.toUpperCase()}</span>${sig.rsi?` <span style="font-size:10px;color:var(--text-muted)">RSI ${sig.rsi}</span>`:''}`;
+      if(reasonEl && sig.reason){ reasonEl.style.display='block'; reasonText.textContent=sig.reason; }
+      // Also update the table row badge
+      const rowBadgeEl=document.getElementById('sig-cell-${c.id}');
+      if(rowBadgeEl) rowBadgeEl.innerHTML=`<span class="badge ${sig.badge}">${sig.badge.toUpperCase()}</span>`;
+      computedSignals[c.id]=sig;
+    });
+    tbody.appendChild(dtr);
+  });
+}
+
+let openMktRow=null;
+function toggleMktDetail(c,tr){
+  const det=document.getElementById(`mdet-${c.id}`);
+  if(openMktRow&&openMktRow!==c.id){
+    const prev=document.getElementById(`mdet-${openMktRow}`);
+    const prevTr=document.getElementById(`mrow-${openMktRow}`);
+    if(prev) prev.classList.remove('open');
+    if(prevTr) prevTr.classList.remove('expanded');
+  }
+  det.classList.toggle('open');tr.classList.toggle('expanded');
+  openMktRow=det.classList.contains('open')?c.id:null;
+}
+
+function filterMkt(btn,f){
+  document.querySelectorAll('.mkt-filter').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');mktFilter=f;renderMarket();
+}
+function searchMkt(q){renderMarket();}
+
+// Computed signals cache — populated from 14d price history
+const computedSignals = {};
+
+function calcRSI(prices, period=14){
+  if(prices.length < period+1) return null;
+  let gains=0, losses=0;
+  for(let i=prices.length-period; i<prices.length; i++){
+    const diff=prices[i]-prices[i-1];
+    if(diff>0) gains+=diff; else losses+=Math.abs(diff);
+  }
+  if(losses===0) return 100;
+  const rs=gains/losses;
+  return Math.round(100-(100/(1+rs)));
+}
+
+function signalFromRSI(rsi, change24h, change7d){
+  if(rsi===null) return {badge:'hold', rsi:null, reason:'Insufficient data for RSI calculation.'};
+  // Strong buy conditions
+  if(rsi < 30) return {badge:'buy', rsi, reason:`RSI at ${rsi} — extreme oversold territory. Strong historical reversal zone. Gradual accumulation recommended.`};
+  if(rsi < 40 && change7d < -5) return {badge:'buy', rsi, reason:`RSI at ${rsi} with ${change7d?.toFixed(1)}% weekly decline — oversold with downward momentum. Potential recovery entry.`};
+  // Strong sell conditions
+  if(rsi > 75) return {badge:'sell', rsi, reason:`RSI at ${rsi} — extreme overbought territory. High probability of correction. Consider reducing exposure.`};
+  if(rsi > 65 && change24h > 5) return {badge:'sell', rsi, reason:`RSI at ${rsi} with +${change24h?.toFixed(1)}% 24h surge — overbought after pump. Risk of pullback is elevated.`};
+  // Mild buy
+  if(rsi < 45 && change7d < -3) return {badge:'buy', rsi, reason:`RSI at ${rsi} with recent weakness — mild oversold. Could be an accumulation opportunity on dips.`};
+  // Default hold
+  return {badge:'hold', rsi, reason:`RSI at ${rsi} — neutral zone. No strong directional signal. Hold current position and monitor for breakout.`};
+}
+
+async function fetchAndComputeSignal(coinId, change24h, change7d){
+  if(computedSignals[coinId]) return computedSignals[coinId];
+  try {
+    const r = await fetch(`/api/chart?coin=${coinId}&days=14`);
+    const data = await r.json();
+    if(!data.prices) throw new Error('no prices');
+    const closes = data.prices.map(p=>p[1]);
+    const rsi = calcRSI(closes);
+    const sig = signalFromRSI(rsi, change24h, change7d);
+    computedSignals[coinId] = sig;
+    return sig;
+  } catch(e) {
+    // fallback: use price change only
+    let badge='hold', reason='Insufficient data.';
+    if(change7d < -8){ badge='buy'; reason=`Down ${change7d?.toFixed(1)}% in 7 days — potential oversold recovery.`; }
+    else if(change24h > 8){ badge='sell'; reason=`Up +${change24h?.toFixed(1)}% in 24h — short-term overbought signal.`; }
+    const sig={badge, rsi:null, reason};
+    computedSignals[coinId]=sig;
+    return sig;
+  }
+}
+
+function getSig(id){
+  // Return from computedSignals if available, else from static SIGNALS
+  if(computedSignals[id]) return computedSignals[id].badge;
+  const s=SIGNALS.find(x=>x.id===id);
+  return s&&s.badge!=='unavailable'?s.badge:null;
+}
+
+// ── Portfolio ──
+function fetchPortfolio(){
+  if(!PORTFOLIO.length){document.getElementById('port-tbody').innerHTML='<tr><td colspan="7" class="lrow">No verified holdings available. Connect a read-only portfolio source.</td></tr>';return;}
+
+  const tbody=document.getElementById('port-tbody');if(!tbody)return;
+  const ids=PORTFOLIO.filter(p=>p.id).map(p=>p.id).join(',');
+  fetch(`/api/prices?ids=${ids}`)
+    .then(r=>r.json()).then(data=>{
+      tbody.innerHTML='';let total=0;
+      PORTFOLIO.forEach(p=>{
+        const price=p.id?(data[p.id]?.usd||0):p.price;
+        const val=price*p.amount;total+=val;
+        const pnlPct=p.avgBuy?((price-p.avgBuy)/p.avgBuy*100):null;
+        const pnlUsd=p.avgBuy?((price-p.avgBuy)*p.amount):null;
+        const pPct=pnlPct!=null?(pnlPct>=0?'+':'')+pnlPct.toFixed(2)+'%':'—';
+        const pUsd=pnlUsd!=null?'$'+(pnlUsd>=0?'+':'')+pnlUsd.toFixed(0):'—';
+        const cls=pnlPct>=0?'up':'down';
+        const tr=document.createElement('tr');
+        tr.innerHTML=`<td><div class="coin-nm">${p.name}</div><div class="coin-sy">${p.sym}</div></td><td style="text-align:right">${p.amount.toLocaleString()}</td><td style="text-align:right">${p.avgBuy?'$'+p.avgBuy.toLocaleString():'—'}</td><td style="text-align:right">$${price.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:4})}</td><td style="text-align:right">$${val.toLocaleString(undefined,{maximumFractionDigits:0})}</td><td style="text-align:right" class="${cls}">${pPct}</td><td style="text-align:right" class="${cls}">${pUsd}</td>`;
+        tbody.appendChild(tr);
+        if(p.id==='ethereum'){const el=document.getElementById('port-eth');if(el)el.textContent='$'+val.toFixed(0);}
+      });
+    }).catch(()=>{if(tbody)tbody.innerHTML=`<tr><td colspan="7" class="lrow" style="color:var(--amber)">Rate limit — retry in 60s</td></tr>`;});
+}
+
+// ── Scan ──
+function triggerScan(btnId,resId){
+  const btn=document.getElementById(btnId);const res=document.getElementById(resId);
+  btn.classList.add('scanning');btn.innerHTML='<i class="ti ti-loader spin"></i>Scanning...';
+  res.innerHTML='<span class="ok">Connecting to backend...</span><br>';res.classList.add('open');
+  fetch('/api/scan',{method:'POST',headers:{'Content-Type':'application/json',...authHeaders()},body:JSON.stringify({})})
+    .then(r=>r.json()).then(data=>{
+      res.innerHTML='';
+      if(data.error){
+        res.innerHTML+=`<span class="warn">Backend error: ${esc(data.error)}</span><br><span class="warn">No live scan was executed.</span>`;
+        resetScanButton(btn);
+        showToast('Scan failed — backend error');
+        return;
+      }
+      res.innerHTML+=`<span class="ok">Scan complete. ${data.total} alert(s) found.</span><br><br>`;
+      if(data.alerts.length===0){res.innerHTML+='<span class="ok">No anomalies detected by this scan; wallet safety is not guaranteed.</span>';}
+      else{data.alerts.forEach(a=>{const cls=a.severity==='CRITICAL'?'err':a.severity==='HIGH'?'warn':'ok';res.innerHTML+=`<span class="${cls}">[${esc(a.severity)}] ${esc(a.title)}</span><br><span style="color:var(--text-muted);font-size:10px">${esc(a.description)}</span><br><br>`;});}
+      btn.classList.remove('scanning');btn.innerHTML='<i class="ti ti-radar"></i>Run manual scan';
+      showToast(`Scan complete — ${data.total} alert(s) found`);
+      loadAlerts();
+    }).catch(()=>{
+      res.innerHTML+='<span class="warn">Backend not running. No live scan was executed.</span>';
+      resetScanButton(btn);
+      showToast('Scan failed — backend unavailable');
+    });
+}
+function resetScanButton(btn){
+  btn.classList.remove('scanning');
+  btn.innerHTML='<i class="ti ti-radar"></i>Run manual scan';
+}
+
+// ── Prices ──
+async function fetchPrices(){
+  const ids=SIGNALS.map(s=>s.id).join(',');
+  const urls=[
+    `/api/prices?ids=${ids}`,
+    `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`
+  ];
+
+  for(const url of urls){
+    try{
+      const r=await fetch(url,{cache:'no-store'});
+      if(!r.ok) throw new Error(`price fetch failed: ${r.status}`);
+      const data=await r.json();
+      SIGNALS.forEach(s=>{
+        if(data[s.id]){
+          prices[s.id]=data[s.id].usd;
+          s.change24h=data[s.id].usd_24h_change||0;
+        }
+      });
+      updateMetrics();renderSignals();
+      return;
+    }catch(e){
+      console.warn('Price endpoint failed:', url, e);
+    }
+  }
+
+  setMetricOffline('m-btc','m-btc-c');
+  setMetricOffline('m-eth','m-eth-c');
+  renderSignals();
+}
+
+function setMetricOffline(valueId,subId){
+  const v=document.getElementById(valueId); if(v) v.textContent='—';
+  const s=document.getElementById(subId); if(s) s.innerHTML='<span class="warn">API unavailable</span>';
+}
+
+function updateMetrics(){
+  const fmt=(n)=>n?'$'+n.toLocaleString(undefined,{maximumFractionDigits:0}):'...';
+  const chgHtml=(c)=>c==null?'<span class="neu">loading</span>':c>=0?`<span class="up"><i class="ti ti-arrow-up" style="font-size:10px"></i>+${c.toFixed(2)}% (24h)</span>`:`<span class="down"><i class="ti ti-arrow-down" style="font-size:10px"></i>${c.toFixed(2)}% (24h)</span>`;
+  const btcObj=SIGNALS.find(s=>s.id==='bitcoin');const ethObj=SIGNALS.find(s=>s.id==='ethereum');
+  if(btcObj&&prices[btcObj.id]){document.getElementById('m-btc').textContent=fmt(prices[btcObj.id]);document.getElementById('m-btc-c').innerHTML=chgHtml(btcObj.change24h);}
+  if(ethObj&&prices[ethObj.id]){
+    document.getElementById('m-eth').textContent=fmt(prices[ethObj.id]);document.getElementById('m-eth-c').innerHTML=chgHtml(ethObj.change24h);
+  }
+}
+
+async function fetchFG(){
+  const urls=['/api/feargreed','https://api.alternative.me/fng/?limit=1'];
+  for(const url of urls){
+    try{
+      const r=await fetch(url,{cache:'no-store'});
+      if(!r.ok) throw new Error(`feargreed fetch failed: ${r.status}`);
+      const d=await r.json();
+      document.getElementById('m-fg').textContent=d.data[0].value;
+      document.getElementById('m-fg-l').textContent=d.data[0].value_classification;
+      return;
+    }catch(e){
+      console.warn('Fear & Greed endpoint failed:', url, e);
+    }
+  }
+  const fg=document.getElementById('m-fg'); if(fg) fg.textContent='—';
+  const fgl=document.getElementById('m-fg-l'); if(fgl) fgl.textContent='API unavailable';
+}
+
+// ── Chat ──
+// This dashboard currently has no server-side LLM chat endpoint.
+function quickChat(m){document.getElementById('chat-input').value=m;sendChat();}
+function sendChat(){
+  const inp=document.getElementById('chat-input'),msg=inp.value.trim();if(!msg)return;
+  inp.value='';appendChat('user',msg);
+  const q=msg.toLowerCase();
+  const answer=q.includes('alert')||q.includes('safe')
+    ? alertSummaryText(true)+'\nAnomaly alerts do not prove wallet safety.'
+    : q.includes('signal')||q.includes('btc')||q.includes('eth')
+    ? (SIGNALS.filter(s=>s.badge!=='unavailable').map(s=>s.sym+' '+s.badge+' RSI '+(s.rsi??'—')).join('\n') || 'No recorded signals available.')
+    : 'AI chat is not connected to the backend. No fabricated AI answer will be shown.';
+  appendChat('agent',answer);
+}
+function appendChat(role,msg){
+  const log=document.getElementById('chat-log'),div=document.createElement('div');
+  div.style.cssText='display:flex;justify-content:'+(role==='user'?'flex-end':'flex-start');
+  const bubble=document.createElement('div');
+  bubble.style.cssText='max-width:82%;padding:9px 13px;border-radius:12px;background:'+(role==='user'?'var(--blue)':'var(--bg-surface)')+';color:'+(role==='user'?'#fff':'var(--text-primary)')+';font-size:12px;line-height:1.7;white-space:pre-wrap';
+  bubble.textContent=msg;div.appendChild(bubble);log.appendChild(div);log.scrollTop=log.scrollHeight;
+}
+// ── Init ──
+fetchPrices();fetchFG();loadChart();renderSignals();configureAccess();
+setInterval(fetchPrices,60000);setInterval(fetchFG,300000);setInterval(()=>{if(dashboardToken){loadAlerts();loadSignals();loadWallets();}},60000);
+</script>
+</body>
+</html>+val.toLocaleString():'$—';
+      document.getElementById('port-eth').textContent=Number.isFinite(val)?'v){
+  return String(v||'ANOMALY').replace(/_/g,' ').replace(/\w\S*/g,t=>t[0].toUpperCase()+t.slice(1).toLowerCase());
+}
+
+function normalizeSeverity(v){
+  const s=String(v||'MEDIUM').toUpperCase();
+  if(['CRITICAL','CRIT','C'].includes(s)) return {severity:'CRITICAL',lvl:'c'};
+  if(['HIGH','H'].includes(s)) return {severity:'HIGH',lvl:'h'};
+  return {severity:s==='LOW'?'LOW':'MEDIUM',lvl:'m'};
+}
+
+function alertIcon(type,lvl){
+  const t=String(type||'').toUpperCase();
+  if(t.includes('RAPID')||lvl==='c') return 'ti-alert-triangle';
+  if(t.includes('TRANSFER')) return 'ti-trending-down';
+  if(t.includes('FREQUENCY')) return 'ti-activity';
+  if(t.includes('DUST')) return 'ti-sparkles';
+  return 'ti-bell';
+}
+
+function parseAlertDate(v){
+  if(!v) return null;
+  const d=new Date(v);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+function formatAlertTime(v, fallback='—'){
+  const d=parseAlertDate(v);
+  if(!d) return fallback || '—';
+  const now=new Date();
+  const sameDay=d.toDateString()===now.toDateString();
+  return sameDay
+    ? d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})
+    : d.toLocaleDateString([],{day:'2-digit',month:'short'})+' '+d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+}
+
+function inferActiveWindowHours(type){
+  const t=String(type||'').toUpperCase();
+  if(t.includes('RAPID_DRAIN')) return 6;
+  if(t.includes('FREQUENCY')) return 2;
+  if(t.includes('DUST')) return 24;
+  if(t.includes('LARGE_TRANSFER')) return 24;
+  if(t.includes('NEW_ADDRESS')) return 24;
+  return 24;
+}
+
+function inferAlertStatus(raw,type,timestamp){
+  const explicit=String(raw.status||raw.state||'').toLowerCase();
+  if(raw.resolved_at || raw.closed_at || ['resolved','closed','dismissed','inactive','historical'].includes(explicit)) return 'resolved';
+  if(['active','open','new','unresolved'].includes(explicit)) return 'active';
+  const d=parseAlertDate(timestamp);
+  if(!d) return 'active';
+
+  const ageHours=(Date.now()-d.getTime())/36e5;
+  return ageHours <= inferActiveWindowHours(type) ? 'active' : 'resolved';
+}
+
+function normalizeDetail(raw,type,severity,status,timestamp){
+  const src=raw.detail || raw.details || raw.metadata || {};
+  const detail=(src && typeof src==='object' && !Array.isArray(src)) ? {...src} : {};
+  if(type && !detail['Alert type']) detail['Alert type']=type;
+  if(raw.wallet || raw.address || raw.wallet_address) detail['Wallet']=raw.wallet || raw.address || raw.wallet_address;
+  if(raw.tx_hash || raw.transaction_hash) detail['Tx hash']=raw.tx_hash || raw.transaction_hash;
+  if(raw.value || raw.amount || raw.amount_eth) detail['Value']=raw.value || raw.amount || raw.amount_eth;
+  if(raw.threshold) detail['Threshold']=raw.threshold;
+  if(timestamp) detail['Detected at']=formatAlertTime(timestamp);
+  detail['Severity']=severity;
+  detail['Status']=status==='active'?'ACTIVE':'RESOLVED / HISTORICAL';
+  return detail;
+}
+
+function normalizeAlert(raw={},idx=0,source='backend'){
+  const sev=normalizeSeverity(raw.severity || raw.level || raw.lvl || raw.priority || raw.alert_severity);
+  const type=raw.alert_type || raw.type || raw.category || raw.kind || 'ANOMALY';
+  const timestamp=raw.created_at || raw.detected_at || raw.timestamp || raw.time_iso || raw.updated_at || null;
+  const status=inferAlertStatus(raw,type,timestamp);
+  const amount=raw.amount_eth || raw.amount || raw.value || '';
+  const fallbackTitle=`[${sev.severity}] ${humanizeAlertType(type)}${amount ? ' — '+amount : ''}`;
+  const title=raw.title || raw.alert_title || raw.name || fallbackTitle;
+  const desc=raw.description || raw.desc || raw.message || raw.summary || 'No description provided by backend.';
+  return {
+    lvl: raw.lvl || sev.lvl,
+    severity: sev.severity,
+    icon: raw.icon || alertIcon(type,sev.lvl),
+    title,
+    desc,
+    time: raw.time || formatAlertTime(timestamp),
+    status,
+    source,
+    timestamp,
+    detail: normalizeDetail(raw,type,sev.severity,status,timestamp)
+  };
+}
+
+function isActiveAlert(a){
+  return a.status==='active';
+}
+
+function severityCounts(list){
+  return {
+    c:list.filter(a=>a.lvl==='c').length,
+    h:list.filter(a=>a.lvl==='h').length,
+    m:list.filter(a=>a.lvl==='m').length
+  };
+}
+
+function renderSeverityRow(id,list,includeResolved=false){
+  const row=document.getElementById(id); if(!row) return;
+  const c=severityCounts(list);
+  const resolved=includeResolved ? list.filter(a=>!isActiveAlert(a)).length : 0;
+  row.innerHTML=
+    `<span class="sev c">${c.c} Critical</span>`+
+    `<span class="sev h">${c.h} High</span>`+
+    `<span class="sev m">${c.m} Medium</span>`+
+    (includeResolved?`<span class="sev r">${resolved} Resolved/Historical</span>`:'');
+}
+
+function updateAlertSummary(){
+  const active=alertsData.filter(isActiveAlert);
+  const counts=severityCounts(active);
+  const total=active.length;
+  const topTag=document.getElementById('top-alert-tag');
+  if(topTag){
+    topTag.className='tag'+(total>0?' warn':'');
+    topTag.innerHTML=`<i class="ti ti-alert-triangle" style="font-size:12px"></i><span id="top-alert-count">${total} active alert${total===1?'':'s'}</span>`;
+  }
+
+  const navBadge=document.getElementById('nav-alert-badge');
+  if(navBadge){
+    navBadge.textContent=String(total);
+    navBadge.style.display=total>0?'inline-block':'none';
+  }
+
+  const activeCount=document.getElementById('active-alert-count');
+  if(activeCount){
+    activeCount.textContent=String(total);
+    activeCount.style.color=total>0?'var(--red)':'var(--green)';
+  }
+
+  const breakdown=document.getElementById('active-alert-breakdown');
+  if(breakdown){
+    breakdown.className='ms '+(total>0?'down':'up');
+    breakdown.textContent=total>0
+      ? `${counts.c} critical, ${counts.h} high, ${counts.m} medium`
+      : ''; 
+  }
+
+  renderSeverityRow('dash-sev-row',active,false);
+  renderSeverityRow('all-sev-row',alertsData,true);
+}
+
+function renderAlerts(id,opts={}){
+  const c=document.getElementById(id); if(!c) return;
+  const onlyActive=!!opts.onlyActive;
+  const list=onlyActive ? alertsData.filter(isActiveAlert) : alertsData;
+  c.innerHTML='';
+
+  if(list.length===0){
+    const msg=onlyActive
+      ? ''
+      : 'No anomaly alerts found in the backend log.';
+    c.innerHTML = msg ? `<div class="empty-alerts">${esc(msg)}</div>` : '';
+    return;
+  }
+
+  list.forEach((a,i)=>{
+    const statusCls=a.status==='active'?'active':'resolved';
+    const statusText=a.status==='active'?'ACTIVE':'RESOLVED';
+    const rows=Object.entries(a.detail||{}).map(([k,v])=>`<div class="adr"><span class="adl">${esc(k)}</span><span class="adv">${esc(v)}</span></div>`).join('');
+    const div=document.createElement('div');
+    div.className=`ar ${a.lvl}`;
+    div.innerHTML=
+      `<div class="ar-main">`+
+        `<div class="ai"><i class="ti ${esc(a.icon)}"></i></div>`+
+        `<div class="ab"><div class="at">${esc(a.title)} <span class="alert-status ${statusCls}">${statusText}</span></div><div class="ad">${esc(a.desc)}</div></div>`+
+        `<div class="atime">${esc(a.time)}</div><i class="ti ti-chevron-down achev" id="chev-${id}-${i}"></i>`+
+      `</div><div class="adet" id="det-${id}-${i}">${rows}</div>`;
+    div.querySelector('.ar-main').addEventListener('click',()=>{
+      document.getElementById(`det-${id}-${i}`).classList.toggle('open');
+      document.getElementById(`chev-${id}-${i}`).classList.toggle('open');
+    });
+    c.appendChild(div);
+  });
+}
+
+function updateAlertViews(){
+  updateAlertSummary();
+  renderAlerts('dash-alerts',{onlyActive:true});
+  renderAlerts('all-alerts',{onlyActive:false});
+}
+
+async function fetchJson(url,opts={}){
+  const ctrl=new AbortController();
+  const timer=setTimeout(()=>ctrl.abort(),6000);
+  try{
+    const r=await fetch(url,{...opts,cache:'no-store',headers:{...authHeaders(),...(opts.headers||{})},signal:ctrl.signal});
+    if(!r.ok) throw new Error(`${url} returned ${r.status}`);
+    return await r.json();
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function extractAlertArray(data){
+  if(Array.isArray(data)) return data;
+  return data?.alerts || data?.data || data?.results || data?.rows || [];
+}
+
+async function loadAlerts(){
+  for(const endpoint of ALERT_ENDPOINTS){
+    try{
+      const data=await fetchJson(endpoint);
+      const rows=extractAlertArray(data);
+      if(!Array.isArray(rows)) throw new Error('alert payload is not an array');
+      alertsData=rows.map((a,i)=>normalizeAlert(a,i,'backend'));
+      alertsSource=endpoint;
+      updateAlertViews();
+      return;
+    } catch(e) {
+      console.warn('Alert endpoint failed:', endpoint, e);
+    }
+  }
+
+  // No backend endpoint found. Do not show demo/fake alerts.
+  alertsData=[];
+  alertsSource='unavailable';
+  updateAlertViews();
+}
+
+function alertSummaryText(onlyActive=false){
+  const list=onlyActive ? alertsData.filter(isActiveAlert) : alertsData;
+  if(list.length===0) return onlyActive ? 'No active anomaly alerts.' : 'No anomaly alerts found.';
+  return list.map(a=>`${a.status==='active'?'[ACTIVE]':'[RESOLVED]'} ${a.title} (${a.time})`).join('\n');
+}
+
+// ── Signals ──
+function filterSigs(btn,f){
+  document.querySelectorAll('.sig-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');sigFilter=f;renderSignals();
+}
+
+function renderSignals(){
+  const g=document.getElementById('signal-grid');if(!g)return;g.innerHTML='';
+  const filtered=sigFilter==='all'?SIGNALS:SIGNALS.filter(s=>s.badge===sigFilter);
+  if(filtered.length===0){g.innerHTML=`<div style="grid-column:1/-1;text-align:center;color:var(--text-muted);font-size:12px;padding:1.5rem">No signals for filter: ${sigFilter}</div>`;return;}
+  filtered.forEach((s,i)=>{
+    const gi=SIGNALS.indexOf(s);
+    const p=prices[s.id];const pstr=p?'$'+p.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:p>10?2:4}):'...';
+    const chg=s.change24h!=null?(s.change24h>=0?`<span class="up">+${s.change24h.toFixed(2)}%</span>`:`<span class="down">${s.change24h.toFixed(2)}%</span>`):'';
+    const div=document.createElement('div');div.className='sc'+(selSig===gi?' sel':'');
+    div.innerHTML=`<div class="sc-coin">${s.sym}</div><div class="sc-price">${pstr}</div><div class="sc-chg">${chg}</div><div class="sc-row"><span class="badge ${s.badge}">${s.badge.toUpperCase()}</span><span class="rsi-lbl">RSI ${s.rsi??"—"}</span></div><div class="rsi-bar"><div class="rsi-fill" style="width:${s.rsi??0}%;background:${s.rsiClr}"></div></div>`;
+    div.addEventListener('click',()=>toggleSigDet(gi));
+    g.appendChild(div);
+  });
+}
+
+function toggleSigDet(i){
+  const det=document.getElementById('signal-detail');const s=SIGNALS[i];
+  if(selSig===i){selSig=null;det.classList.remove('open');renderSignals();return;}
+  selSig=i;
+  const p=prices[s.id]||0;
+  const pstr=p?'$'+p.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:p>10?2:4}):'...';
+  const chg=s.change24h!=null?(s.change24h>=0?`<span class="up">+${s.change24h.toFixed(2)}%</span>`:`<span class="down">${s.change24h.toFixed(2)}%</span>`):'—';
+  const rsiClrVal=s.rsi==null?'var(--text-muted)':s.rsi>70?'var(--red)':s.rsi<30?'var(--green)':'var(--text-primary)';
+  const rsiDesc=s.rsi==null?'No verified RSI snapshot available':s.rsi>70?'Overbought; confirmation required':s.rsi<30?'Oversold; confirmation required':'Neutral reading; not a validated forecast';
+  const signalDesc={buy:'Rule-based bullish indication, not a validated forecast.',sell:'Rule-based bearish indication, not a validated forecast.',hold:'Rule-based neutral indication, not a validated forecast.',unavailable:'No saved signal available.'};
+  det.innerHTML=`
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.75rem">
+      <div><div style="font-size:11px;color:var(--text-muted);margin-bottom:2px">${s.name}</div><div style="font-size:18px;font-weight:600">${s.sym} / USDT</div></div>
+      <div style="text-align:right"><div style="font-size:24px;font-weight:600;letter-spacing:-.5px">${pstr}</div><div style="font-size:12px;margin-top:2px">${chg} 24h</div></div>
+    </div>
+    <div class="sig-det-stats">
+      <div class="sds"><div class="sds-l">Signal</div><div class="sds-v"><span class="badge ${s.badge}" style="font-size:12px">${s.badge.toUpperCase()}</span></div></div>
+      <div class="sds"><div class="sds-l">RSI (14)</div><div class="sds-v" style="color:${rsiClrVal}">${s.rsi}</div></div>
+      <div class="sds"><div class="sds-l">24h Change</div><div class="sds-v">${chg}</div></div>
+      <div class="sds"><div class="sds-l">Confidence</div><div class="sds-v">${'Not calibrated'}</div></div>
+    </div>
+    <div style="margin-top:12px;padding:10px 12px;background:var(--bg-card);border-radius:var(--r);font-size:11px;color:var(--text-secondary);line-height:1.7">
+      <span style="color:var(--text-muted);font-size:10px;text-transform:uppercase;letter-spacing:.05em">RSI Analysis</span><br>${rsiDesc}<br><br>
+      <span style="color:var(--text-muted);font-size:10px;text-transform:uppercase;letter-spacing:.05em">Signal Rationale</span><br>${signalDesc[s.badge]}
+    </div>
+    <button class="btn" style="margin-top:8px" onclick="loadChartForCoin('${s.id}')"><i class="ti ti-chart-line"></i>View ${s.sym} chart</button>`;
+  det.classList.add('open');renderSignals();
+}
+
+// ── Chart ──
+function setInterval_(btn,days){
+  document.querySelectorAll('.interval-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');chartDays=days;loadChart();
+}
+function setChartType(btn,type){
+  document.querySelectorAll('.chart-type-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');chartType=type;loadChart();
+}
+function loadChartForCoin(coinId){
+  // 1. Pindah ke dashboard dulu
+  navigate('dashboard');
+  // 2. Tunggu DOM ready, baru set coin dan load
+  setTimeout(()=>{
+    const sel=document.getElementById('chart-coin');
+    if(!sel) return;
+    // Cek apakah coinId ada di options, kalau tidak tambahkan
+    const exists=Array.from(sel.options).some(o=>o.value===coinId);
+    if(!exists){
+      const opt=document.createElement('option');
+      opt.value=coinId;
+      opt.text=coinId.toUpperCase().replace(/-/g,' ');
+      sel.appendChild(opt);
+    }
+    sel.value=coinId;
+    chartDays=1;
+    document.querySelectorAll('.interval-btn').forEach(b=>b.classList.remove('active'));
+    const d1=document.querySelector('.interval-btn[data-days="1"]');
+    if(d1) d1.classList.add('active');
+    loadChart();
+  },200);
+}
+
+function loadChart(){
+  const coin=document.getElementById('chart-coin').value;
+  const days=chartDays;
+  const interval=days<=1?'hourly':days<=30?'daily':'daily';
+  document.getElementById('chart-src').textContent='Loading...';
+  fetch(`/api/chart?coin=${coin}&days=${days}`)
+    .then(r=>r.json()).then(data=>{
+      const raw=data.prices;
+      const labels=raw.map(p=>{
+        const d=new Date(p[0]);
+        if(days<=1) return d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+        if(days<=30) return `${d.getDate()} ${d.toLocaleString('en',{month:'short'})}`;
+        return `${d.toLocaleString('en',{month:'short'})} '${String(d.getFullYear()).slice(2)}`;
+      });
+      const vals=raw.map(p=>p[1]);
+      const minV=Math.min(...vals),maxV=Math.max(...vals);
+      const isUp=vals[vals.length-1]>=vals[0];
+      const clr=isUp?'#3ecf8e':'#f25f5c';
+      const bgClr=isUp?'rgba(62,207,142,0.07)':'rgba(242,95,92,0.07)';
+
+      // Stats bar
+      const change=((vals[vals.length-1]-vals[0])/vals[0]*100).toFixed(2);
+      const sym=document.getElementById('chart-coin').options[document.getElementById('chart-coin').selectedIndex].text;
+      document.getElementById('chart-src').textContent=`CoinGecko — live`;
+      document.getElementById('chart-stats').innerHTML=`<span>Open: $${vals[0].toLocaleString(undefined,{maximumFractionDigits:2})}</span><span>High: $${maxV.toLocaleString(undefined,{maximumFractionDigits:2})}</span><span>Low: $${minV.toLocaleString(undefined,{maximumFractionDigits:2})}</span><span>Close: $${vals[vals.length-1].toLocaleString(undefined,{maximumFractionDigits:2})}</span><span class="${isUp?'up':'down'}">${isUp?'+':''}${change}%</span>`;
+
+      if(priceChart) priceChart.destroy();
+      priceChart=new Chart(document.getElementById('priceChart'),{
+        type:chartType==='bar'?'bar':'line',
+        data:{labels,datasets:[{label:sym+'/USDT',data:vals,
+          borderColor:clr,borderWidth:chartType==='bar'?0:1.5,
+          backgroundColor:chartType==='bar'?clr:bgClr,
+          fill:chartType!=='bar',tension:0.4,pointRadius:0,pointHoverRadius:5,
+          pointHoverBackgroundColor:clr,pointHoverBorderColor:'#fff',pointHoverBorderWidth:2
+        }]},
+        options:{
+          responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+          plugins:{
+            legend:{display:false},
+            tooltip:{
+              backgroundColor:'#1c1f25',borderColor:'rgba(255,255,255,0.1)',borderWidth:1,
+              titleColor:'#8b8fa8',bodyColor:'#f0f0f0',titleFont:{size:10},bodyFont:{size:13,weight:'600'},
+              callbacks:{
+                label:ctx=>'$'+ctx.parsed.y.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}),
+                afterLabel:ctx=>{
+                  if(ctx.dataIndex>0){const chg=((ctx.parsed.y-vals[ctx.dataIndex-1])/vals[ctx.dataIndex-1]*100).toFixed(2);return (chg>=0?'+':'')+chg+'%';}
+                  return '';
+                }
+              }
+            }
+          },
+          scales:{
+            x:{grid:{display:false},border:{display:false},ticks:{font:{size:10},color:'#555a6e',maxRotation:0,maxTicksLimit:8,autoSkip:true}},
+            y:{grid:{color:'rgba(255,255,255,0.04)'},border:{display:false},ticks:{font:{size:10},color:'#555a6e',callback:v=>v>=1000?'$'+(v/1000).toFixed(0)+'k':'$'+v.toFixed(v<1?4:2)}}
+          },
+          onHover:(evt,els)=>{
+            if(els.length){const d=els[0];document.getElementById('chart-price-display').textContent='$'+vals[d.index].toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});}
+          }
+        }
+      });
+    }).catch(()=>{document.getElementById('chart-src').textContent='Rate limit — wait 60s';});
+}
+
+// ── Market ──
+function fetchMarket(){
+  const tbody=document.getElementById('mkt-tbody');if(!tbody)return;
+  tbody.innerHTML=`<tr><td colspan="9" class="lrow"><i class="ti ti-loader spin"></i> Fetching top 20...</td></tr>`;
+  fetch('/api/market')
+    .then(r=>r.json()).then(data=>{
+      mktData=data;renderMarket();
+      document.getElementById('mkt-upd').textContent='updated '+new Date().toLocaleTimeString();
+    }).catch(()=>{tbody.innerHTML=`<tr><td colspan="9" class="lrow" style="color:var(--amber)">CoinGecko rate limit — wait 60s</td></tr>`;});
+}
+
+function renderMarket(){
+  const tbody=document.getElementById('mkt-tbody');if(!tbody)return;
+  let data=mktData;
+  if(mktFilter==='gainers') data=data.filter(c=>c.price_change_percentage_24h>0).sort((a,b)=>b.price_change_percentage_24h-a.price_change_percentage_24h);
+  else if(mktFilter==='losers') data=data.filter(c=>c.price_change_percentage_24h<0).sort((a,b)=>a.price_change_percentage_24h-b.price_change_percentage_24h);
+  else if(mktFilter==='buy') data=data.filter(c=>getSig(c.id)==='buy');
+  const q=document.getElementById('mkt-search')?.value.toLowerCase();
+  if(q) data=data.filter(c=>c.name.toLowerCase().includes(q)||c.symbol.toLowerCase().includes(q));
+  tbody.innerHTML='';
+  data.forEach((c,i)=>{
+    const sig=getSig(c.id);const badge=sig?`<span class="badge ${sig}">${sig.toUpperCase()}</span>`:'<span class="badge" style="background:var(--bg-hover);color:var(--text-muted)">...</span>';
+    const p1h=c.price_change_percentage_1h_in_currency?.toFixed(2);
+    const p24=c.price_change_percentage_24h?.toFixed(2);
+    const p7d=c.price_change_percentage_7d_in_currency?.toFixed(2);
+    const fmtChg=(v)=>v!=null?`<span class="${v>=0?'up':'down'}">${v>=0?'+':''}${v}%</span>`:'—';
+    const mcap=c.market_cap>=1e9?'$'+(c.market_cap/1e9).toFixed(1)+'B':'$'+(c.market_cap/1e6).toFixed(0)+'M';
+    const vol=c.total_volume>=1e9?'$'+(c.total_volume/1e9).toFixed(1)+'B':'$'+(c.total_volume/1e6).toFixed(0)+'M';
+    const tr=document.createElement('tr');tr.className='mkt-row';tr.id=`mrow-${c.id}`;
+    tr.innerHTML=`<td style="color:var(--text-muted)">${i+1}</td><td><div style="display:flex;align-items:center"><div class="coin-logo"><img src="${c.image}" onerror="this.style.display='none'" alt=""/></div><div><div class="coin-nm">${c.name}</div><div class="coin-sy">${c.symbol.toUpperCase()}</div></div></div></td><td>$${c.current_price.toLocaleString()}</td><td>${fmtChg(p1h)}</td><td>${fmtChg(p24)}</td><td>${fmtChg(p7d)}</td><td>${mcap}</td><td>${vol}</td><td id="sig-cell-${c.id}">${badge}</td>`;
+    tr.addEventListener('click',()=>toggleMktDetail(c,tr));
+    tbody.appendChild(tr);
+    // Detail row
+    const dtr=document.createElement('tr');dtr.className='mkt-detail-row';dtr.id=`mdet-${c.id}`;
+    dtr.innerHTML=`<td colspan="9"><div class="mkt-detail-inner">
+      <div class="mkt-detail-grid">
+        <div><div class="mdt">All-time High</div><div class="mdv">$${c.ath?.toLocaleString()}</div><div style="font-size:10px;color:var(--red)">${c.ath_change_percentage?.toFixed(1)}% from ATH</div></div>
+        <div><div class="mdt">All-time Low</div><div class="mdv">$${c.atl?.toLocaleString(undefined,{maximumFractionDigits:4})}</div><div style="font-size:10px;color:var(--green)">+${c.atl_change_percentage?.toFixed(0)}% from ATL</div></div>
+        <div><div class="mdt">Circulating Supply</div><div class="mdv">${c.circulating_supply?.toLocaleString(undefined,{maximumFractionDigits:0})} ${c.symbol?.toUpperCase()}</div></div>
+        <div><div class="mdt">AI Signal</div><div class="mdv" style="margin-top:6px" id="sig-badge-${c.id}"><span style="color:var(--text-muted);font-size:11px">Analyzing...</span></div></div>
+        <div><div class="mdt">Action</div><div class="mdv"><button class="btn" style="margin-top:6px;padding:5px 10px;width:auto" onclick="loadChartForCoin('${c.id}')"><i class="ti ti-chart-line" style="font-size:13px"></i>View Chart</button></div></div>
+      </div>
+      <div id="sig-reason-${c.id}" style="margin-top:12px;padding:10px 12px;background:var(--bg-card);border-radius:var(--r);font-size:11px;color:var(--text-secondary);line-height:1.7;display:none">
+        <span style="font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted)">AI Analysis</span><br>
+        <span id="sig-reason-text-${c.id}"></span>
+      </div>
+    </div></td>`;
+    // Fetch AI signal for this coin
+    fetchAndComputeSignal(c.id, c.price_change_percentage_24h, c.price_change_percentage_7d_in_currency).then(sig=>{
+      const badgeEl=document.getElementById('sig-badge-${c.id}');
+      const reasonEl=document.getElementById('sig-reason-${c.id}');
+      const reasonText=document.getElementById('sig-reason-text-${c.id}');
+      if(badgeEl) badgeEl.innerHTML=`<span class="badge ${sig.badge}">${sig.badge.toUpperCase()}</span>${sig.rsi?` <span style="font-size:10px;color:var(--text-muted)">RSI ${sig.rsi}</span>`:''}`;
+      if(reasonEl && sig.reason){ reasonEl.style.display='block'; reasonText.textContent=sig.reason; }
+      // Also update the table row badge
+      const rowBadgeEl=document.getElementById('sig-cell-${c.id}');
+      if(rowBadgeEl) rowBadgeEl.innerHTML=`<span class="badge ${sig.badge}">${sig.badge.toUpperCase()}</span>`;
+      computedSignals[c.id]=sig;
+    });
+    tbody.appendChild(dtr);
+  });
+}
+
+let openMktRow=null;
+function toggleMktDetail(c,tr){
+  const det=document.getElementById(`mdet-${c.id}`);
+  if(openMktRow&&openMktRow!==c.id){
+    const prev=document.getElementById(`mdet-${openMktRow}`);
+    const prevTr=document.getElementById(`mrow-${openMktRow}`);
+    if(prev) prev.classList.remove('open');
+    if(prevTr) prevTr.classList.remove('expanded');
+  }
+  det.classList.toggle('open');tr.classList.toggle('expanded');
+  openMktRow=det.classList.contains('open')?c.id:null;
+}
+
+function filterMkt(btn,f){
+  document.querySelectorAll('.mkt-filter').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');mktFilter=f;renderMarket();
+}
+function searchMkt(q){renderMarket();}
+
+// Computed signals cache — populated from 14d price history
+const computedSignals = {};
+
+function calcRSI(prices, period=14){
+  if(prices.length < period+1) return null;
+  let gains=0, losses=0;
+  for(let i=prices.length-period; i<prices.length; i++){
+    const diff=prices[i]-prices[i-1];
+    if(diff>0) gains+=diff; else losses+=Math.abs(diff);
+  }
+  if(losses===0) return 100;
+  const rs=gains/losses;
+  return Math.round(100-(100/(1+rs)));
+}
+
+function signalFromRSI(rsi, change24h, change7d){
+  if(rsi===null) return {badge:'hold', rsi:null, reason:'Insufficient data for RSI calculation.'};
+  // Strong buy conditions
+  if(rsi < 30) return {badge:'buy', rsi, reason:`RSI at ${rsi} — extreme oversold territory. Strong historical reversal zone. Gradual accumulation recommended.`};
+  if(rsi < 40 && change7d < -5) return {badge:'buy', rsi, reason:`RSI at ${rsi} with ${change7d?.toFixed(1)}% weekly decline — oversold with downward momentum. Potential recovery entry.`};
+  // Strong sell conditions
+  if(rsi > 75) return {badge:'sell', rsi, reason:`RSI at ${rsi} — extreme overbought territory. High probability of correction. Consider reducing exposure.`};
+  if(rsi > 65 && change24h > 5) return {badge:'sell', rsi, reason:`RSI at ${rsi} with +${change24h?.toFixed(1)}% 24h surge — overbought after pump. Risk of pullback is elevated.`};
+  // Mild buy
+  if(rsi < 45 && change7d < -3) return {badge:'buy', rsi, reason:`RSI at ${rsi} with recent weakness — mild oversold. Could be an accumulation opportunity on dips.`};
+  // Default hold
+  return {badge:'hold', rsi, reason:`RSI at ${rsi} — neutral zone. No strong directional signal. Hold current position and monitor for breakout.`};
+}
+
+async function fetchAndComputeSignal(coinId, change24h, change7d){
+  if(computedSignals[coinId]) return computedSignals[coinId];
+  try {
+    const r = await fetch(`/api/chart?coin=${coinId}&days=14`);
+    const data = await r.json();
+    if(!data.prices) throw new Error('no prices');
+    const closes = data.prices.map(p=>p[1]);
+    const rsi = calcRSI(closes);
+    const sig = signalFromRSI(rsi, change24h, change7d);
+    computedSignals[coinId] = sig;
+    return sig;
+  } catch(e) {
+    // fallback: use price change only
+    let badge='hold', reason='Insufficient data.';
+    if(change7d < -8){ badge='buy'; reason=`Down ${change7d?.toFixed(1)}% in 7 days — potential oversold recovery.`; }
+    else if(change24h > 8){ badge='sell'; reason=`Up +${change24h?.toFixed(1)}% in 24h — short-term overbought signal.`; }
+    const sig={badge, rsi:null, reason};
+    computedSignals[coinId]=sig;
+    return sig;
+  }
+}
+
+function getSig(id){
+  // Return from computedSignals if available, else from static SIGNALS
+  if(computedSignals[id]) return computedSignals[id].badge;
+  const s=SIGNALS.find(x=>x.id===id);
+  return s&&s.badge!=='unavailable'?s.badge:null;
+}
+
+// ── Portfolio ──
+function fetchPortfolio(){
+  if(!PORTFOLIO.length){document.getElementById('port-tbody').innerHTML='<tr><td colspan="7" class="lrow">No verified holdings available. Connect a read-only portfolio source.</td></tr>';return;}
+
+  const tbody=document.getElementById('port-tbody');if(!tbody)return;
+  const ids=PORTFOLIO.filter(p=>p.id).map(p=>p.id).join(',');
+  fetch(`/api/prices?ids=${ids}`)
+    .then(r=>r.json()).then(data=>{
+      tbody.innerHTML='';let total=0;
+      PORTFOLIO.forEach(p=>{
+        const price=p.id?(data[p.id]?.usd||0):p.price;
+        const val=price*p.amount;total+=val;
+        const pnlPct=p.avgBuy?((price-p.avgBuy)/p.avgBuy*100):null;
+        const pnlUsd=p.avgBuy?((price-p.avgBuy)*p.amount):null;
+        const pPct=pnlPct!=null?(pnlPct>=0?'+':'')+pnlPct.toFixed(2)+'%':'—';
+        const pUsd=pnlUsd!=null?'$'+(pnlUsd>=0?'+':'')+pnlUsd.toFixed(0):'—';
+        const cls=pnlPct>=0?'up':'down';
+        const tr=document.createElement('tr');
+        tr.innerHTML=`<td><div class="coin-nm">${p.name}</div><div class="coin-sy">${p.sym}</div></td><td style="text-align:right">${p.amount.toLocaleString()}</td><td style="text-align:right">${p.avgBuy?'$'+p.avgBuy.toLocaleString():'—'}</td><td style="text-align:right">$${price.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:4})}</td><td style="text-align:right">$${val.toLocaleString(undefined,{maximumFractionDigits:0})}</td><td style="text-align:right" class="${cls}">${pPct}</td><td style="text-align:right" class="${cls}">${pUsd}</td>`;
+        tbody.appendChild(tr);
+        if(p.id==='ethereum'){const el=document.getElementById('port-eth');if(el)el.textContent='$'+val.toFixed(0);}
+      });
+    }).catch(()=>{if(tbody)tbody.innerHTML=`<tr><td colspan="7" class="lrow" style="color:var(--amber)">Rate limit — retry in 60s</td></tr>`;});
+}
+
+// ── Scan ──
+function triggerScan(btnId,resId){
+  const btn=document.getElementById(btnId);const res=document.getElementById(resId);
+  btn.classList.add('scanning');btn.innerHTML='<i class="ti ti-loader spin"></i>Scanning...';
+  res.innerHTML='<span class="ok">Connecting to backend...</span><br>';res.classList.add('open');
+  fetch('/api/scan',{method:'POST',headers:{'Content-Type':'application/json',...authHeaders()},body:JSON.stringify({})})
+    .then(r=>r.json()).then(data=>{
+      res.innerHTML='';
+      if(data.error){
+        res.innerHTML+=`<span class="warn">Backend error: ${esc(data.error)}</span><br><span class="warn">No live scan was executed.</span>`;
+        resetScanButton(btn);
+        showToast('Scan failed — backend error');
+        return;
+      }
+      res.innerHTML+=`<span class="ok">Scan complete. ${data.total} alert(s) found.</span><br><br>`;
+      if(data.alerts.length===0){res.innerHTML+='<span class="ok">No anomalies detected by this scan; wallet safety is not guaranteed.</span>';}
+      else{data.alerts.forEach(a=>{const cls=a.severity==='CRITICAL'?'err':a.severity==='HIGH'?'warn':'ok';res.innerHTML+=`<span class="${cls}">[${esc(a.severity)}] ${esc(a.title)}</span><br><span style="color:var(--text-muted);font-size:10px">${esc(a.description)}</span><br><br>`;});}
+      btn.classList.remove('scanning');btn.innerHTML='<i class="ti ti-radar"></i>Run manual scan';
+      showToast(`Scan complete — ${data.total} alert(s) found`);
+      loadAlerts();
+    }).catch(()=>{
+      res.innerHTML+='<span class="warn">Backend not running. No live scan was executed.</span>';
+      resetScanButton(btn);
+      showToast('Scan failed — backend unavailable');
+    });
+}
+function resetScanButton(btn){
+  btn.classList.remove('scanning');
+  btn.innerHTML='<i class="ti ti-radar"></i>Run manual scan';
+}
+
+// ── Prices ──
+async function fetchPrices(){
+  const ids=SIGNALS.map(s=>s.id).join(',');
+  const urls=[
+    `/api/prices?ids=${ids}`,
+    `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`
+  ];
+
+  for(const url of urls){
+    try{
+      const r=await fetch(url,{cache:'no-store'});
+      if(!r.ok) throw new Error(`price fetch failed: ${r.status}`);
+      const data=await r.json();
+      SIGNALS.forEach(s=>{
+        if(data[s.id]){
+          prices[s.id]=data[s.id].usd;
+          s.change24h=data[s.id].usd_24h_change||0;
+        }
+      });
+      updateMetrics();renderSignals();
+      return;
+    }catch(e){
+      console.warn('Price endpoint failed:', url, e);
+    }
+  }
+
+  setMetricOffline('m-btc','m-btc-c');
+  setMetricOffline('m-eth','m-eth-c');
+  renderSignals();
+}
+
+function setMetricOffline(valueId,subId){
+  const v=document.getElementById(valueId); if(v) v.textContent='—';
+  const s=document.getElementById(subId); if(s) s.innerHTML='<span class="warn">API unavailable</span>';
+}
+
+function updateMetrics(){
+  const fmt=(n)=>n?'$'+n.toLocaleString(undefined,{maximumFractionDigits:0}):'...';
+  const chgHtml=(c)=>c==null?'<span class="neu">loading</span>':c>=0?`<span class="up"><i class="ti ti-arrow-up" style="font-size:10px"></i>+${c.toFixed(2)}% (24h)</span>`:`<span class="down"><i class="ti ti-arrow-down" style="font-size:10px"></i>${c.toFixed(2)}% (24h)</span>`;
+  const btcObj=SIGNALS.find(s=>s.id==='bitcoin');const ethObj=SIGNALS.find(s=>s.id==='ethereum');
+  if(btcObj&&prices[btcObj.id]){document.getElementById('m-btc').textContent=fmt(prices[btcObj.id]);document.getElementById('m-btc-c').innerHTML=chgHtml(btcObj.change24h);}
+  if(ethObj&&prices[ethObj.id]){
+    document.getElementById('m-eth').textContent=fmt(prices[ethObj.id]);document.getElementById('m-eth-c').innerHTML=chgHtml(ethObj.change24h);
+  }
+}
+
+async function fetchFG(){
+  const urls=['/api/feargreed','https://api.alternative.me/fng/?limit=1'];
+  for(const url of urls){
+    try{
+      const r=await fetch(url,{cache:'no-store'});
+      if(!r.ok) throw new Error(`feargreed fetch failed: ${r.status}`);
+      const d=await r.json();
+      document.getElementById('m-fg').textContent=d.data[0].value;
+      document.getElementById('m-fg-l').textContent=d.data[0].value_classification;
+      return;
+    }catch(e){
+      console.warn('Fear & Greed endpoint failed:', url, e);
+    }
+  }
+  const fg=document.getElementById('m-fg'); if(fg) fg.textContent='—';
+  const fgl=document.getElementById('m-fg-l'); if(fgl) fgl.textContent='API unavailable';
+}
+
+// ── Chat ──
+// This dashboard currently has no server-side LLM chat endpoint.
+function quickChat(m){document.getElementById('chat-input').value=m;sendChat();}
+function sendChat(){
+  const inp=document.getElementById('chat-input'),msg=inp.value.trim();if(!msg)return;
+  inp.value='';appendChat('user',msg);
+  const q=msg.toLowerCase();
+  const answer=q.includes('alert')||q.includes('safe')
+    ? alertSummaryText(true)+'\nAnomaly alerts do not prove wallet safety.'
+    : q.includes('signal')||q.includes('btc')||q.includes('eth')
+    ? (SIGNALS.filter(s=>s.badge!=='unavailable').map(s=>s.sym+' '+s.badge+' RSI '+(s.rsi??'—')).join('\n') || 'No recorded signals available.')
+    : 'AI chat is not connected to the backend. No fabricated AI answer will be shown.';
+  appendChat('agent',answer);
+}
+function appendChat(role,msg){
+  const log=document.getElementById('chat-log'),div=document.createElement('div');
+  div.style.cssText='display:flex;justify-content:'+(role==='user'?'flex-end':'flex-start');
+  const bubble=document.createElement('div');
+  bubble.style.cssText='max-width:82%;padding:9px 13px;border-radius:12px;background:'+(role==='user'?'var(--blue)':'var(--bg-surface)')+';color:'+(role==='user'?'#fff':'var(--text-primary)')+';font-size:12px;line-height:1.7;white-space:pre-wrap';
+  bubble.textContent=msg;div.appendChild(bubble);log.appendChild(div);log.scrollTop=log.scrollHeight;
+}
+// ── Init ──
+fetchPrices();fetchFG();loadChart();loadAlerts();
+setInterval(fetchPrices,60000);setInterval(fetchFG,300000);setInterval(loadAlerts,60000);
+</script>
+</body>
+</html>+val.toLocaleString():'$—';
+    }
+  }catch(e){console.warn('Wallet balance unavailable',e);}
+  try{
+    const okx=await fetchJson('/api/okx/balance');
+    if(Number.isFinite(Number(okx.total_usd)))document.getElementById('port-okx').textContent='v){
+  return String(v||'ANOMALY').replace(/_/g,' ').replace(/\w\S*/g,t=>t[0].toUpperCase()+t.slice(1).toLowerCase());
+}
+
+function normalizeSeverity(v){
+  const s=String(v||'MEDIUM').toUpperCase();
+  if(['CRITICAL','CRIT','C'].includes(s)) return {severity:'CRITICAL',lvl:'c'};
+  if(['HIGH','H'].includes(s)) return {severity:'HIGH',lvl:'h'};
+  return {severity:s==='LOW'?'LOW':'MEDIUM',lvl:'m'};
+}
+
+function alertIcon(type,lvl){
+  const t=String(type||'').toUpperCase();
+  if(t.includes('RAPID')||lvl==='c') return 'ti-alert-triangle';
+  if(t.includes('TRANSFER')) return 'ti-trending-down';
+  if(t.includes('FREQUENCY')) return 'ti-activity';
+  if(t.includes('DUST')) return 'ti-sparkles';
+  return 'ti-bell';
+}
+
+function parseAlertDate(v){
+  if(!v) return null;
+  const d=new Date(v);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+function formatAlertTime(v, fallback='—'){
+  const d=parseAlertDate(v);
+  if(!d) return fallback || '—';
+  const now=new Date();
+  const sameDay=d.toDateString()===now.toDateString();
+  return sameDay
+    ? d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})
+    : d.toLocaleDateString([],{day:'2-digit',month:'short'})+' '+d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+}
+
+function inferActiveWindowHours(type){
+  const t=String(type||'').toUpperCase();
+  if(t.includes('RAPID_DRAIN')) return 6;
+  if(t.includes('FREQUENCY')) return 2;
+  if(t.includes('DUST')) return 24;
+  if(t.includes('LARGE_TRANSFER')) return 24;
+  if(t.includes('NEW_ADDRESS')) return 24;
+  return 24;
+}
+
+function inferAlertStatus(raw,type,timestamp){
+  const explicit=String(raw.status||raw.state||'').toLowerCase();
+  if(raw.resolved_at || raw.closed_at || ['resolved','closed','dismissed','inactive','historical'].includes(explicit)) return 'resolved';
+  if(['active','open','new','unresolved'].includes(explicit)) return 'active';
+  const d=parseAlertDate(timestamp);
+  if(!d) return 'active';
+
+  const ageHours=(Date.now()-d.getTime())/36e5;
+  return ageHours <= inferActiveWindowHours(type) ? 'active' : 'resolved';
+}
+
+function normalizeDetail(raw,type,severity,status,timestamp){
+  const src=raw.detail || raw.details || raw.metadata || {};
+  const detail=(src && typeof src==='object' && !Array.isArray(src)) ? {...src} : {};
+  if(type && !detail['Alert type']) detail['Alert type']=type;
+  if(raw.wallet || raw.address || raw.wallet_address) detail['Wallet']=raw.wallet || raw.address || raw.wallet_address;
+  if(raw.tx_hash || raw.transaction_hash) detail['Tx hash']=raw.tx_hash || raw.transaction_hash;
+  if(raw.value || raw.amount || raw.amount_eth) detail['Value']=raw.value || raw.amount || raw.amount_eth;
+  if(raw.threshold) detail['Threshold']=raw.threshold;
+  if(timestamp) detail['Detected at']=formatAlertTime(timestamp);
+  detail['Severity']=severity;
+  detail['Status']=status==='active'?'ACTIVE':'RESOLVED / HISTORICAL';
+  return detail;
+}
+
+function normalizeAlert(raw={},idx=0,source='backend'){
+  const sev=normalizeSeverity(raw.severity || raw.level || raw.lvl || raw.priority || raw.alert_severity);
+  const type=raw.alert_type || raw.type || raw.category || raw.kind || 'ANOMALY';
+  const timestamp=raw.created_at || raw.detected_at || raw.timestamp || raw.time_iso || raw.updated_at || null;
+  const status=inferAlertStatus(raw,type,timestamp);
+  const amount=raw.amount_eth || raw.amount || raw.value || '';
+  const fallbackTitle=`[${sev.severity}] ${humanizeAlertType(type)}${amount ? ' — '+amount : ''}`;
+  const title=raw.title || raw.alert_title || raw.name || fallbackTitle;
+  const desc=raw.description || raw.desc || raw.message || raw.summary || 'No description provided by backend.';
+  return {
+    lvl: raw.lvl || sev.lvl,
+    severity: sev.severity,
+    icon: raw.icon || alertIcon(type,sev.lvl),
+    title,
+    desc,
+    time: raw.time || formatAlertTime(timestamp),
+    status,
+    source,
+    timestamp,
+    detail: normalizeDetail(raw,type,sev.severity,status,timestamp)
+  };
+}
+
+function isActiveAlert(a){
+  return a.status==='active';
+}
+
+function severityCounts(list){
+  return {
+    c:list.filter(a=>a.lvl==='c').length,
+    h:list.filter(a=>a.lvl==='h').length,
+    m:list.filter(a=>a.lvl==='m').length
+  };
+}
+
+function renderSeverityRow(id,list,includeResolved=false){
+  const row=document.getElementById(id); if(!row) return;
+  const c=severityCounts(list);
+  const resolved=includeResolved ? list.filter(a=>!isActiveAlert(a)).length : 0;
+  row.innerHTML=
+    `<span class="sev c">${c.c} Critical</span>`+
+    `<span class="sev h">${c.h} High</span>`+
+    `<span class="sev m">${c.m} Medium</span>`+
+    (includeResolved?`<span class="sev r">${resolved} Resolved/Historical</span>`:'');
+}
+
+function updateAlertSummary(){
+  const active=alertsData.filter(isActiveAlert);
+  const counts=severityCounts(active);
+  const total=active.length;
+  const topTag=document.getElementById('top-alert-tag');
+  if(topTag){
+    topTag.className='tag'+(total>0?' warn':'');
+    topTag.innerHTML=`<i class="ti ti-alert-triangle" style="font-size:12px"></i><span id="top-alert-count">${total} active alert${total===1?'':'s'}</span>`;
+  }
+
+  const navBadge=document.getElementById('nav-alert-badge');
+  if(navBadge){
+    navBadge.textContent=String(total);
+    navBadge.style.display=total>0?'inline-block':'none';
+  }
+
+  const activeCount=document.getElementById('active-alert-count');
+  if(activeCount){
+    activeCount.textContent=String(total);
+    activeCount.style.color=total>0?'var(--red)':'var(--green)';
+  }
+
+  const breakdown=document.getElementById('active-alert-breakdown');
+  if(breakdown){
+    breakdown.className='ms '+(total>0?'down':'up');
+    breakdown.textContent=total>0
+      ? `${counts.c} critical, ${counts.h} high, ${counts.m} medium`
+      : ''; 
+  }
+
+  renderSeverityRow('dash-sev-row',active,false);
+  renderSeverityRow('all-sev-row',alertsData,true);
+}
+
+function renderAlerts(id,opts={}){
+  const c=document.getElementById(id); if(!c) return;
+  const onlyActive=!!opts.onlyActive;
+  const list=onlyActive ? alertsData.filter(isActiveAlert) : alertsData;
+  c.innerHTML='';
+
+  if(list.length===0){
+    const msg=onlyActive
+      ? ''
+      : 'No anomaly alerts found in the backend log.';
+    c.innerHTML = msg ? `<div class="empty-alerts">${esc(msg)}</div>` : '';
+    return;
+  }
+
+  list.forEach((a,i)=>{
+    const statusCls=a.status==='active'?'active':'resolved';
+    const statusText=a.status==='active'?'ACTIVE':'RESOLVED';
+    const rows=Object.entries(a.detail||{}).map(([k,v])=>`<div class="adr"><span class="adl">${esc(k)}</span><span class="adv">${esc(v)}</span></div>`).join('');
+    const div=document.createElement('div');
+    div.className=`ar ${a.lvl}`;
+    div.innerHTML=
+      `<div class="ar-main">`+
+        `<div class="ai"><i class="ti ${esc(a.icon)}"></i></div>`+
+        `<div class="ab"><div class="at">${esc(a.title)} <span class="alert-status ${statusCls}">${statusText}</span></div><div class="ad">${esc(a.desc)}</div></div>`+
+        `<div class="atime">${esc(a.time)}</div><i class="ti ti-chevron-down achev" id="chev-${id}-${i}"></i>`+
+      `</div><div class="adet" id="det-${id}-${i}">${rows}</div>`;
+    div.querySelector('.ar-main').addEventListener('click',()=>{
+      document.getElementById(`det-${id}-${i}`).classList.toggle('open');
+      document.getElementById(`chev-${id}-${i}`).classList.toggle('open');
+    });
+    c.appendChild(div);
+  });
+}
+
+function updateAlertViews(){
+  updateAlertSummary();
+  renderAlerts('dash-alerts',{onlyActive:true});
+  renderAlerts('all-alerts',{onlyActive:false});
+}
+
+async function fetchJson(url,opts={}){
+  const ctrl=new AbortController();
+  const timer=setTimeout(()=>ctrl.abort(),6000);
+  try{
+    const r=await fetch(url,{...opts,cache:'no-store',headers:{...authHeaders(),...(opts.headers||{})},signal:ctrl.signal});
+    if(!r.ok) throw new Error(`${url} returned ${r.status}`);
+    return await r.json();
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function extractAlertArray(data){
+  if(Array.isArray(data)) return data;
+  return data?.alerts || data?.data || data?.results || data?.rows || [];
+}
+
+async function loadAlerts(){
+  for(const endpoint of ALERT_ENDPOINTS){
+    try{
+      const data=await fetchJson(endpoint);
+      const rows=extractAlertArray(data);
+      if(!Array.isArray(rows)) throw new Error('alert payload is not an array');
+      alertsData=rows.map((a,i)=>normalizeAlert(a,i,'backend'));
+      alertsSource=endpoint;
+      updateAlertViews();
+      return;
+    } catch(e) {
+      console.warn('Alert endpoint failed:', endpoint, e);
+    }
+  }
+
+  // No backend endpoint found. Do not show demo/fake alerts.
+  alertsData=[];
+  alertsSource='unavailable';
+  updateAlertViews();
+}
+
+function alertSummaryText(onlyActive=false){
+  const list=onlyActive ? alertsData.filter(isActiveAlert) : alertsData;
+  if(list.length===0) return onlyActive ? 'No active anomaly alerts.' : 'No anomaly alerts found.';
+  return list.map(a=>`${a.status==='active'?'[ACTIVE]':'[RESOLVED]'} ${a.title} (${a.time})`).join('\n');
+}
+
+// ── Signals ──
+function filterSigs(btn,f){
+  document.querySelectorAll('.sig-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');sigFilter=f;renderSignals();
+}
+
+function renderSignals(){
+  const g=document.getElementById('signal-grid');if(!g)return;g.innerHTML='';
+  const filtered=sigFilter==='all'?SIGNALS:SIGNALS.filter(s=>s.badge===sigFilter);
+  if(filtered.length===0){g.innerHTML=`<div style="grid-column:1/-1;text-align:center;color:var(--text-muted);font-size:12px;padding:1.5rem">No signals for filter: ${sigFilter}</div>`;return;}
+  filtered.forEach((s,i)=>{
+    const gi=SIGNALS.indexOf(s);
+    const p=prices[s.id];const pstr=p?'$'+p.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:p>10?2:4}):'...';
+    const chg=s.change24h!=null?(s.change24h>=0?`<span class="up">+${s.change24h.toFixed(2)}%</span>`:`<span class="down">${s.change24h.toFixed(2)}%</span>`):'';
+    const div=document.createElement('div');div.className='sc'+(selSig===gi?' sel':'');
+    div.innerHTML=`<div class="sc-coin">${s.sym}</div><div class="sc-price">${pstr}</div><div class="sc-chg">${chg}</div><div class="sc-row"><span class="badge ${s.badge}">${s.badge.toUpperCase()}</span><span class="rsi-lbl">RSI ${s.rsi??"—"}</span></div><div class="rsi-bar"><div class="rsi-fill" style="width:${s.rsi??0}%;background:${s.rsiClr}"></div></div>`;
+    div.addEventListener('click',()=>toggleSigDet(gi));
+    g.appendChild(div);
+  });
+}
+
+function toggleSigDet(i){
+  const det=document.getElementById('signal-detail');const s=SIGNALS[i];
+  if(selSig===i){selSig=null;det.classList.remove('open');renderSignals();return;}
+  selSig=i;
+  const p=prices[s.id]||0;
+  const pstr=p?'$'+p.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:p>10?2:4}):'...';
+  const chg=s.change24h!=null?(s.change24h>=0?`<span class="up">+${s.change24h.toFixed(2)}%</span>`:`<span class="down">${s.change24h.toFixed(2)}%</span>`):'—';
+  const rsiClrVal=s.rsi==null?'var(--text-muted)':s.rsi>70?'var(--red)':s.rsi<30?'var(--green)':'var(--text-primary)';
+  const rsiDesc=s.rsi==null?'No verified RSI snapshot available':s.rsi>70?'Overbought; confirmation required':s.rsi<30?'Oversold; confirmation required':'Neutral reading; not a validated forecast';
+  const signalDesc={buy:'Rule-based bullish indication, not a validated forecast.',sell:'Rule-based bearish indication, not a validated forecast.',hold:'Rule-based neutral indication, not a validated forecast.',unavailable:'No saved signal available.'};
+  det.innerHTML=`
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.75rem">
+      <div><div style="font-size:11px;color:var(--text-muted);margin-bottom:2px">${s.name}</div><div style="font-size:18px;font-weight:600">${s.sym} / USDT</div></div>
+      <div style="text-align:right"><div style="font-size:24px;font-weight:600;letter-spacing:-.5px">${pstr}</div><div style="font-size:12px;margin-top:2px">${chg} 24h</div></div>
+    </div>
+    <div class="sig-det-stats">
+      <div class="sds"><div class="sds-l">Signal</div><div class="sds-v"><span class="badge ${s.badge}" style="font-size:12px">${s.badge.toUpperCase()}</span></div></div>
+      <div class="sds"><div class="sds-l">RSI (14)</div><div class="sds-v" style="color:${rsiClrVal}">${s.rsi}</div></div>
+      <div class="sds"><div class="sds-l">24h Change</div><div class="sds-v">${chg}</div></div>
+      <div class="sds"><div class="sds-l">Confidence</div><div class="sds-v">${'Not calibrated'}</div></div>
+    </div>
+    <div style="margin-top:12px;padding:10px 12px;background:var(--bg-card);border-radius:var(--r);font-size:11px;color:var(--text-secondary);line-height:1.7">
+      <span style="color:var(--text-muted);font-size:10px;text-transform:uppercase;letter-spacing:.05em">RSI Analysis</span><br>${rsiDesc}<br><br>
+      <span style="color:var(--text-muted);font-size:10px;text-transform:uppercase;letter-spacing:.05em">Signal Rationale</span><br>${signalDesc[s.badge]}
+    </div>
+    <button class="btn" style="margin-top:8px" onclick="loadChartForCoin('${s.id}')"><i class="ti ti-chart-line"></i>View ${s.sym} chart</button>`;
+  det.classList.add('open');renderSignals();
+}
+
+// ── Chart ──
+function setInterval_(btn,days){
+  document.querySelectorAll('.interval-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');chartDays=days;loadChart();
+}
+function setChartType(btn,type){
+  document.querySelectorAll('.chart-type-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');chartType=type;loadChart();
+}
+function loadChartForCoin(coinId){
+  // 1. Pindah ke dashboard dulu
+  navigate('dashboard');
+  // 2. Tunggu DOM ready, baru set coin dan load
+  setTimeout(()=>{
+    const sel=document.getElementById('chart-coin');
+    if(!sel) return;
+    // Cek apakah coinId ada di options, kalau tidak tambahkan
+    const exists=Array.from(sel.options).some(o=>o.value===coinId);
+    if(!exists){
+      const opt=document.createElement('option');
+      opt.value=coinId;
+      opt.text=coinId.toUpperCase().replace(/-/g,' ');
+      sel.appendChild(opt);
+    }
+    sel.value=coinId;
+    chartDays=1;
+    document.querySelectorAll('.interval-btn').forEach(b=>b.classList.remove('active'));
+    const d1=document.querySelector('.interval-btn[data-days="1"]');
+    if(d1) d1.classList.add('active');
+    loadChart();
+  },200);
+}
+
+function loadChart(){
+  const coin=document.getElementById('chart-coin').value;
+  const days=chartDays;
+  const interval=days<=1?'hourly':days<=30?'daily':'daily';
+  document.getElementById('chart-src').textContent='Loading...';
+  fetch(`/api/chart?coin=${coin}&days=${days}`)
+    .then(r=>r.json()).then(data=>{
+      const raw=data.prices;
+      const labels=raw.map(p=>{
+        const d=new Date(p[0]);
+        if(days<=1) return d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+        if(days<=30) return `${d.getDate()} ${d.toLocaleString('en',{month:'short'})}`;
+        return `${d.toLocaleString('en',{month:'short'})} '${String(d.getFullYear()).slice(2)}`;
+      });
+      const vals=raw.map(p=>p[1]);
+      const minV=Math.min(...vals),maxV=Math.max(...vals);
+      const isUp=vals[vals.length-1]>=vals[0];
+      const clr=isUp?'#3ecf8e':'#f25f5c';
+      const bgClr=isUp?'rgba(62,207,142,0.07)':'rgba(242,95,92,0.07)';
+
+      // Stats bar
+      const change=((vals[vals.length-1]-vals[0])/vals[0]*100).toFixed(2);
+      const sym=document.getElementById('chart-coin').options[document.getElementById('chart-coin').selectedIndex].text;
+      document.getElementById('chart-src').textContent=`CoinGecko — live`;
+      document.getElementById('chart-stats').innerHTML=`<span>Open: $${vals[0].toLocaleString(undefined,{maximumFractionDigits:2})}</span><span>High: $${maxV.toLocaleString(undefined,{maximumFractionDigits:2})}</span><span>Low: $${minV.toLocaleString(undefined,{maximumFractionDigits:2})}</span><span>Close: $${vals[vals.length-1].toLocaleString(undefined,{maximumFractionDigits:2})}</span><span class="${isUp?'up':'down'}">${isUp?'+':''}${change}%</span>`;
+
+      if(priceChart) priceChart.destroy();
+      priceChart=new Chart(document.getElementById('priceChart'),{
+        type:chartType==='bar'?'bar':'line',
+        data:{labels,datasets:[{label:sym+'/USDT',data:vals,
+          borderColor:clr,borderWidth:chartType==='bar'?0:1.5,
+          backgroundColor:chartType==='bar'?clr:bgClr,
+          fill:chartType!=='bar',tension:0.4,pointRadius:0,pointHoverRadius:5,
+          pointHoverBackgroundColor:clr,pointHoverBorderColor:'#fff',pointHoverBorderWidth:2
+        }]},
+        options:{
+          responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+          plugins:{
+            legend:{display:false},
+            tooltip:{
+              backgroundColor:'#1c1f25',borderColor:'rgba(255,255,255,0.1)',borderWidth:1,
+              titleColor:'#8b8fa8',bodyColor:'#f0f0f0',titleFont:{size:10},bodyFont:{size:13,weight:'600'},
+              callbacks:{
+                label:ctx=>'$'+ctx.parsed.y.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}),
+                afterLabel:ctx=>{
+                  if(ctx.dataIndex>0){const chg=((ctx.parsed.y-vals[ctx.dataIndex-1])/vals[ctx.dataIndex-1]*100).toFixed(2);return (chg>=0?'+':'')+chg+'%';}
+                  return '';
+                }
+              }
+            }
+          },
+          scales:{
+            x:{grid:{display:false},border:{display:false},ticks:{font:{size:10},color:'#555a6e',maxRotation:0,maxTicksLimit:8,autoSkip:true}},
+            y:{grid:{color:'rgba(255,255,255,0.04)'},border:{display:false},ticks:{font:{size:10},color:'#555a6e',callback:v=>v>=1000?'$'+(v/1000).toFixed(0)+'k':'$'+v.toFixed(v<1?4:2)}}
+          },
+          onHover:(evt,els)=>{
+            if(els.length){const d=els[0];document.getElementById('chart-price-display').textContent='$'+vals[d.index].toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});}
+          }
+        }
+      });
+    }).catch(()=>{document.getElementById('chart-src').textContent='Rate limit — wait 60s';});
+}
+
+// ── Market ──
+function fetchMarket(){
+  const tbody=document.getElementById('mkt-tbody');if(!tbody)return;
+  tbody.innerHTML=`<tr><td colspan="9" class="lrow"><i class="ti ti-loader spin"></i> Fetching top 20...</td></tr>`;
+  fetch('/api/market')
+    .then(r=>r.json()).then(data=>{
+      mktData=data;renderMarket();
+      document.getElementById('mkt-upd').textContent='updated '+new Date().toLocaleTimeString();
+    }).catch(()=>{tbody.innerHTML=`<tr><td colspan="9" class="lrow" style="color:var(--amber)">CoinGecko rate limit — wait 60s</td></tr>`;});
+}
+
+function renderMarket(){
+  const tbody=document.getElementById('mkt-tbody');if(!tbody)return;
+  let data=mktData;
+  if(mktFilter==='gainers') data=data.filter(c=>c.price_change_percentage_24h>0).sort((a,b)=>b.price_change_percentage_24h-a.price_change_percentage_24h);
+  else if(mktFilter==='losers') data=data.filter(c=>c.price_change_percentage_24h<0).sort((a,b)=>a.price_change_percentage_24h-b.price_change_percentage_24h);
+  else if(mktFilter==='buy') data=data.filter(c=>getSig(c.id)==='buy');
+  const q=document.getElementById('mkt-search')?.value.toLowerCase();
+  if(q) data=data.filter(c=>c.name.toLowerCase().includes(q)||c.symbol.toLowerCase().includes(q));
+  tbody.innerHTML='';
+  data.forEach((c,i)=>{
+    const sig=getSig(c.id);const badge=sig?`<span class="badge ${sig}">${sig.toUpperCase()}</span>`:'<span class="badge" style="background:var(--bg-hover);color:var(--text-muted)">...</span>';
+    const p1h=c.price_change_percentage_1h_in_currency?.toFixed(2);
+    const p24=c.price_change_percentage_24h?.toFixed(2);
+    const p7d=c.price_change_percentage_7d_in_currency?.toFixed(2);
+    const fmtChg=(v)=>v!=null?`<span class="${v>=0?'up':'down'}">${v>=0?'+':''}${v}%</span>`:'—';
+    const mcap=c.market_cap>=1e9?'$'+(c.market_cap/1e9).toFixed(1)+'B':'$'+(c.market_cap/1e6).toFixed(0)+'M';
+    const vol=c.total_volume>=1e9?'$'+(c.total_volume/1e9).toFixed(1)+'B':'$'+(c.total_volume/1e6).toFixed(0)+'M';
+    const tr=document.createElement('tr');tr.className='mkt-row';tr.id=`mrow-${c.id}`;
+    tr.innerHTML=`<td style="color:var(--text-muted)">${i+1}</td><td><div style="display:flex;align-items:center"><div class="coin-logo"><img src="${c.image}" onerror="this.style.display='none'" alt=""/></div><div><div class="coin-nm">${c.name}</div><div class="coin-sy">${c.symbol.toUpperCase()}</div></div></div></td><td>$${c.current_price.toLocaleString()}</td><td>${fmtChg(p1h)}</td><td>${fmtChg(p24)}</td><td>${fmtChg(p7d)}</td><td>${mcap}</td><td>${vol}</td><td id="sig-cell-${c.id}">${badge}</td>`;
+    tr.addEventListener('click',()=>toggleMktDetail(c,tr));
+    tbody.appendChild(tr);
+    // Detail row
+    const dtr=document.createElement('tr');dtr.className='mkt-detail-row';dtr.id=`mdet-${c.id}`;
+    dtr.innerHTML=`<td colspan="9"><div class="mkt-detail-inner">
+      <div class="mkt-detail-grid">
+        <div><div class="mdt">All-time High</div><div class="mdv">$${c.ath?.toLocaleString()}</div><div style="font-size:10px;color:var(--red)">${c.ath_change_percentage?.toFixed(1)}% from ATH</div></div>
+        <div><div class="mdt">All-time Low</div><div class="mdv">$${c.atl?.toLocaleString(undefined,{maximumFractionDigits:4})}</div><div style="font-size:10px;color:var(--green)">+${c.atl_change_percentage?.toFixed(0)}% from ATL</div></div>
+        <div><div class="mdt">Circulating Supply</div><div class="mdv">${c.circulating_supply?.toLocaleString(undefined,{maximumFractionDigits:0})} ${c.symbol?.toUpperCase()}</div></div>
+        <div><div class="mdt">AI Signal</div><div class="mdv" style="margin-top:6px" id="sig-badge-${c.id}"><span style="color:var(--text-muted);font-size:11px">Analyzing...</span></div></div>
+        <div><div class="mdt">Action</div><div class="mdv"><button class="btn" style="margin-top:6px;padding:5px 10px;width:auto" onclick="loadChartForCoin('${c.id}')"><i class="ti ti-chart-line" style="font-size:13px"></i>View Chart</button></div></div>
+      </div>
+      <div id="sig-reason-${c.id}" style="margin-top:12px;padding:10px 12px;background:var(--bg-card);border-radius:var(--r);font-size:11px;color:var(--text-secondary);line-height:1.7;display:none">
+        <span style="font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted)">AI Analysis</span><br>
+        <span id="sig-reason-text-${c.id}"></span>
+      </div>
+    </div></td>`;
+    // Fetch AI signal for this coin
+    fetchAndComputeSignal(c.id, c.price_change_percentage_24h, c.price_change_percentage_7d_in_currency).then(sig=>{
+      const badgeEl=document.getElementById('sig-badge-${c.id}');
+      const reasonEl=document.getElementById('sig-reason-${c.id}');
+      const reasonText=document.getElementById('sig-reason-text-${c.id}');
+      if(badgeEl) badgeEl.innerHTML=`<span class="badge ${sig.badge}">${sig.badge.toUpperCase()}</span>${sig.rsi?` <span style="font-size:10px;color:var(--text-muted)">RSI ${sig.rsi}</span>`:''}`;
+      if(reasonEl && sig.reason){ reasonEl.style.display='block'; reasonText.textContent=sig.reason; }
+      // Also update the table row badge
+      const rowBadgeEl=document.getElementById('sig-cell-${c.id}');
+      if(rowBadgeEl) rowBadgeEl.innerHTML=`<span class="badge ${sig.badge}">${sig.badge.toUpperCase()}</span>`;
+      computedSignals[c.id]=sig;
+    });
+    tbody.appendChild(dtr);
+  });
+}
+
+let openMktRow=null;
+function toggleMktDetail(c,tr){
+  const det=document.getElementById(`mdet-${c.id}`);
+  if(openMktRow&&openMktRow!==c.id){
+    const prev=document.getElementById(`mdet-${openMktRow}`);
+    const prevTr=document.getElementById(`mrow-${openMktRow}`);
+    if(prev) prev.classList.remove('open');
+    if(prevTr) prevTr.classList.remove('expanded');
+  }
+  det.classList.toggle('open');tr.classList.toggle('expanded');
+  openMktRow=det.classList.contains('open')?c.id:null;
+}
+
+function filterMkt(btn,f){
+  document.querySelectorAll('.mkt-filter').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');mktFilter=f;renderMarket();
+}
+function searchMkt(q){renderMarket();}
+
+// Computed signals cache — populated from 14d price history
+const computedSignals = {};
+
+function calcRSI(prices, period=14){
+  if(prices.length < period+1) return null;
+  let gains=0, losses=0;
+  for(let i=prices.length-period; i<prices.length; i++){
+    const diff=prices[i]-prices[i-1];
+    if(diff>0) gains+=diff; else losses+=Math.abs(diff);
+  }
+  if(losses===0) return 100;
+  const rs=gains/losses;
+  return Math.round(100-(100/(1+rs)));
+}
+
+function signalFromRSI(rsi, change24h, change7d){
+  if(rsi===null) return {badge:'hold', rsi:null, reason:'Insufficient data for RSI calculation.'};
+  // Strong buy conditions
+  if(rsi < 30) return {badge:'buy', rsi, reason:`RSI at ${rsi} — extreme oversold territory. Strong historical reversal zone. Gradual accumulation recommended.`};
+  if(rsi < 40 && change7d < -5) return {badge:'buy', rsi, reason:`RSI at ${rsi} with ${change7d?.toFixed(1)}% weekly decline — oversold with downward momentum. Potential recovery entry.`};
+  // Strong sell conditions
+  if(rsi > 75) return {badge:'sell', rsi, reason:`RSI at ${rsi} — extreme overbought territory. High probability of correction. Consider reducing exposure.`};
+  if(rsi > 65 && change24h > 5) return {badge:'sell', rsi, reason:`RSI at ${rsi} with +${change24h?.toFixed(1)}% 24h surge — overbought after pump. Risk of pullback is elevated.`};
+  // Mild buy
+  if(rsi < 45 && change7d < -3) return {badge:'buy', rsi, reason:`RSI at ${rsi} with recent weakness — mild oversold. Could be an accumulation opportunity on dips.`};
+  // Default hold
+  return {badge:'hold', rsi, reason:`RSI at ${rsi} — neutral zone. No strong directional signal. Hold current position and monitor for breakout.`};
+}
+
+async function fetchAndComputeSignal(coinId, change24h, change7d){
+  if(computedSignals[coinId]) return computedSignals[coinId];
+  try {
+    const r = await fetch(`/api/chart?coin=${coinId}&days=14`);
+    const data = await r.json();
+    if(!data.prices) throw new Error('no prices');
+    const closes = data.prices.map(p=>p[1]);
+    const rsi = calcRSI(closes);
+    const sig = signalFromRSI(rsi, change24h, change7d);
+    computedSignals[coinId] = sig;
+    return sig;
+  } catch(e) {
+    // fallback: use price change only
+    let badge='hold', reason='Insufficient data.';
+    if(change7d < -8){ badge='buy'; reason=`Down ${change7d?.toFixed(1)}% in 7 days — potential oversold recovery.`; }
+    else if(change24h > 8){ badge='sell'; reason=`Up +${change24h?.toFixed(1)}% in 24h — short-term overbought signal.`; }
+    const sig={badge, rsi:null, reason};
+    computedSignals[coinId]=sig;
+    return sig;
+  }
+}
+
+function getSig(id){
+  // Return from computedSignals if available, else from static SIGNALS
+  if(computedSignals[id]) return computedSignals[id].badge;
+  const s=SIGNALS.find(x=>x.id===id);
+  return s&&s.badge!=='unavailable'?s.badge:null;
+}
+
+// ── Portfolio ──
+function fetchPortfolio(){
+  if(!PORTFOLIO.length){document.getElementById('port-tbody').innerHTML='<tr><td colspan="7" class="lrow">No verified holdings available. Connect a read-only portfolio source.</td></tr>';return;}
+
+  const tbody=document.getElementById('port-tbody');if(!tbody)return;
+  const ids=PORTFOLIO.filter(p=>p.id).map(p=>p.id).join(',');
+  fetch(`/api/prices?ids=${ids}`)
+    .then(r=>r.json()).then(data=>{
+      tbody.innerHTML='';let total=0;
+      PORTFOLIO.forEach(p=>{
+        const price=p.id?(data[p.id]?.usd||0):p.price;
+        const val=price*p.amount;total+=val;
+        const pnlPct=p.avgBuy?((price-p.avgBuy)/p.avgBuy*100):null;
+        const pnlUsd=p.avgBuy?((price-p.avgBuy)*p.amount):null;
+        const pPct=pnlPct!=null?(pnlPct>=0?'+':'')+pnlPct.toFixed(2)+'%':'—';
+        const pUsd=pnlUsd!=null?'$'+(pnlUsd>=0?'+':'')+pnlUsd.toFixed(0):'—';
+        const cls=pnlPct>=0?'up':'down';
+        const tr=document.createElement('tr');
+        tr.innerHTML=`<td><div class="coin-nm">${p.name}</div><div class="coin-sy">${p.sym}</div></td><td style="text-align:right">${p.amount.toLocaleString()}</td><td style="text-align:right">${p.avgBuy?'$'+p.avgBuy.toLocaleString():'—'}</td><td style="text-align:right">$${price.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:4})}</td><td style="text-align:right">$${val.toLocaleString(undefined,{maximumFractionDigits:0})}</td><td style="text-align:right" class="${cls}">${pPct}</td><td style="text-align:right" class="${cls}">${pUsd}</td>`;
+        tbody.appendChild(tr);
+        if(p.id==='ethereum'){const el=document.getElementById('port-eth');if(el)el.textContent='$'+val.toFixed(0);}
+      });
+    }).catch(()=>{if(tbody)tbody.innerHTML=`<tr><td colspan="7" class="lrow" style="color:var(--amber)">Rate limit — retry in 60s</td></tr>`;});
+}
+
+// ── Scan ──
+function triggerScan(btnId,resId){
+  const btn=document.getElementById(btnId);const res=document.getElementById(resId);
+  btn.classList.add('scanning');btn.innerHTML='<i class="ti ti-loader spin"></i>Scanning...';
+  res.innerHTML='<span class="ok">Connecting to backend...</span><br>';res.classList.add('open');
+  fetch('/api/scan',{method:'POST',headers:{'Content-Type':'application/json',...authHeaders()},body:JSON.stringify({})})
+    .then(r=>r.json()).then(data=>{
+      res.innerHTML='';
+      if(data.error){
+        res.innerHTML+=`<span class="warn">Backend error: ${esc(data.error)}</span><br><span class="warn">No live scan was executed.</span>`;
+        resetScanButton(btn);
+        showToast('Scan failed — backend error');
+        return;
+      }
+      res.innerHTML+=`<span class="ok">Scan complete. ${data.total} alert(s) found.</span><br><br>`;
+      if(data.alerts.length===0){res.innerHTML+='<span class="ok">No anomalies detected by this scan; wallet safety is not guaranteed.</span>';}
+      else{data.alerts.forEach(a=>{const cls=a.severity==='CRITICAL'?'err':a.severity==='HIGH'?'warn':'ok';res.innerHTML+=`<span class="${cls}">[${esc(a.severity)}] ${esc(a.title)}</span><br><span style="color:var(--text-muted);font-size:10px">${esc(a.description)}</span><br><br>`;});}
+      btn.classList.remove('scanning');btn.innerHTML='<i class="ti ti-radar"></i>Run manual scan';
+      showToast(`Scan complete — ${data.total} alert(s) found`);
+      loadAlerts();
+    }).catch(()=>{
+      res.innerHTML+='<span class="warn">Backend not running. No live scan was executed.</span>';
+      resetScanButton(btn);
+      showToast('Scan failed — backend unavailable');
+    });
+}
+function resetScanButton(btn){
+  btn.classList.remove('scanning');
+  btn.innerHTML='<i class="ti ti-radar"></i>Run manual scan';
+}
+
+// ── Prices ──
+async function fetchPrices(){
+  const ids=SIGNALS.map(s=>s.id).join(',');
+  const urls=[
+    `/api/prices?ids=${ids}`,
+    `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`
+  ];
+
+  for(const url of urls){
+    try{
+      const r=await fetch(url,{cache:'no-store'});
+      if(!r.ok) throw new Error(`price fetch failed: ${r.status}`);
+      const data=await r.json();
+      SIGNALS.forEach(s=>{
+        if(data[s.id]){
+          prices[s.id]=data[s.id].usd;
+          s.change24h=data[s.id].usd_24h_change||0;
+        }
+      });
+      updateMetrics();renderSignals();
+      return;
+    }catch(e){
+      console.warn('Price endpoint failed:', url, e);
+    }
+  }
+
+  setMetricOffline('m-btc','m-btc-c');
+  setMetricOffline('m-eth','m-eth-c');
+  renderSignals();
+}
+
+function setMetricOffline(valueId,subId){
+  const v=document.getElementById(valueId); if(v) v.textContent='—';
+  const s=document.getElementById(subId); if(s) s.innerHTML='<span class="warn">API unavailable</span>';
+}
+
+function updateMetrics(){
+  const fmt=(n)=>n?'$'+n.toLocaleString(undefined,{maximumFractionDigits:0}):'...';
+  const chgHtml=(c)=>c==null?'<span class="neu">loading</span>':c>=0?`<span class="up"><i class="ti ti-arrow-up" style="font-size:10px"></i>+${c.toFixed(2)}% (24h)</span>`:`<span class="down"><i class="ti ti-arrow-down" style="font-size:10px"></i>${c.toFixed(2)}% (24h)</span>`;
+  const btcObj=SIGNALS.find(s=>s.id==='bitcoin');const ethObj=SIGNALS.find(s=>s.id==='ethereum');
+  if(btcObj&&prices[btcObj.id]){document.getElementById('m-btc').textContent=fmt(prices[btcObj.id]);document.getElementById('m-btc-c').innerHTML=chgHtml(btcObj.change24h);}
+  if(ethObj&&prices[ethObj.id]){
+    document.getElementById('m-eth').textContent=fmt(prices[ethObj.id]);document.getElementById('m-eth-c').innerHTML=chgHtml(ethObj.change24h);
+  }
+}
+
+async function fetchFG(){
+  const urls=['/api/feargreed','https://api.alternative.me/fng/?limit=1'];
+  for(const url of urls){
+    try{
+      const r=await fetch(url,{cache:'no-store'});
+      if(!r.ok) throw new Error(`feargreed fetch failed: ${r.status}`);
+      const d=await r.json();
+      document.getElementById('m-fg').textContent=d.data[0].value;
+      document.getElementById('m-fg-l').textContent=d.data[0].value_classification;
+      return;
+    }catch(e){
+      console.warn('Fear & Greed endpoint failed:', url, e);
+    }
+  }
+  const fg=document.getElementById('m-fg'); if(fg) fg.textContent='—';
+  const fgl=document.getElementById('m-fg-l'); if(fgl) fgl.textContent='API unavailable';
+}
+
+// ── Chat ──
+// This dashboard currently has no server-side LLM chat endpoint.
+function quickChat(m){document.getElementById('chat-input').value=m;sendChat();}
+function sendChat(){
+  const inp=document.getElementById('chat-input'),msg=inp.value.trim();if(!msg)return;
+  inp.value='';appendChat('user',msg);
+  const q=msg.toLowerCase();
+  const answer=q.includes('alert')||q.includes('safe')
+    ? alertSummaryText(true)+'\nAnomaly alerts do not prove wallet safety.'
+    : q.includes('signal')||q.includes('btc')||q.includes('eth')
+    ? (SIGNALS.filter(s=>s.badge!=='unavailable').map(s=>s.sym+' '+s.badge+' RSI '+(s.rsi??'—')).join('\n') || 'No recorded signals available.')
+    : 'AI chat is not connected to the backend. No fabricated AI answer will be shown.';
+  appendChat('agent',answer);
+}
+function appendChat(role,msg){
+  const log=document.getElementById('chat-log'),div=document.createElement('div');
+  div.style.cssText='display:flex;justify-content:'+(role==='user'?'flex-end':'flex-start');
+  const bubble=document.createElement('div');
+  bubble.style.cssText='max-width:82%;padding:9px 13px;border-radius:12px;background:'+(role==='user'?'var(--blue)':'var(--bg-surface)')+';color:'+(role==='user'?'#fff':'var(--text-primary)')+';font-size:12px;line-height:1.7;white-space:pre-wrap';
+  bubble.textContent=msg;div.appendChild(bubble);log.appendChild(div);log.scrollTop=log.scrollHeight;
+}
+// ── Init ──
+fetchPrices();fetchFG();loadChart();loadAlerts();
+setInterval(fetchPrices,60000);setInterval(fetchFG,300000);setInterval(loadAlerts,60000);
+</script>
+</body>
+</html>+Number(okx.total_usd).toLocaleString();
+  }catch(e){console.warn('OKX balance unavailable',e);}
+}
+async function loadTransactions(){
+  const body=document.getElementById('transactions-tbody');if(!body)return;
+  try{
+    const data=await fetchJson('/api/wallet/transactions'),rows=data.transactions||[];
+    body.innerHTML='';
+    for(const tx of rows){
+      const tr=document.createElement('tr');
+      [tx.timestamp,tx.direction,'ETH',tx.value_eth,'—',tx.is_error?'Failed':'Confirmed',tx.hash].forEach(v=>{const td=document.createElement('td');td.textContent=String(v??'—');tr.appendChild(td);});
+      body.appendChild(tr);
+    }
+    if(!rows.length)body.innerHTML='<tr><td colspan="7">No transactions returned.</td></tr>';
+  }catch(e){body.innerHTML='<tr><td colspan="7">Transactions unavailable.</td></tr>';}
 }
 
 function humanizeAlertType(v){
@@ -712,7 +2759,7 @@ async function fetchJson(url,opts={}){
   const ctrl=new AbortController();
   const timer=setTimeout(()=>ctrl.abort(),6000);
   try{
-    const r=await fetch(url,{...opts,cache:'no-store',signal:ctrl.signal});
+    const r=await fetch(url,{...opts,cache:'no-store',headers:{...authHeaders(),...(opts.headers||{})},signal:ctrl.signal});
     if(!r.ok) throw new Error(`${url} returned ${r.status}`);
     return await r.json();
   } finally {
@@ -767,7 +2814,7 @@ function renderSignals(){
     const p=prices[s.id];const pstr=p?'$'+p.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:p>10?2:4}):'...';
     const chg=s.change24h!=null?(s.change24h>=0?`<span class="up">+${s.change24h.toFixed(2)}%</span>`:`<span class="down">${s.change24h.toFixed(2)}%</span>`):'';
     const div=document.createElement('div');div.className='sc'+(selSig===gi?' sel':'');
-    div.innerHTML=`<div class="sc-coin">${s.sym}</div><div class="sc-price">${pstr}</div><div class="sc-chg">${chg}</div><div class="sc-row"><span class="badge ${s.badge}">${s.badge.toUpperCase()}</span><span class="rsi-lbl">RSI ${s.rsi}</span></div><div class="rsi-bar"><div class="rsi-fill" style="width:${s.rsi}%;background:${s.rsiClr}"></div></div>`;
+    div.innerHTML=`<div class="sc-coin">${s.sym}</div><div class="sc-price">${pstr}</div><div class="sc-chg">${chg}</div><div class="sc-row"><span class="badge ${s.badge}">${s.badge.toUpperCase()}</span><span class="rsi-lbl">RSI ${s.rsi??"—"}</span></div><div class="rsi-bar"><div class="rsi-fill" style="width:${s.rsi??0}%;background:${s.rsiClr}"></div></div>`;
     div.addEventListener('click',()=>toggleSigDet(gi));
     g.appendChild(div);
   });
@@ -780,9 +2827,9 @@ function toggleSigDet(i){
   const p=prices[s.id]||0;
   const pstr=p?'$'+p.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:p>10?2:4}):'...';
   const chg=s.change24h!=null?(s.change24h>=0?`<span class="up">+${s.change24h.toFixed(2)}%</span>`:`<span class="down">${s.change24h.toFixed(2)}%</span>`):'—';
-  const rsiClrVal=s.rsi>70?'var(--red)':s.rsi<30?'var(--green)':'var(--text-primary)';
-  const rsiDesc=s.rsi>70?'Overbought — consider reducing exposure':s.rsi<30?'Oversold — potential accumulation zone':'Neutral — no strong directional bias';
-  const signalDesc={buy:'Bullish setup detected. RSI in oversold-to-neutral range with positive momentum. Consider gradual accumulation.',sell:'Bearish setup. RSI in overbought territory. Consider reducing position or setting tight stop-loss.',hold:'No strong signal. RSI in neutral range. Hold current position and monitor for breakout.'};
+  const rsiClrVal=s.rsi==null?'var(--text-muted)':s.rsi>70?'var(--red)':s.rsi<30?'var(--green)':'var(--text-primary)';
+  const rsiDesc=s.rsi==null?'No verified RSI snapshot available':s.rsi>70?'Overbought; confirmation required':s.rsi<30?'Oversold; confirmation required':'Neutral reading; not a validated forecast';
+  const signalDesc={buy:'Rule-based bullish indication, not a validated forecast.',sell:'Rule-based bearish indication, not a validated forecast.',hold:'Rule-based neutral indication, not a validated forecast.',unavailable:'No saved signal available.'};
   det.innerHTML=`
     <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.75rem">
       <div><div style="font-size:11px;color:var(--text-muted);margin-bottom:2px">${s.name}</div><div style="font-size:18px;font-weight:600">${s.sym} / USDT</div></div>
@@ -792,7 +2839,7 @@ function toggleSigDet(i){
       <div class="sds"><div class="sds-l">Signal</div><div class="sds-v"><span class="badge ${s.badge}" style="font-size:12px">${s.badge.toUpperCase()}</span></div></div>
       <div class="sds"><div class="sds-l">RSI (14)</div><div class="sds-v" style="color:${rsiClrVal}">${s.rsi}</div></div>
       <div class="sds"><div class="sds-l">24h Change</div><div class="sds-v">${chg}</div></div>
-      <div class="sds"><div class="sds-l">Confidence</div><div class="sds-v">${s.rsi<30||s.rsi>70?'High':'Medium'}</div></div>
+      <div class="sds"><div class="sds-l">Confidence</div><div class="sds-v">${'Not calibrated'}</div></div>
     </div>
     <div style="margin-top:12px;padding:10px 12px;background:var(--bg-card);border-radius:var(--r);font-size:11px;color:var(--text-secondary);line-height:1.7">
       <span style="color:var(--text-muted);font-size:10px;text-transform:uppercase;letter-spacing:.05em">RSI Analysis</span><br>${rsiDesc}<br><br>
@@ -955,7 +3002,7 @@ function renderMarket(){
       // Also update the table row badge
       const rowBadgeEl=document.getElementById('sig-cell-${c.id}');
       if(rowBadgeEl) rowBadgeEl.innerHTML=`<span class="badge ${sig.badge}">${sig.badge.toUpperCase()}</span>`;
-      computedSignals['${c.id}']=sig;
+      computedSignals[c.id]=sig;
     });
     tbody.appendChild(dtr);
   });
@@ -1035,11 +3082,13 @@ function getSig(id){
   // Return from computedSignals if available, else from static SIGNALS
   if(computedSignals[id]) return computedSignals[id].badge;
   const s=SIGNALS.find(x=>x.id===id);
-  return s?s.badge:null;
+  return s&&s.badge!=='unavailable'?s.badge:null;
 }
 
 // ── Portfolio ──
 function fetchPortfolio(){
+  if(!PORTFOLIO.length){document.getElementById('port-tbody').innerHTML='<tr><td colspan="7" class="lrow">No verified holdings available. Connect a read-only portfolio source.</td></tr>';return;}
+
   const tbody=document.getElementById('port-tbody');if(!tbody)return;
   const ids=PORTFOLIO.filter(p=>p.id).map(p=>p.id).join(',');
   fetch(`/api/prices?ids=${ids}`)
@@ -1066,18 +3115,18 @@ function triggerScan(btnId,resId){
   const btn=document.getElementById(btnId);const res=document.getElementById(resId);
   btn.classList.add('scanning');btn.innerHTML='<i class="ti ti-loader spin"></i>Scanning...';
   res.innerHTML='<span class="ok">Connecting to backend...</span><br>';res.classList.add('open');
-  fetch('/api/scan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})})
+  fetch('/api/scan',{method:'POST',headers:{'Content-Type':'application/json',...authHeaders()},body:JSON.stringify({})})
     .then(r=>r.json()).then(data=>{
       res.innerHTML='';
       if(data.error){
-        res.innerHTML+=`<span class="warn">Backend error: ${data.error}</span><br><span class="warn">No live scan was executed.</span>`;
+        res.innerHTML+=`<span class="warn">Backend error: ${esc(data.error)}</span><br><span class="warn">No live scan was executed.</span>`;
         resetScanButton(btn);
         showToast('Scan failed — backend error');
         return;
       }
       res.innerHTML+=`<span class="ok">Scan complete. ${data.total} alert(s) found.</span><br><br>`;
-      if(data.alerts.length===0){res.innerHTML+='<span class="ok">No anomalies detected. Wallet appears safe.</span>';}
-      else{data.alerts.forEach(a=>{const cls=a.severity==='CRITICAL'?'err':a.severity==='HIGH'?'warn':'ok';res.innerHTML+=`<span class="${cls}">[${a.severity}] ${a.title}</span><br><span style="color:var(--text-muted);font-size:10px">${a.description}</span><br><br>`;});}
+      if(data.alerts.length===0){res.innerHTML+='<span class="ok">No anomalies detected by this scan; wallet safety is not guaranteed.</span>';}
+      else{data.alerts.forEach(a=>{const cls=a.severity==='CRITICAL'?'err':a.severity==='HIGH'?'warn':'ok';res.innerHTML+=`<span class="${cls}">[${esc(a.severity)}] ${esc(a.title)}</span><br><span style="color:var(--text-muted);font-size:10px">${esc(a.description)}</span><br><br>`;});}
       btn.classList.remove('scanning');btn.innerHTML='<i class="ti ti-radar"></i>Run manual scan';
       showToast(`Scan complete — ${data.total} alert(s) found`);
       loadAlerts();
@@ -1135,8 +3184,6 @@ function updateMetrics(){
   if(btcObj&&prices[btcObj.id]){document.getElementById('m-btc').textContent=fmt(prices[btcObj.id]);document.getElementById('m-btc-c').innerHTML=chgHtml(btcObj.change24h);}
   if(ethObj&&prices[ethObj.id]){
     document.getElementById('m-eth').textContent=fmt(prices[ethObj.id]);document.getElementById('m-eth-c').innerHTML=chgHtml(ethObj.change24h);
-    const ew=document.getElementById('eth-wal-usd');if(ew)ew.textContent='$'+(prices[ethObj.id]*4.21).toFixed(0);
-    const pe=document.getElementById('port-eth');if(pe)pe.textContent='$'+(prices[ethObj.id]*4.21).toFixed(0);
   }
 }
 
@@ -1159,41 +3206,26 @@ async function fetchFG(){
 }
 
 // ── Chat ──
-const chatFns={
-  btc:()=>`BTC is at ${prices['bitcoin']?'$'+prices['bitcoin'].toLocaleString():'unknown'}. Signal: HOLD — RSI 58 is neutral. No strong directional bias. Hold current position and watch for breakout above recent high.`,
-  eth:()=>`ETH at ${prices['ethereum']?'$'+prices['ethereum'].toLocaleString():'unknown'}. Signal: BUY — RSI 38 is approaching oversold. Historically a good gradual accumulation zone. Confirm with volume.`,
-  sol:()=>`SOL at ${prices['solana']?'$'+prices['solana'].toLocaleString():'unknown'}. Signal: BUY — RSI 33, near oversold. Strong recovery history from this RSI level.`,
-  doge:()=>'DOGE signal: SELL — RSI 74 is in overbought territory. Risk of correction. Consider reducing or setting trailing stop-loss.',
-  bnb:()=>`BNB at ${prices['binancecoin']?'$'+prices['binancecoin'].toLocaleString():'unknown'}. Signal: HOLD — RSI 52, neutral zone. No strong directional signal currently.`,
-  avax:()=>`AVAX at ${prices['avalanche-2']?'$'+prices['avalanche-2'].toLocaleString():'unknown'}. Signal: BUY — RSI 29, entering oversold. Could be a solid entry. Watch for volume confirmation.`,
-  safe:()=>alertsData.filter(isActiveAlert).length ? `Active anomaly alerts:\n${alertSummaryText(true)}\n\nImmediate manual review is recommended for any critical active alert.` : 'No active anomaly alerts are currently displayed. Run manual scan to verify live wallet state.',
-  alert:()=>`Anomaly alerts:\n${alertSummaryText(false)}`,
-  signal:()=>'Current AI signals:\nBTC — HOLD (RSI 58)\nETH — BUY (RSI 38)\nSOL — BUY (RSI 33)\nBNB — HOLD (RSI 52)\nDOGE — SELL (RSI 74)\nAVAX — BUY (RSI 29)\nXRP — BUY (RSI 41)\nADA — HOLD (RSI 55)\nDOT — BUY (RSI 35)',
-  wallet:()=>`Monitored wallets:\n0xd8dA...6045 (ETH Mainnet): 4.21 ETH = $${prices['ethereum']?(prices['ethereum']*4.21).toFixed(0):'?'}\n0x9Fa2...3a1F (OKX DEX): 12,867 USDT\nTotal portfolio: ~$24,830`,
-  price:()=>`Live prices:\nBTC: ${prices['bitcoin']?'$'+prices['bitcoin'].toLocaleString():'...'}\nETH: ${prices['ethereum']?'$'+prices['ethereum'].toLocaleString():'...'}\nSOL: ${prices['solana']?'$'+prices['solana'].toLocaleString():'...'}\nBNB: ${prices['binancecoin']?'$'+prices['binancecoin'].toLocaleString():'...'}`,
-};
-
+// This dashboard currently has no server-side LLM chat endpoint.
 function quickChat(m){document.getElementById('chat-input').value=m;sendChat();}
-
 function sendChat(){
-  const inp=document.getElementById('chat-input');const msg=inp.value.trim();if(!msg)return;
+  const inp=document.getElementById('chat-input'),msg=inp.value.trim();if(!msg)return;
   inp.value='';appendChat('user',msg);
-  const typing=appendChat('agent','...',true);
-  let ans=null;
-  for(const[k,fn]of Object.entries(chatFns)){if(msg.toLowerCase().includes(k)){ans=fn();break;}}
-  if(!ans)ans=`Understood: "${msg}". In production this connects to your Groq/LangChain agent. Try: btc, eth, sol, doge, avax, bnb, wallet, alerts, signals, or price.`;
-  setTimeout(()=>{if(typing)typing.remove();appendChat('agent',ans);},700);
+  const q=msg.toLowerCase();
+  const answer=q.includes('alert')||q.includes('safe')
+    ? alertSummaryText(true)+'\nAnomaly alerts do not prove wallet safety.'
+    : q.includes('signal')||q.includes('btc')||q.includes('eth')
+    ? (SIGNALS.filter(s=>s.badge!=='unavailable').map(s=>s.sym+' '+s.badge+' RSI '+(s.rsi??'—')).join('\n') || 'No recorded signals available.')
+    : 'AI chat is not connected to the backend. No fabricated AI answer will be shown.';
+  appendChat('agent',answer);
 }
-function appendChat(role,msg,isTyping=false){
-  const log=document.getElementById('chat-log');
-  const div=document.createElement('div');
-  div.style.cssText=`display:flex;justify-content:${role==='user'?'flex-end':'flex-start'}`;
-  div.innerHTML=`<div style="max-width:82%;padding:9px 13px;border-radius:${role==='user'?'12px 12px 4px 12px':'12px 12px 12px 4px'};background:${role==='user'?'var(--blue)':'var(--bg-surface)'};color:${role==='user'?'#fff':'var(--text-primary)'};font-size:12px;line-height:1.7;white-space:pre-wrap;border:.5px solid ${role==='user'?'transparent':'var(--border)'};">${msg}</div>`;
-  if(isTyping)div.id='chat-typing';
-  log.appendChild(div);log.scrollTop=log.scrollHeight;
-  return isTyping?div:null;
+function appendChat(role,msg){
+  const log=document.getElementById('chat-log'),div=document.createElement('div');
+  div.style.cssText='display:flex;justify-content:'+(role==='user'?'flex-end':'flex-start');
+  const bubble=document.createElement('div');
+  bubble.style.cssText='max-width:82%;padding:9px 13px;border-radius:12px;background:'+(role==='user'?'var(--blue)':'var(--bg-surface)')+';color:'+(role==='user'?'#fff':'var(--text-primary)')+';font-size:12px;line-height:1.7;white-space:pre-wrap';
+  bubble.textContent=msg;div.appendChild(bubble);log.appendChild(div);log.scrollTop=log.scrollHeight;
 }
-
 // ── Init ──
 fetchPrices();fetchFG();loadChart();loadAlerts();
 setInterval(fetchPrices,60000);setInterval(fetchFG,300000);setInterval(loadAlerts,60000);
