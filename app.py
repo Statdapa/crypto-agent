@@ -17,17 +17,17 @@ TAMBAHKAN KE .env:
     DASHBOARD_TOKEN=bebas_isi_password_apapun
 """
 
-import os, time, sqlite3, requests, hmac, hashlib, base64
+import os, time, sqlite3, requests, hmac, hashlib, base64, re
 from datetime import datetime, timedelta
 from functools import wraps
 from flask import Flask, jsonify, request, send_from_directory
-from flask_cors import CORS
+from data_repository import latest_signals, weekly_summary, recent_alerts
 from dotenv import load_dotenv
 
 load_dotenv()
 
-app = Flask(__name__, static_folder=".")
-CORS(app)
+app = Flask(__name__, static_folder=None)
+# Serve the dashboard same-origin. Do not allow wildcard CORS on account endpoints.
 
 ETHERSCAN_KEY   = os.getenv("ETHERSCAN_API_KEY", "")
 WALLET_ADDRESS  = os.getenv("WALLET_ADDRESS", "")
@@ -35,7 +35,7 @@ OKX_WALLET      = os.getenv("OKX_WALLET_ADDRESS", "")
 OKX_API_KEY     = os.getenv("OKX_API_KEY", "")
 OKX_SECRET_KEY  = os.getenv("OKX_SECRET_KEY", "")
 OKX_PASSPHRASE  = os.getenv("OKX_PASSPHRASE", "")
-DB_PATH         = os.getenv("DB_PATH", "btc_agent.db")
+DB_PATH         = os.getenv("DB_PATH", "crypto_intelligence_agent.db")
 DASHBOARD_TOKEN = os.getenv("DASHBOARD_TOKEN", "")
 COINGECKO_BASE  = "https://api.coingecko.com/api/v3"
 ETHERSCAN_BASE  = "https://api.etherscan.io/v2/api"
@@ -54,16 +54,34 @@ def get_cache(key, ttl=60):
 def set_cache(key, val):
     _cache[key] = (val, time.time())
 
-def require_token(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        if not DASHBOARD_TOKEN:
-            return f(*args, **kwargs)
-        token = request.headers.get("X-Dashboard-Token") or request.args.get("token")
-        if token != DASHBOARD_TOKEN:
-            return jsonify({"error": "Unauthorized"}), 401
-        return f(*args, **kwargs)
-    return decorated
+# Never expose balances, scan history or portfolio intelligence without an access token.
+# Only send tokens using a request header; query strings are logged and leak via URLs.
+PRIVATE_API_PREFIXES = (
+    "/api/wallet/", "/api/okx/", "/api/scan",
+    "/api/report/", "/api/signals", "/api/config",
+)
+
+
+@app.before_request
+def protect_private_api():
+    if not any(request.path.startswith(p) for p in PRIVATE_API_PREFIXES):
+        return None
+    if not DASHBOARD_TOKEN:
+        return jsonify({"error": "DASHBOARD_TOKEN is not configured on the server"}), 503
+    supplied = request.headers.get("X-Dashboard-Token", "")
+    if not hmac.compare_digest(supplied, DASHBOARD_TOKEN):
+        return jsonify({"error": "Unauthorized"}), 401
+    return None
+
+
+@app.after_request
+def secure_headers(response):
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Referrer-Policy"] = "no-referrer"
+    if request.path.startswith("/api/"):
+        response.headers["Cache-Control"] = "no-store"
+    return response
+
 
 def safe_get(url, params=None, timeout=8, retries=2):
     for attempt in range(retries + 1):
@@ -110,31 +128,14 @@ def okx_headers(method, path, body=""):
 # ── Serve dashboard ──
 @app.route("/")
 def index():
-    return send_from_directory(".", "dashboard.html")
+    return send_from_directory(os.path.dirname(os.path.abspath(__file__)), "dashboard.html")
 
 
 # ── Health check ──
 @app.route("/api/health")
 def health():
-    status = {
-        "status":               "ok",
-        "timestamp":            datetime.now().isoformat(),
-        "etherscan_configured": bool(ETHERSCAN_KEY),
-        "wallet_configured":    bool(WALLET_ADDRESS),
-        "okx_configured":       bool(OKX_API_KEY and OKX_SECRET_KEY),
-        "db_exists":            os.path.exists(DB_PATH),
-        "auth_enabled":         bool(DASHBOARD_TOKEN),
-        "wallet_preview":       WALLET_ADDRESS[:8]+"..."+WALLET_ADDRESS[-4:] if WALLET_ADDRESS else None,
-    }
-    if os.path.exists(DB_PATH):
-        try:
-            conn = sqlite3.connect(DB_PATH)
-            tables = conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
-            status["db_tables"] = [t[0] for t in tables]
-            conn.close()
-        except Exception as e:
-            status["db_error"] = str(e)
-    return jsonify(status)
+    # Public endpoint: avoid leaking wallet addresses, API configuration or DB structure.
+    return jsonify({"status": "ok", "timestamp": datetime.utcnow().isoformat() + "Z"})
 
 
 # ── Prices ──
@@ -156,6 +157,8 @@ def prices():
 def chart():
     coin = request.args.get("coin", "bitcoin")
     days = request.args.get("days", "1")
+    if not re.fullmatch(r"[a-z0-9-]{1,60}", coin) or days not in {"1", "7", "14", "30", "90", "180", "365"}:
+        return jsonify({"error": "Invalid coin or days parameter"}), 400
     cached = get_cache(f"chart_{coin}_{days}", ttl=120)
     if cached: return jsonify(cached)
     try:
@@ -310,105 +313,34 @@ def scan():
 @app.route("/api/scan/history")
 def scan_history():
     try:
-        conn = sqlite3.connect(DB_PATH)
-        rows = conn.execute(
-            """SELECT alert_type, severity, title, wallet, coin, value, threshold,
-                      description, tx_hash, detected_at
-               FROM anomaly_log ORDER BY detected_at DESC LIMIT 20"""
-        ).fetchall()
-        conn.close()
-        return jsonify({"alerts": [
-            {"type": r[0], "severity": r[1], "title": r[2], "wallet": r[3], "coin": r[4],
-             "value": r[5], "threshold": r[6], "description": r[7], "tx_hash": r[8], "detected_at": r[9]}
-            for r in rows
-        ], "total": len(rows)})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        alerts = recent_alerts(DB_PATH, limit=20)
+        return jsonify({"alerts": alerts, "total": len(alerts)})
+    except Exception:
+        return jsonify({"error": "Could not load scan history"}), 500
 
 
 # ── Weekly Report ──
 @app.route("/api/report/weekly")
 def weekly_report():
     coin = request.args.get("coin", "BTC").upper()
+    if not re.fullmatch(r"[A-Z0-9]{2,12}", coin):
+        return jsonify({"error": "Invalid coin"}), 400
     try:
-        conn = sqlite3.connect(DB_PATH)
-        rows = conn.execute(
-            "SELECT price, change_24h, rsi, signal, confidence, recorded_at FROM price_history WHERE coin=? ORDER BY recorded_at DESC LIMIT 168",
-            (coin,)
-        ).fetchall()
-        cutoff    = (datetime.now() - timedelta(days=7)).isoformat()
-        anomalies = conn.execute(
-            "SELECT severity, title, detected_at FROM anomaly_log WHERE detected_at > ? ORDER BY detected_at DESC",
-            (cutoff,)
-        ).fetchall()
-        conn.close()
-
-        if not rows:
-            return jsonify({"error": f"Tidak ada data historis untuk {coin}"}), 404
-
-        prices  = [r[0] for r in rows if r[0]]
-        rsi_vals = [r[2] for r in rows if r[2]]
-        signals  = [r[3] for r in rows if r[3]]
-
-        p_open  = prices[-1]; p_close = prices[0]
-        p_high  = max(prices); p_low = min(prices)
-        pct_chg = round((p_close - p_open) / p_open * 100, 2) if p_open else 0
-        avg_rsi = round(sum(rsi_vals) / len(rsi_vals), 1) if rsi_vals else None
-
-        buy_c  = signals.count("BUY")
-        sell_c = signals.count("SELL")
-        hold_c = signals.count("HOLD")
-        dominant = max([("BUY", buy_c), ("SELL", sell_c), ("HOLD", hold_c)], key=lambda x: x[1])[0]
-
-        return jsonify({
-            "coin": coin, "period": "7 days",
-            "generated": datetime.now().strftime("%d %b %Y %H:%M"),
-            "price": {
-                "open": round(p_open, 2), "close": round(p_close, 2),
-                "high": round(p_high, 2), "low": round(p_low, 2),
-                "pct_change": pct_chg,
-                "trend": "bullish" if pct_chg > 0 else "bearish",
-            },
-            "signals": {
-                "dominant": dominant, "buy_count": buy_c,
-                "sell_count": sell_c, "hold_count": hold_c, "avg_rsi": avg_rsi,
-            },
-            "anomalies": {
-                "total":    len(anomalies),
-                "critical": sum(1 for a in anomalies if a[0] == "CRITICAL"),
-                "high":     sum(1 for a in anomalies if a[0] == "HIGH"),
-                "medium":   sum(1 for a in anomalies if a[0] == "MEDIUM"),
-                "list":     [{"severity": a[0], "title": a[1], "time": a[2]} for a in anomalies[:5]],
-            },
-            "summary": (
-                f"{coin} {'gained' if pct_chg > 0 else 'lost'} {abs(pct_chg):.1f}% this week. "
-                f"Dominant signal: {dominant}. Avg RSI: {avg_rsi}. "
-                f"{len(anomalies)} anomalies — {sum(1 for a in anomalies if a[0]=='CRITICAL')} critical."
-            )
-        })
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        report = weekly_summary(DB_PATH, coin)
+        if report is None:
+            return jsonify({"error": f"No snapshots for {coin} in the past seven days"}), 404
+        return jsonify(report)
+    except Exception:
+        return jsonify({"error": "Could not generate weekly report"}), 500
 
 
 # ── Signals from DB ──
 @app.route("/api/signals")
 def signals():
     try:
-        conn  = sqlite3.connect(DB_PATH)
-        coins = conn.execute("SELECT DISTINCT coin FROM price_history").fetchall()
-        result = []
-        for (coin,) in coins:
-            row = conn.execute(
-                "SELECT price, change_24h, rsi, signal, confidence, recorded_at FROM price_history WHERE coin=? ORDER BY recorded_at DESC LIMIT 1",
-                (coin,)
-            ).fetchone()
-            if row:
-                result.append({"coin": coin, "price": row[0], "change_24h": row[1],
-                                "rsi": row[2], "signal": row[3], "confidence": row[4], "updated_at": row[5]})
-        conn.close()
-        return jsonify({"signals": result})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"signals": latest_signals(DB_PATH)})
+    except Exception:
+        return jsonify({"error": "Could not load signals"}), 500
 
 
 # ── Config ──
@@ -420,7 +352,6 @@ def config():
         "okx_cex_configured":   bool(OKX_API_KEY and OKX_SECRET_KEY),
         "okx_wallet_configured":bool(OKX_WALLET),
         "auth_enabled":         bool(DASHBOARD_TOKEN),
-        "db_path":              DB_PATH,
         "wallet_preview":       WALLET_ADDRESS[:8]+"..."+WALLET_ADDRESS[-4:] if WALLET_ADDRESS else None,
     })
 
@@ -430,7 +361,7 @@ def config():
 def not_found(e): return jsonify({"error": "Endpoint not found"}), 404
 
 @app.errorhandler(500)
-def server_error(e): return jsonify({"error": "Internal server error", "detail": str(e)}), 500
+def server_error(e): return jsonify({"error": "Internal server error"}), 500
 
 @app.errorhandler(401)
 def unauthorized(e): return jsonify({"error": "Unauthorized"}), 401

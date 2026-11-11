@@ -317,16 +317,16 @@ tr:last-child td{border-bottom:none}
 
     <!-- Wallets -->
     <div class="card">
-      <div class="ch"><span class="ct">Monitored Wallets</span><span class="cs">2 active</span></div>
+      <div class="ch"><span class="ct">Monitored Wallets</span><span class="cs">Not verified</span></div>
       <div class="wr" onclick="showToast('Etherscan: 0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045')">
         <div class="wdot"></div><span class="cpill">ETH</span>
-        <div><div class="waddr">0xd8dA...6045</div><div class="wlbl">Ethereum Mainnet</div></div>
-        <div class="wbal"><div class="weth">4.21 ETH</div><div class="wusd" id="eth-wal-usd">$—</div></div>
+        <div><div class="waddr">Not connected</div><div class="wlbl">Ethereum Mainnet</div></div>
+        <div class="wbal"><div class="weth">— ETH</div><div class="wusd" id="eth-wal-usd">$—</div></div>
       </div>
       <div class="wr" onclick="showToast('OKX DEX wallet — connect backend for live balance')">
         <div class="wdot"></div><span class="cpill">OKX</span>
-        <div><div class="waddr">0x9Fa2...3a1F</div><div class="wlbl">OKX DEX / Solana</div></div>
-        <div class="wbal"><div class="weth">12,867 USDT</div><div class="wusd">$12,867</div></div>
+        <div><div class="waddr">Not connected</div><div class="wlbl">OKX DEX / Solana</div></div>
+        <div class="wbal"><div class="weth">— USDT</div><div class="wusd">$—</div></div>
       </div>
       <button class="btn" onclick="navigate('portfolio')"><i class="ti ti-wallet"></i>View full portfolio</button>
     </div>
@@ -382,10 +382,10 @@ tr:last-child td{border-bottom:none}
 <!-- ══ PORTFOLIO ══ -->
 <div class="page" id="page-portfolio">
   <div class="metrics">
-    <div class="metric m-green"><div class="ml">Total Value</div><div class="mv">$24,830</div><div class="ms up">+$312 today</div></div>
+    <div class="metric m-green"><div class="ml">Total Value</div><div class="mv">$—</div><div class="ms up">Unverified</div></div>
     <div class="metric m-blue"><div class="ml">ETH Wallet</div><div class="mv" id="port-eth">$—</div><div class="ms neu">4.21 ETH</div></div>
     <div class="metric m-amber"><div class="ml">OKX Balance</div><div class="mv">$12,867</div><div class="ms neu">USDT</div></div>
-    <div class="metric m-purple"><div class="ml">PnL (30d)</div><div class="mv up">+8.2%</div><div class="ms up">+$1,882</div></div>
+    <div class="metric m-purple"><div class="ml">PnL (30d)</div><div class="mv up">—</div><div class="ms up">Unverified</div></div>
   </div>
   <div class="card">
     <div class="ch"><span class="ct">Holdings</span><span class="cs">live prices</span></div>
@@ -399,12 +399,7 @@ tr:last-child td{border-bottom:none}
   <div class="card">
     <div class="ch"><span class="ct">Recent Transactions</span><span class="cs">Etherscan + OKX</span></div>
     <table><thead><tr><th>Time</th><th>Type</th><th>Asset</th><th>Amount (ETH)</th><th>Value (USD)</th><th>Status</th><th>Tx Hash</th></tr></thead>
-    <tbody>
-      <tr><td>14 May 00:12</td><td><span class="sev c" style="font-size:10px">OUT</span></td><td>ETH</td><td style="text-align:right;color:var(--red)">-8.2400</td><td style="text-align:right">$23,412</td><td style="text-align:right"><span class="up">Confirmed</span></td><td style="text-align:right;font-family:var(--mono);font-size:10px;color:var(--text-muted)">0xabc...def</td></tr>
-      <tr><td>13 May 23:48</td><td><span class="sev m" style="font-size:10px">IN</span></td><td>ETH</td><td style="text-align:right;color:var(--green)">+3.1000</td><td style="text-align:right">$8,804</td><td style="text-align:right"><span class="up">Confirmed</span></td><td style="text-align:right;font-family:var(--mono);font-size:10px;color:var(--text-muted)">0x123...456</td></tr>
-      <tr><td>13 May 22:30</td><td><span class="sev m" style="font-size:10px">OUT</span></td><td>ETH</td><td style="text-align:right;color:var(--red)">-0.0500</td><td style="text-align:right">$142</td><td style="text-align:right"><span class="up">Confirmed</span></td><td style="text-align:right;font-family:var(--mono);font-size:10px;color:var(--text-muted)">0x789...abc</td></tr>
-      <tr><td>12 May 18:00</td><td><span class="sev m" style="font-size:10px">IN</span></td><td>USDT</td><td style="text-align:right;color:var(--green)">+5,000</td><td style="text-align:right">$5,000</td><td style="text-align:right"><span class="up">Confirmed</span></td><td style="text-align:right;font-family:var(--mono);font-size:10px;color:var(--text-muted)">0xfed...321</td></tr>
-    </tbody></table>
+    <tbody><tr><td colspan="7">No verified transactions loaded.</td></tr></tbody></table>
   </div>
 </div>
 
@@ -427,7 +422,7 @@ tr:last-child td{border-bottom:none}
 <!-- ══ AI AGENT ══ -->
 <div class="page" id="page-agent">
   <div class="card">
-    <div class="ch"><span class="ct">AI Agent — FinSight</span><span class="cs">Groq / Llama 3.1</span></div>
+    <div class="ch"><span class="ct">AI Agent — FinSight</span><span class="cs">Read-only helper, not connected to Groq</span></div>
     <div id="chat-log" style="display:flex;flex-direction:column;gap:10px;margin-bottom:1rem;min-height:200px;max-height:400px;overflow-y:auto;padding-right:4px"></div>
     <div style="display:flex;gap:8px">
       <input id="chat-input" type="text" placeholder="Ask: Is my wallet safe? BTC signal? ETH price? Show alerts..." style="flex:1;background:var(--bg-surface);border:.5px solid var(--border-med);border-radius:var(--r);padding:9px 12px;color:var(--text-primary);font-size:13px;font-family:var(--font);outline:none;transition:border-color .15s" onkeydown="if(event.key==='Enter')sendChat()"/>
@@ -446,13 +441,13 @@ tr:last-child td{border-bottom:none}
 <!-- ══ REPORTS ══ -->
 <div class="page" id="page-reports">
   <div class="card"><div class="ch"><span class="ct">Reports</span></div>
-    <p style="font-size:12px;color:var(--text-secondary);line-height:1.8">Weekly auto-reports are generated every Monday 08:00 WIB and delivered via Telegram. Reports include: 7-day PnL summary, top anomalies detected, signal performance, and portfolio movement.<br><br>Connect Flask backend to enable PDF export and historical archive.</p>
+    <p style="font-size:12px;color:var(--text-secondary);line-height:1.8">Weekly reports depend on stored snapshots and a separately scheduled bot. Realized PnL requires a trade ledger.<br><br>PDF export is not implemented.</p>
   </div>
 </div>
 
 <!-- ══ SETTINGS ══ -->
 <div class="page" id="page-settings">
-  <div class="card"><div class="ch"><span class="ct">Settings</span></div>
+  <div class="card"><div class="ch"><span class="ct">Settings</span><button class="btn" onclick="configureAccess()">Set access token</button></div>
     <p style="font-size:12px;color:var(--text-secondary);line-height:1.8">All credentials and thresholds are managed via your <span style="font-family:var(--mono);color:var(--blue)">.env</span> file:<br><br>
     <span style="font-family:var(--mono);font-size:11px;color:var(--text-secondary)">GROQ_API_KEY=<br>OKX_API_KEY=<br>OKX_SECRET_KEY=<br>OKX_PASSPHRASE=<br>ETHERSCAN_API_KEY=<br>TELEGRAM_BOT_TOKEN=<br>TELEGRAM_CHAT_ID=</span><br><br>Connect Flask backend to enable live configuration from this UI.</p>
   </div>
@@ -466,22 +461,18 @@ tr:last-child td{border-bottom:none}
 <script>
 // ── Data ──
 const SIGNALS=[
-  {id:'bitcoin',     sym:'BTC', name:'Bitcoin',   badge:'hold',rsi:58,rsiClr:'var(--blue)'},
-  {id:'ethereum',    sym:'ETH', name:'Ethereum',  badge:'buy', rsi:38,rsiClr:'var(--green)'},
-  {id:'solana',      sym:'SOL', name:'Solana',    badge:'buy', rsi:33,rsiClr:'var(--green)'},
-  {id:'binancecoin', sym:'BNB', name:'BNB',       badge:'hold',rsi:52,rsiClr:'var(--blue)'},
-  {id:'dogecoin',    sym:'DOGE',name:'Dogecoin',  badge:'sell',rsi:74,rsiClr:'var(--red)'},
-  {id:'avalanche-2', sym:'AVAX',name:'Avalanche', badge:'buy', rsi:29,rsiClr:'var(--green)'},
-  {id:'ripple',      sym:'XRP', name:'XRP',       badge:'buy', rsi:41,rsiClr:'var(--green)'},
-  {id:'cardano',     sym:'ADA', name:'Cardano',   badge:'hold',rsi:55,rsiClr:'var(--blue)'},
-  {id:'polkadot',    sym:'DOT', name:'Polkadot',  badge:'buy', rsi:35,rsiClr:'var(--green)'},
+  {id:'bitcoin',sym:'BTC',name:'Bitcoin',badge:'unavailable',rsi:null,rsiClr:'var(--blue)'},
+  {id:'ethereum',sym:'ETH',name:'Ethereum',badge:'unavailable',rsi:null,rsiClr:'var(--blue)'},
+  {id:'solana',sym:'SOL',name:'Solana',badge:'unavailable',rsi:null,rsiClr:'var(--blue)'},
+  {id:'binancecoin',sym:'BNB',name:'BNB',badge:'unavailable',rsi:null,rsiClr:'var(--blue)'},
+  {id:'dogecoin',sym:'DOGE',name:'Dogecoin',badge:'unavailable',rsi:null,rsiClr:'var(--blue)'},
+  {id:'avalanche-2',sym:'AVAX',name:'Avalanche',badge:'unavailable',rsi:null,rsiClr:'var(--blue)'},
+  {id:'ripple',sym:'XRP',name:'XRP',badge:'unavailable',rsi:null,rsiClr:'var(--blue)'},
+  {id:'cardano',sym:'ADA',name:'Cardano',badge:'unavailable',rsi:null,rsiClr:'var(--blue)'},
+  {id:'polkadot',sym:'DOT',name:'Polkadot',badge:'unavailable',rsi:null,rsiClr:'var(--blue)'},
 ];
 
-const PORTFOLIO=[
-  {sym:'ETH', name:'Ethereum',amount:4.21, id:'ethereum',   avgBuy:2400},
-  {sym:'USDT',name:'Tether',  amount:12867,id:null,         price:1,chg:0},
-  {sym:'BNB', name:'BNB',     amount:1.5,  id:'binancecoin',avgBuy:550},
-];
+const PORTFOLIO=[];
 
 let prices={}, priceChart=null, selSig=null, sigFilter='all', mktData=[], mktFilter='all', chartDays=1, chartType='line';
 
@@ -500,7 +491,7 @@ document.querySelectorAll('.nav-item[data-page]').forEach(el=>el.addEventListene
 function tick(){
   const n=new Date(),pad=x=>String(x).padStart(2,'0');
   document.getElementById('clock').innerHTML=`<i class="ti ti-clock" style="font-size:12px"></i>${pad(n.getHours())}:${pad(n.getMinutes())}:${pad(n.getSeconds())}`;
-  const se=document.getElementById('sig-time');if(se)se.textContent=`updated ${pad(n.getHours())}:${pad(n.getMinutes())}`;
+  // The signal timestamp must not imply live backend updates.
 }
 setInterval(tick,1000);tick();
 
@@ -509,7 +500,35 @@ function showToast(m){const t=document.getElementById('toast');t.textContent=m;t
 
 // ── Alerts ──
 // Alerts are loaded only from the backend. No frontend demo alerts are rendered or counted.
-const ALERT_ENDPOINTS=['/api/alerts','/api/anomaly-log','/api/anomalies'];
+const ALERT_ENDPOINTS=['/api/scan/history'];
+let dashboardToken='';
+const fetchOriginal=window.fetch.bind(window);
+window.fetch=(url,opts={})=>{
+  if(/^\/api\/(wallet\/|okx\/|scan|report\/|signals|config)/.test(String(url))){
+    opts={...opts,headers:{...(opts.headers||{}),'X-Dashboard-Token':dashboardToken}};
+  }
+  return fetchOriginal(url,opts);
+};
+function configureAccess(){
+  dashboardToken=window.prompt('Enter DASHBOARD_TOKEN from .env:')||'';
+  if(dashboardToken){loadAlerts();loadSignals();}
+}
+async function loadSignals(){
+  try{
+    const data=await fetchJson('/api/signals');
+    const rows=Array.isArray(data.signals)?data.signals:[];
+    const byCoin=Object.fromEntries(rows.map(x=>[String(x.coin).toUpperCase(),x]));
+    SIGNALS.forEach(s=>{
+      const x=byCoin[s.sym];
+      s.badge=['BUY','SELL','HOLD'].includes(x?.signal)?x.signal.toLowerCase():'unavailable';
+      s.rsi=x?.rsi==null?null:Number(x.rsi);
+      s.rsiClr=s.rsi==null?'var(--blue)':s.rsi>70?'var(--red)':s.rsi<30?'var(--green)':'var(--blue)';
+    });
+    document.getElementById('sig-time').textContent=rows.length?'Saved rule-based signals':'No recorded signals';
+  }catch(e){document.getElementById('sig-time').textContent='Signals unavailable';}
+  renderSignals();
+}
+
 let alertsData=[];
 let alertsSource='loading';
 
@@ -767,7 +786,7 @@ function renderSignals(){
     const p=prices[s.id];const pstr=p?'$'+p.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:p>10?2:4}):'...';
     const chg=s.change24h!=null?(s.change24h>=0?`<span class="up">+${s.change24h.toFixed(2)}%</span>`:`<span class="down">${s.change24h.toFixed(2)}%</span>`):'';
     const div=document.createElement('div');div.className='sc'+(selSig===gi?' sel':'');
-    div.innerHTML=`<div class="sc-coin">${s.sym}</div><div class="sc-price">${pstr}</div><div class="sc-chg">${chg}</div><div class="sc-row"><span class="badge ${s.badge}">${s.badge.toUpperCase()}</span><span class="rsi-lbl">RSI ${s.rsi}</span></div><div class="rsi-bar"><div class="rsi-fill" style="width:${s.rsi}%;background:${s.rsiClr}"></div></div>`;
+    div.innerHTML=`<div class="sc-coin">${s.sym}</div><div class="sc-price">${pstr}</div><div class="sc-chg">${chg}</div><div class="sc-row"><span class="badge ${s.badge}">${s.badge.toUpperCase()}</span><span class="rsi-lbl">RSI ${s.rsi??"—"}</span></div><div class="rsi-bar"><div class="rsi-fill" style="width:${s.rsi??0}%;background:${s.rsiClr}"></div></div>`;
     div.addEventListener('click',()=>toggleSigDet(gi));
     g.appendChild(div);
   });
@@ -780,9 +799,9 @@ function toggleSigDet(i){
   const p=prices[s.id]||0;
   const pstr=p?'$'+p.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:p>10?2:4}):'...';
   const chg=s.change24h!=null?(s.change24h>=0?`<span class="up">+${s.change24h.toFixed(2)}%</span>`:`<span class="down">${s.change24h.toFixed(2)}%</span>`):'—';
-  const rsiClrVal=s.rsi>70?'var(--red)':s.rsi<30?'var(--green)':'var(--text-primary)';
-  const rsiDesc=s.rsi>70?'Overbought — consider reducing exposure':s.rsi<30?'Oversold — potential accumulation zone':'Neutral — no strong directional bias';
-  const signalDesc={buy:'Bullish setup detected. RSI in oversold-to-neutral range with positive momentum. Consider gradual accumulation.',sell:'Bearish setup. RSI in overbought territory. Consider reducing position or setting tight stop-loss.',hold:'No strong signal. RSI in neutral range. Hold current position and monitor for breakout.'};
+  const rsiClrVal=s.rsi==null?'var(--text-muted)':s.rsi>70?'var(--red)':s.rsi<30?'var(--green)':'var(--text-primary)';
+  const rsiDesc=s.rsi==null?'No stored RSI reading available.':s.rsi>70?'Overbought indicator; verify before acting.':s.rsi<30?'Oversold indicator; verify before acting.':'Neutral technical indicator; not a prediction.';
+  const signalDesc={buy:'Unvalidated rule-based buy signal.',sell:'Unvalidated rule-based sell signal.',hold:'Unvalidated rule-based neutral signal.',unavailable:'No recorded rule-based signal.'};
   det.innerHTML=`
     <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.75rem">
       <div><div style="font-size:11px;color:var(--text-muted);margin-bottom:2px">${s.name}</div><div style="font-size:18px;font-weight:600">${s.sym} / USDT</div></div>
@@ -790,9 +809,9 @@ function toggleSigDet(i){
     </div>
     <div class="sig-det-stats">
       <div class="sds"><div class="sds-l">Signal</div><div class="sds-v"><span class="badge ${s.badge}" style="font-size:12px">${s.badge.toUpperCase()}</span></div></div>
-      <div class="sds"><div class="sds-l">RSI (14)</div><div class="sds-v" style="color:${rsiClrVal}">${s.rsi}</div></div>
+      <div class="sds"><div class="sds-l">RSI (14)</div><div class="sds-v" style="color:${rsiClrVal}">${s.rsi??"—"}</div></div>
       <div class="sds"><div class="sds-l">24h Change</div><div class="sds-v">${chg}</div></div>
-      <div class="sds"><div class="sds-l">Confidence</div><div class="sds-v">${s.rsi<30||s.rsi>70?'High':'Medium'}</div></div>
+      <div class="sds"><div class="sds-l">Confidence</div><div class="sds-v">${'Uncalibrated'}</div></div>
     </div>
     <div style="margin-top:12px;padding:10px 12px;background:var(--bg-card);border-radius:var(--r);font-size:11px;color:var(--text-secondary);line-height:1.7">
       <span style="color:var(--text-muted);font-size:10px;text-transform:uppercase;letter-spacing:.05em">RSI Analysis</span><br>${rsiDesc}<br><br>
@@ -955,7 +974,7 @@ function renderMarket(){
       // Also update the table row badge
       const rowBadgeEl=document.getElementById('sig-cell-${c.id}');
       if(rowBadgeEl) rowBadgeEl.innerHTML=`<span class="badge ${sig.badge}">${sig.badge.toUpperCase()}</span>`;
-      computedSignals['${c.id}']=sig;
+      computedSignals[c.id]=sig;
     });
     tbody.appendChild(dtr);
   });
@@ -1035,11 +1054,13 @@ function getSig(id){
   // Return from computedSignals if available, else from static SIGNALS
   if(computedSignals[id]) return computedSignals[id].badge;
   const s=SIGNALS.find(x=>x.id===id);
-  return s?s.badge:null;
+  return s && s.badge!=='unavailable'?s.badge:null;
 }
 
 // ── Portfolio ──
 function fetchPortfolio(){
+  if(!PORTFOLIO.length){document.getElementById('port-tbody').innerHTML='<tr><td colspan="7">No verified holdings. Connect a read-only source.</td></tr>';return;}
+
   const tbody=document.getElementById('port-tbody');if(!tbody)return;
   const ids=PORTFOLIO.filter(p=>p.id).map(p=>p.id).join(',');
   fetch(`/api/prices?ids=${ids}`)
@@ -1070,14 +1091,14 @@ function triggerScan(btnId,resId){
     .then(r=>r.json()).then(data=>{
       res.innerHTML='';
       if(data.error){
-        res.innerHTML+=`<span class="warn">Backend error: ${data.error}</span><br><span class="warn">No live scan was executed.</span>`;
+        res.innerHTML+=`<span class="warn">Backend error: ${esc(data.error)}</span><br><span class="warn">No live scan was executed.</span>`;
         resetScanButton(btn);
         showToast('Scan failed — backend error');
         return;
       }
       res.innerHTML+=`<span class="ok">Scan complete. ${data.total} alert(s) found.</span><br><br>`;
-      if(data.alerts.length===0){res.innerHTML+='<span class="ok">No anomalies detected. Wallet appears safe.</span>';}
-      else{data.alerts.forEach(a=>{const cls=a.severity==='CRITICAL'?'err':a.severity==='HIGH'?'warn':'ok';res.innerHTML+=`<span class="${cls}">[${a.severity}] ${a.title}</span><br><span style="color:var(--text-muted);font-size:10px">${a.description}</span><br><br>`;});}
+      if(data.alerts.length===0){res.innerHTML+='<span class="ok">No anomalies detected by this scan; wallet safety is not guaranteed.</span>';}
+      else{data.alerts.forEach(a=>{const cls=a.severity==='CRITICAL'?'err':a.severity==='HIGH'?'warn':'ok';res.innerHTML+=`<span class="${cls}">[${esc(a.severity)}] ${esc(a.title)}</span><br><span style="color:var(--text-muted);font-size:10px">${esc(a.description)}</span><br><br>`;});}
       btn.classList.remove('scanning');btn.innerHTML='<i class="ti ti-radar"></i>Run manual scan';
       showToast(`Scan complete — ${data.total} alert(s) found`);
       loadAlerts();
@@ -1135,8 +1156,7 @@ function updateMetrics(){
   if(btcObj&&prices[btcObj.id]){document.getElementById('m-btc').textContent=fmt(prices[btcObj.id]);document.getElementById('m-btc-c').innerHTML=chgHtml(btcObj.change24h);}
   if(ethObj&&prices[ethObj.id]){
     document.getElementById('m-eth').textContent=fmt(prices[ethObj.id]);document.getElementById('m-eth-c').innerHTML=chgHtml(ethObj.change24h);
-    const ew=document.getElementById('eth-wal-usd');if(ew)ew.textContent='$'+(prices[ethObj.id]*4.21).toFixed(0);
-    const pe=document.getElementById('port-eth');if(pe)pe.textContent='$'+(prices[ethObj.id]*4.21).toFixed(0);
+    // Wallet values must be read from the authenticated wallet endpoint.
   }
 }
 
@@ -1159,44 +1179,28 @@ async function fetchFG(){
 }
 
 // ── Chat ──
-const chatFns={
-  btc:()=>`BTC is at ${prices['bitcoin']?'$'+prices['bitcoin'].toLocaleString():'unknown'}. Signal: HOLD — RSI 58 is neutral. No strong directional bias. Hold current position and watch for breakout above recent high.`,
-  eth:()=>`ETH at ${prices['ethereum']?'$'+prices['ethereum'].toLocaleString():'unknown'}. Signal: BUY — RSI 38 is approaching oversold. Historically a good gradual accumulation zone. Confirm with volume.`,
-  sol:()=>`SOL at ${prices['solana']?'$'+prices['solana'].toLocaleString():'unknown'}. Signal: BUY — RSI 33, near oversold. Strong recovery history from this RSI level.`,
-  doge:()=>'DOGE signal: SELL — RSI 74 is in overbought territory. Risk of correction. Consider reducing or setting trailing stop-loss.',
-  bnb:()=>`BNB at ${prices['binancecoin']?'$'+prices['binancecoin'].toLocaleString():'unknown'}. Signal: HOLD — RSI 52, neutral zone. No strong directional signal currently.`,
-  avax:()=>`AVAX at ${prices['avalanche-2']?'$'+prices['avalanche-2'].toLocaleString():'unknown'}. Signal: BUY — RSI 29, entering oversold. Could be a solid entry. Watch for volume confirmation.`,
-  safe:()=>alertsData.filter(isActiveAlert).length ? `Active anomaly alerts:\n${alertSummaryText(true)}\n\nImmediate manual review is recommended for any critical active alert.` : 'No active anomaly alerts are currently displayed. Run manual scan to verify live wallet state.',
-  alert:()=>`Anomaly alerts:\n${alertSummaryText(false)}`,
-  signal:()=>'Current AI signals:\nBTC — HOLD (RSI 58)\nETH — BUY (RSI 38)\nSOL — BUY (RSI 33)\nBNB — HOLD (RSI 52)\nDOGE — SELL (RSI 74)\nAVAX — BUY (RSI 29)\nXRP — BUY (RSI 41)\nADA — HOLD (RSI 55)\nDOT — BUY (RSI 35)',
-  wallet:()=>`Monitored wallets:\n0xd8dA...6045 (ETH Mainnet): 4.21 ETH = $${prices['ethereum']?(prices['ethereum']*4.21).toFixed(0):'?'}\n0x9Fa2...3a1F (OKX DEX): 12,867 USDT\nTotal portfolio: ~$24,830`,
-  price:()=>`Live prices:\nBTC: ${prices['bitcoin']?'$'+prices['bitcoin'].toLocaleString():'...'}\nETH: ${prices['ethereum']?'$'+prices['ethereum'].toLocaleString():'...'}\nSOL: ${prices['solana']?'$'+prices['solana'].toLocaleString():'...'}\nBNB: ${prices['binancecoin']?'$'+prices['binancecoin'].toLocaleString():'...'}`,
-};
-
-function quickChat(m){document.getElementById('chat-input').value=m;sendChat();}
-
+// The website has no wired LLM endpoint; do not invent AI replies.
+function quickChat(msg){document.getElementById('chat-input').value=msg;sendChat();}
 function sendChat(){
-  const inp=document.getElementById('chat-input');const msg=inp.value.trim();if(!msg)return;
-  inp.value='';appendChat('user',msg);
-  const typing=appendChat('agent','...',true);
-  let ans=null;
-  for(const[k,fn]of Object.entries(chatFns)){if(msg.toLowerCase().includes(k)){ans=fn();break;}}
-  if(!ans)ans=`Understood: "${msg}". In production this connects to your Groq/LangChain agent. Try: btc, eth, sol, doge, avax, bnb, wallet, alerts, signals, or price.`;
-  setTimeout(()=>{if(typing)typing.remove();appendChat('agent',ans);},700);
+  const input=document.getElementById('chat-input'),msg=input.value.trim();
+  if(!msg)return; input.value='';appendChat('user',msg);
+  const q=msg.toLowerCase();
+  let reply='AI chat is not connected. No generated answer is available.';
+  if(q.includes('alert')||q.includes('safe')) reply=alertSummaryText(true);
+  else if(q.includes('signal')||q.includes('btc')||q.includes('eth'))
+    reply=SIGNALS.filter(s=>s.badge!=='unavailable').map(s=>s.sym+': '+s.badge.toUpperCase()).join(', ')||'No recorded signals.';
+  appendChat('agent',reply);
 }
-function appendChat(role,msg,isTyping=false){
-  const log=document.getElementById('chat-log');
-  const div=document.createElement('div');
-  div.style.cssText=`display:flex;justify-content:${role==='user'?'flex-end':'flex-start'}`;
-  div.innerHTML=`<div style="max-width:82%;padding:9px 13px;border-radius:${role==='user'?'12px 12px 4px 12px':'12px 12px 12px 4px'};background:${role==='user'?'var(--blue)':'var(--bg-surface)'};color:${role==='user'?'#fff':'var(--text-primary)'};font-size:12px;line-height:1.7;white-space:pre-wrap;border:.5px solid ${role==='user'?'transparent':'var(--border)'};">${msg}</div>`;
-  if(isTyping)div.id='chat-typing';
-  log.appendChild(div);log.scrollTop=log.scrollHeight;
-  return isTyping?div:null;
+function appendChat(role,msg){
+  const log=document.getElementById('chat-log'),div=document.createElement('div'),bubble=document.createElement('div');
+  div.style.cssText='display:flex;justify-content:'+(role==='user'?'flex-end':'flex-start');
+  bubble.style.cssText='max-width:82%;padding:9px 13px;border-radius:12px;background:var(--bg-surface);font-size:12px;white-space:pre-wrap';
+  bubble.textContent=msg; div.appendChild(bubble);log.appendChild(div);log.scrollTop=log.scrollHeight;
 }
 
 // ── Init ──
-fetchPrices();fetchFG();loadChart();loadAlerts();
-setInterval(fetchPrices,60000);setInterval(fetchFG,300000);setInterval(loadAlerts,60000);
+fetchPrices();fetchFG();loadChart();renderSignals();configureAccess();
+setInterval(fetchPrices,60000);setInterval(fetchFG,300000);setInterval(()=>{if(dashboardToken){loadAlerts();loadSignals();}},60000);
 </script>
 </body>
 </html>
