@@ -58,7 +58,7 @@ class MarketSignal:
 
     def __post_init__(self):
         symbol = self.symbol.upper().strip()
-        if not symbol or "/" not in symbol:
+        if not symbol or "/" not in symbol or ":" in symbol:
             raise ValueError("Use exchange-formatted spot symbol, e.g. BTC/USDT")
         if self.action.upper() not in {"BUY", "SELL", "HOLD"}:
             raise ValueError("Signal must be BUY, SELL, or HOLD")
@@ -71,7 +71,7 @@ class MarketSignal:
 
     @property
     def key(self):
-        return f"{self.symbol}:{ts(self.observed_at)}:{self.action}"
+        return f"{self.symbol}:{ts(self.observed_at)}"
 
 
 @dataclass(frozen=True)
@@ -103,13 +103,17 @@ class RiskLimits:
                     "stop_fraction", "take_fraction"):
             if not (0 < getattr(self, key) < 1):
                 raise ValueError(f"{key} must be between zero and one")
-        if not (0 <= self.fee_bps <= 100 or 0 <= self.slippage_bps <= 100):
+        if not (0 <= self.fee_bps <= 100 and 0 <= self.slippage_bps <= 100):
             raise ValueError("Fee/slippage settings are invalid")
         if self.fee_bps < 0 or self.slippage_bps < 0:
             raise ValueError("Fee/slippage cannot be negative")
-        if self.max_signal_age_minutes < 1 or self.max_entries_per_day < 1:
+        if (isinstance(self.max_signal_age_minutes, bool) or
+            isinstance(self.max_entries_per_day, bool) or
+            not isinstance(self.max_signal_age_minutes, int) or
+            not isinstance(self.max_entries_per_day, int) or
+            self.max_signal_age_minutes < 1 or self.max_entries_per_day < 1):
             raise ValueError("Age and trade-count limits must be positive")
-        if not self.allowed_symbol or "/" not in self.allowed_symbol:
+        if not self.allowed_symbol or "/" not in self.allowed_symbol or ":" in self.allowed_symbol:
             raise ValueError("allowed_symbol must be a spot trading pair")
         object.__setattr__(self, "allowed_symbol", self.allowed_symbol.upper())
 
@@ -126,6 +130,8 @@ class PaperTrader:
     def __init__(self, ledger_path: str, limits: RiskLimits = RiskLimits()):
         self.path = str(ledger_path)
         self.limits = limits
+        if self.path == ":memory:":
+            raise ValueError("Use a persistent on-disk ledger, not an in-memory database")
         Path(self.path).parent.mkdir(parents=True, exist_ok=True)
         self._initialize()
 
@@ -286,6 +292,8 @@ class PaperTrader:
                           (signal.key,)).fetchone():
                 return {"action": "DUPLICATE", "reason": "signal_already_processed"}
             acc = db.execute("SELECT * FROM paper_account WHERE id=1").fetchone()
+            if acc["last_at"] and signal.observed_at <= utc_time(acc["last_at"]):
+                return {"action": "REJECT", "reason": "out_of_order_snapshot"}
             cash = D(acc["cash"])
             position = db.execute("SELECT * FROM paper_position WHERE symbol=?",
                                   (signal.symbol,)).fetchone()

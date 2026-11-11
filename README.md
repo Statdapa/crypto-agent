@@ -206,3 +206,24 @@ Team: FinSight
 - Web chat is a read-only helper, not a connection to the Groq agent. No historical strategy backtest is implemented in this repository.
 - Run tests with `python -m unittest discover -s tests -v`. GitHub Actions checks Python and embedded JavaScript syntax.
 - Do not use OKX withdrawal-enabled API keys.
+
+
+## Paper-only spot execution (experimental)
+
+The new module `trading_engine.py` records simulated spot fills in an isolated SQLite file. It never transmits orders to an exchange. It uses existing `market_snapshots` from the agent and does **not** claim profitable or backtested performance.
+
+```bash
+# Run the intelligence agent in a separate terminal to populate its database.
+python crypto_intelligence_agent.py
+
+# Only acts on a timezone-aware, recent saved signal; no signal -> no trade.
+python paper_trade.py tick --source-db crypto_intelligence_agent.db --ledger data/paper_trading.db
+python paper_trade.py status
+python paper_trade.py fills
+python paper_trade.py halt
+python paper_trade.py resume --ack-resume-risk
+
+python -m unittest discover -s tests -v
+```
+
+Default limits: BTC/USDT spot only, $1,000 virtual cash, 1% equity at risk per trade, 20% maximum position, 3% stop, 5% take-profit, maximum 3 entries per day, 3% daily equity loss stop, 10% maximum drawdown and 45-minute signal expiry. Fees and slippage are both modeled; no leverage, shorting, real orders or profit guarantee. Stops are evaluated on **ticks supplied to the simulator**, not exchange stop orders. Gaps and missing ticks can cause losses greater than the limits. Live execution should not be connected until exchange-specific filters, idempotent placement, reconciliation, manual risk review and walk-forward validation are implemented and tested.
