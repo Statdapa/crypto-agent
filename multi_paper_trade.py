@@ -177,6 +177,44 @@ def format_multi_status(portfolio):
     return "\n".join(lines)
 
 
+def format_multi_positions(portfolio):
+    """Explicit view of active positions in the shared multi-coin ledger."""
+    info = portfolio.status()
+    lines = [
+        "<b>MULTI-COIN DEMO — OPEN POSITIONS</b>",
+        "Mode: PAPER ONLY",
+        "Active: " + str(info["open_positions"]),
+        "Marked equity: " + _fmt(info["equity"]) + " USDT",
+    ]
+    if not info["positions"]:
+        lines += [
+            "No open positions.",
+            "See /multitrades for previous closes or /multi for the account.",
+        ]
+        return "\n".join(lines)
+    for p in info["positions"]:
+        entry = D(p["entry_price"])
+        qty = D(p["qty"])
+        mark = D(p["mark_price"])
+        exit_mark = mark * (D(1) - portfolio.limits.slippage_rate)
+        est_pnl = ((exit_mark - entry) * qty
+                   - D(p["entry_fee"])
+                   - exit_mark * qty * portfolio.limits.fee_rate)
+        lines += [
+            "",
+            "<b>OPEN LONG — " + html.escape(p["symbol"]) + "</b>",
+            "Entry: " + _fmt(entry) + " USDT",
+            "Current mark: " + _fmt(mark) + " USDT",
+            "Quantity: " + html.escape(p["qty"]),
+            "Stop loss: " + _fmt(p["stop_price"]) + " USDT",
+            "Take profit: " + _fmt(p["take_price"]) + " USDT",
+            "Unrealized PnL (net estimate): " + format(est_pnl, "+,.4f") + " USDT",
+            "Last mark UTC: " + html.escape(p["mark_at"]),
+        ]
+    lines.append("<i>Virtual positions; marked prices can be stale.</i>")
+    return "\n".join(lines)
+
+
 def format_multi_fills(portfolio):
     rows=portfolio.fills(10)
     if not rows:

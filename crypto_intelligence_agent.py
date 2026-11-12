@@ -1616,12 +1616,11 @@ HELP_MSG = """<b>Crypto Intelligence Agent - Commands</b>
 /scanall - Scan semua pair spot USDT, top movers likuid
 /analisis [symbol] - Analisis indikator Binance spot 4h
 /help - Show this menu
-/paper - Demo balance, PnL and active position
-/position - Current demo position and SL/TP
-/trades - Most recent single-coin demo fills
-/multi - Multi-coin demo equity, open positions, PnL
-/multipos - Multi-coin demo active positions and SL/TP
-/multitrades - Multi-coin demo fill history
+/paper, /multi - Multi-coin demo balance, equity and PnL
+/position, /multipos - Multi-coin OPEN positions, SL/TP and PnL
+/trades, /multitrades - Multi-coin demo trade history
+/singlepaper, /singleposition - Legacy BTC-only paper status
+/singletrades - Legacy BTC-only paper fills
 
 Free text also works as an intelligence question over stored context."""
 
@@ -1781,25 +1780,32 @@ def handle_telegram_updates() -> None:
                     send_telegram(scan_all_message(), chat_id=chat_id)
                 except Exception as exc:
                     send_telegram("Scanner Binance tidak tersedia: " + html_escape(str(exc)), chat_id=chat_id)
-            elif text_lower in ("/multi", "/multipos", "/multitrades"):
+            elif text_lower in ("/multi", "/multipos", "/multitrades",
+                                  "/paper", "/position", "/trades"):
                 if not CFG.telegram_default_chat_id or str(chat_id) != str(CFG.telegram_default_chat_id):
                     send_telegram("Multi-coin paper status hanya untuk chat pemilik.", chat_id=chat_id)
                     continue
                 try:
                     from multi_portfolio import MultiPaperPortfolio
-                    from multi_paper_trade import format_multi_status, format_multi_fills
+                    from multi_paper_trade import (
+                        format_multi_status, format_multi_fills,
+                        format_multi_positions,
+                    )
                     portfolio = MultiPaperPortfolio(
                         os.getenv("MULTI_PAPER_DB_PATH", "data/multi_paper.db")
                     )
-                    result = (format_multi_fills(portfolio)
-                              if text_lower == "/multitrades"
-                              else format_multi_status(portfolio))
+                    if text_lower in ("/trades", "/multitrades"):
+                        result = format_multi_fills(portfolio)
+                    elif text_lower in ("/position", "/multipos"):
+                        result = format_multi_positions(portfolio)
+                    else:
+                        result = format_multi_status(portfolio)
                     send_telegram(result, chat_id=chat_id)
                 except Exception as exc:
                     print("Multi portfolio status error:", type(exc).__name__)
                     send_telegram("Portofolio multi demo tidak tersedia; periksa terminal.",
                                   chat_id=chat_id)
-            elif text_lower in ("/paper", "/position", "/trades"):
+            elif text_lower in ("/singlepaper", "/singleposition", "/singletrades"):
                 if not CFG.telegram_default_chat_id or str(chat_id) != str(CFG.telegram_default_chat_id):
                     send_telegram("Perintah demo terbatas untuk chat pemilik yang dikonfigurasi.", chat_id=chat_id)
                     continue
@@ -1807,7 +1813,9 @@ def handle_telegram_updates() -> None:
                     from trading_engine import PaperTrader
                     from paper_demo import format_status, format_trades
                     trader = PaperTrader(os.getenv("PAPER_DB_PATH", "data/paper_trading.db"))
-                    answer = format_trades(trader) if text_lower == "/trades" else format_status(trader)
+                    answer = (format_trades(trader)
+                              if text_lower == "/singletrades"
+                              else format_status(trader))
                     send_telegram(answer, chat_id=chat_id)
                 except Exception as exc:
                     print("Paper command failed:", type(exc).__name__)

@@ -8,7 +8,7 @@ from unittest.mock import patch
 
 from multi_portfolio import MultiPaperPortfolio, PortfolioLimits
 from multi_paper_trade import (
-    format_fill, format_multi_status, rank_candidates, safe_candidate,
+    format_fill, format_multi_status, format_multi_positions, rank_candidates, safe_candidate,
     scan_cycle, send_pending,
 )
 from trading_engine import D
@@ -139,6 +139,22 @@ class MultiPortfolioTests(unittest.TestCase):
         self.assertIn("SOL/USDT",msg)
         self.assertIn("Equity",msg)
         self.assertIn("PnL",msg)
+
+    def test_position_command_shows_shared_ledger_active_positions(self):
+        self.entry("BTC/USDT","100")
+        self.entry("SOL/USDT","50")
+        msg=format_multi_positions(self.engine)
+        self.assertIn("Active: 2",msg)
+        self.assertIn("OPEN LONG — BTC/USDT",msg)
+        self.assertIn("OPEN LONG — SOL/USDT",msg)
+        self.assertIn("Unrealized PnL",msg)
+        self.assertIn("Stop loss",msg)
+        self.assertIn("Take profit",msg)
+
+    def test_position_command_empty_portfolio_is_explicit(self):
+        msg=format_multi_positions(self.engine)
+        self.assertIn("Active: 0",msg)
+        self.assertIn("No open positions",msg)
 
 
 class UniverseSelectionTests(unittest.TestCase):

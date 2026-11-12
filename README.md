@@ -357,3 +357,17 @@ Candidate ranking scans all *currently active Binance spot USDT pairs* via publi
 analyze RSI/MACD for hundreds of pairs every minute. Leverage-like tickers,
 stablecoin bases, wrapped assets, extremely low-liquidity names and extraordinary
 24-hour moves are filtered heuristically, not guaranteed to be risk-free.
+
+### Telegram command consistency for multi-coin demo
+
+When using `python multi_paper_trade.py watch`, the default owner-chat commands
+`/position` and `/multipos` show **all open positions from**
+`MULTI_PAPER_DB_PATH`, including current mark, entry, quantity, virtual SL/TP,
+and estimated unrealized net PnL. The aliases `/paper` and `/multi` show
+shared portfolio equity; `/trades` and `/multitrades` show its fill history.
+Legacy *single-coin* account queries were moved to `/singlepaper`,
+`/singleposition`, and `/singletrades` to prevent misleading
+`Position: NONE` while a multi-coin position is open. Restart the Telegram
+agent after updating the code; use the same working directory and configured
+ledger path for the Telegram and multi-paper processes. The reports show the
+last observed quote, which is not necessarily current if a data feed is stale.
