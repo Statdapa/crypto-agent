@@ -551,3 +551,62 @@ correlated coins limit effective sample size even when N is large.
 
 Ablation is **not** an optimizer that guarantees profit: no live trading,
 paper model promotion, or adjusted order sizing is added here.
+
+
+## Stage 13 — Statistical Robustness Lab (research-only)
+
+The Stage 12 feature-ablation development results did **not** establish a
+consistent edge: all six mean Brier improvements were negative despite ~6,000
+closed 4h bars per coin. Stage 13 tests whether any apparent improvement
+survives uncertainty and multiplicity while retaining the same **untouched**
+last-20%-of-history holdout.
+
+In Windows PowerShell from your repository root (existing .venv):
+
+    git pull origin feat/paper-trading-risk-engine-20261111
+    python -m unittest discover -s tests -v
+    python quant_robustness.py --csv BTC/USDT=data/raw/BTC_USDT_4h.csv SOL/USDT=data/raw/SOL_USDT_4h.csv
+
+Default output: \`data/reports/quant_robustness.json\`.
+
+Optional **pre-specified sensitivity checks** (do not cherry-pick settings
+after seeing results):
+
+    python quant_robustness.py --csv BTC/USDT=data/raw/BTC_USDT_4h.csv SOL/USDT=data/raw/SOL_USDT_4h.csv --block-bars 36 --bootstrap-iterations 1200 --seed 2026 --output data/reports/quant_robustness_block36.json
+
+What it measures:
+- **Paired circular moving-block bootstrap** resamples *4h time clusters*
+  together across BTC, SOL and all six feature variants. Within each of the
+  three chronological development folds, consecutive timestamps are
+  resampled in circular contiguous blocks (18 four-hour bars by default).
+  Blocks do not connect different folds. This is more appropriate than
+  treating overlapping label events or correlated coins as independent.
+- **Familywise one-sided max-statistic correction** reports exploratory
+  simultaneous lower confidence bounds and multiplicity-adjusted p-values
+  for the six predeclared Brier improvements over their train-only
+  constant-probability baseline. Values with adjusted p<=0.05 and lower
+  bound >0 would be encouraging *for that development sample*; they are
+  not proof of a tradable edge or predictive performance in a fresh period.
+- **Regime attribution** uses signal-time MA spread (UP/DOWN/SIDEWAYS) and
+  *training-fit-set* volatility median for LOW/HIGH_VOL buckets. Results
+  show counts, actual positive rate, predicted probability and relative
+  Brier scores. These condition on historical observed data only.
+- **Economic cost sensitivity** evaluates the predeclared all-features
+  65% threshold on fixed-horizon nonoverlapping research signals for zero,
+  baseline, double and triple modeled fees/slippage. These returns are
+  not actual executed portfolio results, nor is the model refitted.
+- **Holdout barrier**: the first 80% of feature timestamps determine
+  development candidates, with purging before the final 20% begins.
+  Holdout labels are never even materialized in this diagnostic run;
+  tests verify that changing prices wholly inside the final holdout
+  cannot change Stage 13 outputs. The reserved holdout is for a
+  separately preregistered future evaluation, not iterative selection.
+
+Limitations: even moving blocks only approximate sampling uncertainty with
+nonstationary, overlapping financial returns. The current project has already
+used development feedback to formulate models, violating any strict
+preregistration assumption. No active/delisted universe reconstruction, order
+book, spread impact, portfolio-level risk or genuine prospective forward
+validation is included. **Model promotion remains disabled** regardless of
+research output. No new exchange/private API, no live orders and no change to
+the existing paper trading strategy.
