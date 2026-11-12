@@ -1618,7 +1618,10 @@ HELP_MSG = """<b>Crypto Intelligence Agent - Commands</b>
 /help - Show this menu
 /paper - Demo balance, PnL and active position
 /position - Current demo position and SL/TP
-/trades - Most recent demo fills
+/trades - Most recent single-coin demo fills
+/multi - Multi-coin demo equity, open positions, PnL
+/multipos - Multi-coin demo active positions and SL/TP
+/multitrades - Multi-coin demo fill history
 
 Free text also works as an intelligence question over stored context."""
 
@@ -1778,6 +1781,24 @@ def handle_telegram_updates() -> None:
                     send_telegram(scan_all_message(), chat_id=chat_id)
                 except Exception as exc:
                     send_telegram("Scanner Binance tidak tersedia: " + html_escape(str(exc)), chat_id=chat_id)
+            elif text_lower in ("/multi", "/multipos", "/multitrades"):
+                if not CFG.telegram_default_chat_id or str(chat_id) != str(CFG.telegram_default_chat_id):
+                    send_telegram("Multi-coin paper status hanya untuk chat pemilik.", chat_id=chat_id)
+                    continue
+                try:
+                    from multi_portfolio import MultiPaperPortfolio
+                    from multi_paper_trade import format_multi_status, format_multi_fills
+                    portfolio = MultiPaperPortfolio(
+                        os.getenv("MULTI_PAPER_DB_PATH", "data/multi_paper.db")
+                    )
+                    result = (format_multi_fills(portfolio)
+                              if text_lower == "/multitrades"
+                              else format_multi_status(portfolio))
+                    send_telegram(result, chat_id=chat_id)
+                except Exception as exc:
+                    print("Multi portfolio status error:", type(exc).__name__)
+                    send_telegram("Portofolio multi demo tidak tersedia; periksa terminal.",
+                                  chat_id=chat_id)
             elif text_lower in ("/paper", "/position", "/trades"):
                 if not CFG.telegram_default_chat_id or str(chat_id) != str(CFG.telegram_default_chat_id):
                     send_telegram("Perintah demo terbatas untuk chat pemilik yang dikonfigurasi.", chat_id=chat_id)
