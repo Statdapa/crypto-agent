@@ -441,3 +441,69 @@ for longer histories, use a separate paginated historical collector and retain
 the same schema. A Binance API outage or blocked region prevents downloading,
 and the file is not silently fabricated. The existing report is a fixed-coin
 historical proxy, *not* a full backtest of the dynamically selected scanner.
+
+
+## Stage 11 — Quant Research Lab (research-only)
+
+**Motivation:** The fixed BTC/SOL rule backtest reported negative out-of-sample
+expectancy and 0 wins from 7 completed test trades. This is a small sample,
+but it is evidence AGAINST promoting the current rule system to real trading.
+No model or claim can replicate Jane Street's institutional proprietary data,
+research, risk systems, team, or market-making infrastructure.
+
+### Run with existing completed 4h CSVs
+
+In Windows PowerShell (project root, .venv installed with requirements.txt):
+
+    git pull origin feat/paper-trading-risk-engine-20261111
+    python -m unittest discover -s tests -v
+    python quant_research.py --csv BTC/USDT=data/raw/BTC_USDT_4h.csv SOL/USDT=data/raw/SOL_USDT_4h.csv
+
+If historical CSVs are missing:
+
+    python download_backtest_data.py BTC SOL --limit 500
+
+The output is saved to \`data/reports/quant_research.json\`, with a
+research/NO AUTO-EXECUTION marker. No new exchange credentials, services, or
+Telegram commands are required. Keep the currently running paper strategy
+unchanged. **Do not copy a high-probability prediction into a real order.**
+
+### Methods
+
+- Shared 4h synchronized spot datasets (>=300 *completed* candles per coin);
+  symbols checked against their own actual OHLC data, gapless and UTC-aware.
+- Feature at closed bar t: returns over 4h/24h/72h, realized 20-period log
+  volatility, 10/30 MA spread, candle range and close location, normalized
+  RSI 14, and distance to 20-period high. No future candles in features.
+- Historical label: BUY at t+1 open and exit at t+6 close by default, less
+  fees and slippage at **both ends**. This is a different experiment than
+  the 3% SL/5% TP paper execution strategy.
+- Expanding chronological learning; purged fit/calibration/test partitions.
+  Only the fit partition determines means, standard deviations, logistic
+  parameters, and the high-vol regime threshold. Calibration is trained on
+  a separate earlier chronological partition, never the test partition.
+  Future-label overlapping partitions are excluded. Three disjoint test
+  windows cover the late 40% of the sample (approx. 60-73%,73-86%,86-100%).
+- Model: numpy-only ridge-regularized logistic regression with sigmoid
+  calibration, not a giant neural network. Evaluated against constant prior
+  positive rate using out-of-sample Brier score and log-loss.
+- Fixed predeclared probability threshold 0.65 (not optimized against test).
+  Label-based research trade outcomes are non-overlapping **per symbol**,
+  with a global deduplication across sequential folds.
+- Outcomes: per-coin and trend/volatility regime, predictive calibration,
+  net returns on selected fixed-horizon trades. Selected return sums are
+  **unit-notional arithmetic research scores, not portfolio PnL**, and are
+  not independent observations if different coins move together.
+- A conservative experimental gate requires >=30 selected trades, >0 mean net
+  return, minimum activity, positive selected return in *each* fold and
+  improvement in Brier score over the baseline. Even if this research gate
+  happens to pass, \`promotion_to_paper_execution\` remains **false**.
+- Problems still to solve before a production strategy: dynamic delisted
+  coin universe; historical real spread and order-book depth, survivorship
+  bias, liquidity-aware sizing and adverse selection, robust OOS across
+  multiple market cycles, correlated exposure, execution latency, risk
+  stress tests, and sustained prospective paper monitoring.
+
+**Do not optimize probability threshold, indicators, assets or costs by
+looking at held-out test results repeatedly.** For later improvements,
+create a fresh untouched test period or run a prospective paper study.
