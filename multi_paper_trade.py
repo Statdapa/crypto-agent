@@ -193,7 +193,7 @@ def format_multi_fills(portfolio):
     return "\n".join(lines)
 
 
-def format_fill(row):
+def format_fill(row, portfolio=None):
     lines=[
         "<b>DEMO "+("OPEN LONG" if row["side"]=="BUY" else "CLOSE LONG")+"</b>",
         "Pair: <b>"+html.escape(row["symbol"])+"</b>",
@@ -208,6 +208,16 @@ def format_fill(row):
                   "TP: "+_fmt(row["take_price"])+" USDT"]
     else:
         pnl=D(row["pnl"])
+        entry = (portfolio.entry_fill(row["entry_id"])
+                 if portfolio is not None and row.get("entry_id") else None)
+        if entry is not None:
+            lines.append("Entry price: "+_fmt(entry["price"])+" USDT")
+            lines.append("Original SL: "+_fmt(entry["stop_price"])+" USDT")
+            lines.append("Original TP: "+_fmt(entry["take_price"])+" USDT")
+            invested = D(entry["price"])*D(entry["qty"])+D(entry["fee"])
+            if invested > 0:
+                lines.append("Return on invested notional: "+
+                             format(pnl/invested*D(100),"+,.2f")+"%")
         lines += ["Realized PnL NET: "+format(pnl,"+,.4f")+" USDT",
                   "Status: "+("PROFIT" if pnl>0 else "LOSS" if pnl<0 else "FLAT")]
     lines.append("<i>Paper simulation only. No live exchange order.</i>")
@@ -221,7 +231,7 @@ def send_pending(portfolio, sender=None):
     chat=os.getenv("TELEGRAM_CHAT_ID","")
     sent=0
     for fill in portfolio.pending_alerts():
-        if not token or not chat or not sender(token,chat,format_fill(fill)):
+        if not token or not chat or not sender(token,chat,format_fill(fill,portfolio)):
             break
         portfolio.acknowledge_alert(fill["id"])
         sent+=1

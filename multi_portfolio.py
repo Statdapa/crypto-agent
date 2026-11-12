@@ -394,6 +394,14 @@ class MultiPaperPortfolio:
                 (min(max(int(limit),1),200),),
             ).fetchall()]
 
+    def entry_fill(self, fill_id):
+        with self._db() as db:
+            row = db.execute(
+                "SELECT * FROM portfolio_fills WHERE id=? AND side='BUY'",
+                (int(fill_id),),
+            ).fetchone()
+            return dict(row) if row else None
+
     def pending_alerts(self, limit=50):
         with self._db() as db:
             return [dict(r) for r in db.execute(

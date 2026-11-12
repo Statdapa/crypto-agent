@@ -62,7 +62,10 @@ class MultiPortfolioTests(unittest.TestCase):
         self.assertEqual(len(fills),4)
         self.assertGreater(D(fills[1]["pnl"]),0)
         self.assertLess(D(fills[0]["pnl"]),0)
-        self.assertIn("Realized PnL",format_fill(fills[0]))
+        self.assertIn("Realized PnL",format_fill(fills[0],self.engine))
+        self.assertIn("Entry price:",format_fill(fills[0],self.engine))
+        self.assertIn("Original SL:",format_fill(fills[0],self.engine))
+        self.assertIn("Return on invested notional:",format_fill(fills[0],self.engine))
         self.assertEqual(self.engine.stats()["closed_trades"],2)
 
     def test_duplicate_signal_safe(self):
