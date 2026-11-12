@@ -18,6 +18,15 @@ from typing import Any, Optional
 import feedparser
 import requests
 import schedule
+from binance_universe import BinanceSpotUniverse, MarketUnavailable
+from strategy_rules import (
+    calculate_ma, calculate_rsi, calculate_macd, calculate_bollinger,
+    generate_signal,
+)
+from market_data_guard import (
+    MarketDataValidationError, validate_coingecko_asset,
+    validate_binance_reference, validate_snapshot_identity,
+)
 from dotenv import load_dotenv
 from langchain_core.messages import HumanMessage
 from langchain_groq import ChatGroq
@@ -234,6 +243,8 @@ COINS: dict[str, dict[str, str]] = {
     "BOME": {"id": "book-of-meme", "name": "BOME", "tv": "BINANCE:BOMEUSDT"},
 }
 
+BINANCE_MARKETS = BinanceSpotUniverse(timeout=CFG.http_timeout)
+
 RSS_FEEDS = {
     "CoinDesk": "https://www.coindesk.com/arc/outboundfeeds/rss/",
     "Cointelegraph": "https://cointelegraph.com/rss",
@@ -271,7 +282,11 @@ def html_escape(value: Any) -> str:
 
 def normalize_coin(coin_symbol: str | None = None) -> str:
     coin = (coin_symbol or CFG.default_coin or "BTC").upper().strip()
-    return coin if coin in COINS else (CFG.default_coin if CFG.default_coin in COINS else "BTC")
+    try:
+        BINANCE_MARKETS.require(coin)
+    except MarketUnavailable as exc:
+        raise ValueError(f"Coin {coin} tidak memiliki pair spot USDT aktif di Binance: {exc}") from exc
+    return coin
 
 
 def is_number(value: Any) -> bool:
@@ -290,6 +305,15 @@ def fmt_price(n: Any) -> str:
     if abs(value) >= 1:
         return f"${value:.4f}"
     return f"${value:.8f}"
+
+
+def fmt_pct(n: Any) -> str:
+    if n is None:
+        return "N/A"
+    try:
+        return f"{float(n):+.2f}%"
+    except (TypeError, ValueError):
+        return "N/A"
 
 
 def fmt_num(n: Any) -> str:
@@ -488,44 +512,29 @@ def get_state(key: str, default: str = "") -> str:
 # ---------------------------------------------------------------------------
 
 def get_price(coin_symbol: str = "BTC") -> Optional[dict[str, Any]]:
+    """Use verified Binance spot USDT prices for every active coin."""
     coin_symbol = normalize_coin(coin_symbol)
-    coin_id = COINS[coin_symbol]["id"]
     try:
-        response = HTTP.get(
-            f"https://api.coingecko.com/api/v3/coins/{coin_id}",
-            params={
-                "localization": "false",
-                "tickers": "false",
-                "market_data": "true",
-                "community_data": "false",
-                "developer_data": "false",
-                "sparkline": "false",
-            },
-            timeout=CFG.http_timeout,
-        )
-        data = safe_json_dict(response)
-        md = data.get("market_data")
-        if not isinstance(md, dict):
-            raise ValueError("market_data tidak tersedia")
-
-        current_price = md.get("current_price", {}).get("usd")
-        if current_price is None:
-            raise ValueError("Harga USD tidak tersedia")
-
-        return {
-            "coin": coin_symbol,
-            "price": float(current_price),
-            "change_24h": float(md.get("price_change_percentage_24h") or 0),
-            "change_7d": float(md.get("price_change_percentage_7d") or 0),
-            "change_30d": float(md.get("price_change_percentage_30d") or 0),
-            "high_24h": float(md.get("high_24h", {}).get("usd") or 0),
-            "low_24h": float(md.get("low_24h", {}).get("usd") or 0),
-            "volume": float(md.get("total_volume", {}).get("usd") or 0),
-            "market_cap": float(md.get("market_cap", {}).get("usd") or 0),
-            "ath": float(md.get("ath", {}).get("usd") or 0),
-            "ath_change": float(md.get("ath_change_percentage", {}).get("usd") or 0),
-            "fetched_at": utc_iso(),
-        }
+        result = BINANCE_MARKETS.ticker_24h(coin_symbol)
+        # Verify BTC/ETH/SOL against an independent source to prevent mixups.
+        if coin_symbol in ("BTC", "ETH", "SOL"):
+            coingecko_id = COINS[coin_symbol]["id"]
+            response = HTTP.get(
+                f"https://api.coingecko.com/api/v3/coins/{coingecko_id}",
+                params={
+                    "localization": "false", "tickers": "false",
+                    "market_data": "true", "community_data": "false",
+                    "developer_data": "false", "sparkline": "false",
+                }, timeout=CFG.http_timeout,
+            )
+            reference = validate_coingecko_asset(
+                safe_json_dict(response), coin_symbol, coingecko_id
+            )
+            validate_binance_reference(
+                {"symbol": result["pair"], "price": result["price"]},
+                coin_symbol, reference
+            )
+        return result
     except Exception as exc:
         print(f"Error get_price {coin_symbol}: {exc}")
         return None
@@ -550,73 +559,13 @@ def get_fear_greed() -> dict[str, Any]:
 
 
 def get_ohlc(coin_symbol: str = "BTC", days: int = 30) -> list[list[Any]]:
+    """4h completed Binance candles for technical analysis of all spot pairs."""
     coin_symbol = normalize_coin(coin_symbol)
-    coin_id = COINS[coin_symbol]["id"]
     try:
-        response = HTTP.get(
-            f"https://api.coingecko.com/api/v3/coins/{coin_id}/ohlc",
-            params={"vs_currency": "usd", "days": str(days)},
-            timeout=CFG.http_timeout,
-        )
-        data = safe_json_list(response)
-        return [row for row in data if isinstance(row, list) and len(row) >= 5]
+        return BINANCE_MARKETS.candles(coin_symbol, interval="4h", limit=180)
     except Exception as exc:
         print(f"Error get_ohlc {coin_symbol}: {exc}")
         return []
-
-
-def calculate_ma(closes: list[float], period: int) -> Optional[float]:
-    if len(closes) < period:
-        return None
-    return sum(closes[-period:]) / period
-
-
-def calculate_rsi(closes: list[float], period: int = 14) -> Optional[float]:
-    if len(closes) < period + 1:
-        return None
-    gains: list[float] = []
-    losses: list[float] = []
-    for i in range(1, len(closes)):
-        diff = closes[i] - closes[i - 1]
-        gains.append(max(diff, 0))
-        losses.append(max(-diff, 0))
-    avg_gain = sum(gains[-period:]) / period
-    avg_loss = sum(losses[-period:]) / period
-    if avg_loss == 0:
-        return 100.0
-    rs = avg_gain / avg_loss
-    return round(100 - (100 / (1 + rs)), 2)
-
-
-def calculate_macd(closes: list[float]) -> tuple[Optional[float], Optional[float], Optional[float]]:
-    if len(closes) < 35:
-        return None, None, None
-
-    def ema_series(values: list[float], period: int) -> list[float]:
-        k = 2 / (period + 1)
-        result = [values[0]]
-        for price in values[1:]:
-            result.append(price * k + result[-1] * (1 - k))
-        return result
-
-    ema12 = ema_series(closes, 12)
-    ema26 = ema_series(closes, 26)
-    macd_series = [a - b for a, b in zip(ema12[-len(ema26):], ema26)]
-    signal_series = ema_series(macd_series, 9)
-    macd_line = macd_series[-1]
-    signal_line = signal_series[-1]
-    hist = macd_line - signal_line
-    return round(macd_line, 4), round(signal_line, 4), round(hist, 4)
-
-
-def calculate_bollinger(closes: list[float], period: int = 20, std_dev: int = 2) -> tuple[Optional[float], Optional[float], Optional[float]]:
-    if len(closes) < period:
-        return None, None, None
-    window = closes[-period:]
-    ma = sum(window) / period
-    variance = sum((x - ma) ** 2 for x in window) / period
-    std = variance ** 0.5
-    return round(ma + std_dev * std, 4), round(ma, 4), round(ma - std_dev * std, 4)
 
 
 def get_analysis(coin_symbol: str = "BTC") -> dict[str, Any]:
@@ -658,116 +607,13 @@ def get_analysis(coin_symbol: str = "BTC") -> dict[str, Any]:
 # 6. SIGNAL, STORAGE, AND ANOMALY ENGINE
 # ---------------------------------------------------------------------------
 
-def generate_signal(price_data: dict[str, Any], analysis: dict[str, Any], fg: dict[str, Any]) -> dict[str, Any]:
-    price = price_data["price"]
-    rsi = analysis["rsi"]
-    macd = analysis["macd"]
-    macd_sig = analysis["macd_signal"]
-    bb_up = analysis["bb_upper"]
-    bb_low = analysis["bb_lower"]
-    ma7 = analysis["ma7"]
-    ma14 = analysis["ma14"]
-    ch24 = float(price_data.get("change_24h", 0) or 0)
-    fg_val = int(fg.get("value", 50))
-    score = 0
-    reasons: list[str] = []
-
-    if is_number(rsi):
-        if rsi < 30:
-            score += 3
-            reasons.append("RSI oversold: +3")
-        elif rsi < 45:
-            score += 1
-            reasons.append("RSI weak/discounted: +1")
-        elif rsi > 70:
-            score -= 3
-            reasons.append("RSI overbought: -3")
-        elif rsi > 60:
-            score -= 1
-            reasons.append("RSI heated: -1")
-
-    if is_number(macd) and is_number(macd_sig):
-        if macd > macd_sig:
-            score += 2
-            reasons.append("MACD bullish crossover: +2")
-        else:
-            score -= 2
-            reasons.append("MACD bearish crossover: -2")
-
-    if is_number(bb_up) and is_number(bb_low) and is_number(price):
-        if price < bb_low:
-            score += 2
-            reasons.append("Price below lower Bollinger Band: +2")
-        elif price > bb_up:
-            score -= 2
-            reasons.append("Price above upper Bollinger Band: -2")
-
-    if is_number(ma7) and is_number(ma14):
-        if ma7 > ma14:
-            score += 1
-            reasons.append("MA7 above MA14: +1")
-        else:
-            score -= 1
-            reasons.append("MA7 below MA14: -1")
-
-    if ch24 > 3:
-        score += 1
-        reasons.append("24h momentum positive: +1")
-    elif ch24 < -3:
-        score -= 1
-        reasons.append("24h momentum negative: -1")
-
-    if fg_val < 25:
-        score += 2
-        reasons.append("Extreme fear contrarian signal: +2")
-    elif fg_val > 75:
-        score -= 2
-        reasons.append("Extreme greed risk signal: -2")
-
-    if score >= 4:
-        signal = "BUY"
-        signal_strength = min(90, 55 + score * 4)
-    elif score <= -4:
-        signal = "SELL"
-        signal_strength = min(90, 55 + abs(score) * 4)
-    else:
-        signal = "HOLD"
-        signal_strength = max(40, 70 - abs(score) * 5)
-
-    if signal == "BUY":
-        entry_low = round(price * 0.99, 8)
-        entry_high = round(price * 1.005, 8)
-        target = round(price * 1.05, 8)
-        stop_loss = round(price * 0.97, 8)
-    elif signal == "SELL":
-        entry_low = round(price * 0.995, 8)
-        entry_high = round(price * 1.01, 8)
-        target = round(price * 0.95, 8)
-        stop_loss = round(price * 1.03, 8)
-    else:
-        entry_low = round(price * 0.98, 8)
-        entry_high = round(price * 1.02, 8)
-        target = round(price * 1.04, 8)
-        stop_loss = round(price * 0.96, 8)
-
-    return {
-        "signal": signal,
-        "signal_strength": int(signal_strength),
-        "confidence": int(signal_strength),  # backward-compatible alias; not statistical confidence.
-        "score": int(score),
-        "reasons": reasons,
-        "entry_low": entry_low,
-        "entry_high": entry_high,
-        "target": target,
-        "stop_loss": stop_loss,
-    }
-
-
 def to_db_number(value: Any) -> Optional[float]:
     return float(value) if is_number(value) else None
 
 
 def save_market_snapshot(coin_symbol: str, price_data: dict[str, Any], analysis: dict[str, Any], fg: dict[str, Any], signal_data: dict[str, Any]) -> None:
+    coin_symbol = normalize_coin(coin_symbol)
+    validate_snapshot_identity(coin_symbol, price_data)
     conn = db_connect()
     try:
         conn.execute(
@@ -1117,7 +963,7 @@ Score reasons: {reasons}
 RSI: {analysis['rsi']}
 MACD: {analysis['macd']} vs signal {analysis['macd_signal']}
 24h change: {price_data['change_24h']:.2f}%
-7d change: {price_data['change_7d']:.2f}%
+7d change: {fmt_pct(price_data.get('change_7d'))}
 Fear & Greed: {fg['value']} ({fg['label']})
 Entry zone: ${signal_data['entry_low']:,.8f} - ${signal_data['entry_high']:,.8f}
 Target: ${signal_data['target']:,.8f}
@@ -1132,7 +978,7 @@ Stop loss: ${signal_data['stop_loss']:,.8f}
 
 def build_signal_message(coin_symbol: str, price_data: dict[str, Any], analysis: dict[str, Any], fg: dict[str, Any], signal_data: dict[str, Any], ai_comment: str) -> str:
     coin_symbol = normalize_coin(coin_symbol)
-    tv_link = COINS.get(coin_symbol, {}).get("tv", "BINANCE:BTCUSDT")
+    tv_link = f"BINANCE:{coin_symbol}USDT"
     tv_url = f"https://www.tradingview.com/chart/?symbol={tv_link}"
     reasons = signal_data.get("reasons", [])
     reasons_text = "\n".join([f"- {html_escape(r)}" for r in reasons[:8]]) or "- No rule explanation available"
@@ -1144,7 +990,7 @@ def build_signal_message(coin_symbol: str, price_data: dict[str, Any], analysis:
 <b>Market Snapshot</b>
 Price: <b>{html_escape(fmt_price(price_data['price']))}</b>
 24h: {price_data['change_24h']:+.2f}%
-7d: {price_data['change_7d']:+.2f}%
+7d: {fmt_pct(price_data.get('change_7d'))}
 Volume: {html_escape(fmt_num(price_data['volume']))}
 Market cap: {html_escape(fmt_num(price_data['market_cap']))}
 
@@ -1215,13 +1061,22 @@ def save_intelligence_report(report_type: str, coin: Optional[str], content: str
 def extract_coins_from_text(text: str) -> list[str]:
     upper = text.upper()
     found = []
-    for sym in COINS:
+    for sym in BINANCE_MARKETS.catalog():
         if re.search(rf"\b{re.escape(sym)}\b", upper):
             found.append(sym)
     return found or [normalize_coin()]
 
 
 def parse_coin_from_text(text: str) -> str:
+    # Telegram command arguments take precedence over other coin mentions.
+    # Unknown explicit symbols must not silently become BTC.
+    parts = text.strip().split()
+    if parts and parts[0].lower().split("@")[0] in ("/analisis", "/status", "/mingguan"):
+        if len(parts) > 1:
+            aliases = {"SOLANA": "SOL", "BITCOIN": "BTC", "ETHEREUM": "ETH"}
+            symbol = aliases.get(parts[1].upper(), parts[1].upper())
+            return normalize_coin(symbol)
+        return normalize_coin()
     coins = extract_coins_from_text(text)
     return coins[0] if coins else normalize_coin()
 
@@ -1448,6 +1303,8 @@ def run_full_analysis(coin_symbol: str) -> str:
         return f"Gagal ambil data {html_escape(coin_symbol)}. Coba lagi nanti."
     fg = get_fear_greed()
     analysis = get_analysis(coin_symbol)
+    if not is_number(analysis.get("rsi")) or not is_number(analysis.get("macd")):
+        return f"Data candle {html_escape(coin_symbol)} belum cukup untuk menghasilkan sinyal valid."
     signal_data = generate_signal(price_data, analysis, fg)
     ai_comment = get_ai_commentary(coin_symbol, price_data, analysis, fg, signal_data)
     save_market_snapshot(coin_symbol, price_data, analysis, fg, signal_data)
@@ -1462,6 +1319,9 @@ def auto_report(coin_symbol: str = "BTC") -> None:
         return
     fg = get_fear_greed()
     analysis = get_analysis(coin_symbol)
+    if not is_number(analysis.get("rsi")) or not is_number(analysis.get("macd")):
+        print(f"Skipping {coin_symbol}: insufficient verified completed candles")
+        return
     signal_data = generate_signal(price_data, analysis, fg)
     ai_comment = get_ai_commentary(coin_symbol, price_data, analysis, fg, signal_data)
     save_market_snapshot(coin_symbol, price_data, analysis, fg, signal_data)
@@ -1493,7 +1353,11 @@ Evidence: <code>{html_escape(json.dumps(anomaly.get('evidence', {}), ensure_asci
 
 def run_anomaly_scan() -> None:
     for coin in CFG.market_coins:
-        coin = normalize_coin(coin)
+        try:
+            coin = normalize_coin(coin)
+        except ValueError as exc:
+            print(f"Skipping unsupported market coin: {exc}")
+            continue
         if not get_recent_snapshots(coin, limit=1):
             msg = run_full_analysis(coin)
             print(f"Snapshot created for {coin}: {len(msg)} chars")
@@ -1593,17 +1457,52 @@ HELP_MSG = """<b>Crypto Intelligence Agent - Commands</b>
 /eth - Ethereum network status
 
 <b>Utility</b>
-/coins - Available coin symbols
+/coins - Jumlah pair spot USDT dan simbol pertama
+/scanall - Scan semua pair spot USDT, top movers likuid
+/analisis [symbol] - Analisis indikator Binance spot 4h
 /help - Show this menu
+/paper, /multi - Multi-coin demo balance, equity and PnL
+/position, /multipos - Multi-coin OPEN positions, SL/TP and PnL
+/trades, /multitrades - Multi-coin demo trade history
+/performance - Multi-coin demo win rate, expectancy, drawdown
+/singlepaper, /singleposition - Legacy BTC-only paper status
+/singletrades - Legacy BTC-only paper fills
 
 Free text also works as an intelligence question over stored context."""
 
 
 def coins_message() -> str:
-    lines = ["<b>Available Coins</b>", ""]
-    for sym, info in COINS.items():
-        lines.append(f"- <b>{html_escape(sym)}</b> - {html_escape(info['name'])} ({html_escape(info['tv'])})")
-    lines.append("\nUse: /analisis [symbol]")
+    markets = BINANCE_MARKETS.catalog()
+    lines = [
+        f"<b>Binance Spot USDT: {len(markets)} pair aktif</b>",
+        "60 simbol pertama (alfabetis):",
+        ", ".join(html_escape(coin) for coin in sorted(markets)[:60]),
+        "Gunakan /analisis [coin], /status [coin], atau /scanall.",
+    ]
+    return "\n".join(lines)
+
+
+def auto_scan_all() -> None:
+    try:
+        print(scan_all_message(), flush=True)
+    except Exception as exc:
+        print(f"Binance-wide scanner temporarily unavailable: {exc}", flush=True)
+
+
+def scan_all_message() -> str:
+    info = BINANCE_MARKETS.scan(min_quote_volume=1_000_000, top=15)
+    lines = [
+        "<b>Binance Spot USDT scanner</b>",
+        f"Pair aktif: {info['total_spot_usdt_pairs']}",
+        f"Pair likuid, volume 24h >= 1 juta USDT: {info['liquid_pairs_count']}",
+        "Top 15 perubahan absolut 24h (bukan sinyal BUY):",
+    ]
+    for item in info["top_movers"]:
+        lines.append(
+            f"{html_escape(item['coin'])}/USDT: {item['change_24h']:+.2f}% | "
+            f"USD {item['price']:,.8f} | vol USD {item['quote_volume']:,.0f}"
+        )
+    lines.append("Scanner informatif; bukan rekomendasi entry.")
     return "\n".join(lines)
 
 
@@ -1718,19 +1617,82 @@ def handle_telegram_updates() -> None:
             if text_lower in ("/start", "/help"):
                 send_telegram(HELP_MSG, chat_id=chat_id)
             elif text_lower == "/coins":
-                send_telegram(coins_message(), chat_id=chat_id)
+                try:
+                    send_telegram(coins_message(), chat_id=chat_id)
+                except Exception as exc:
+                    send_telegram("Daftar Binance tidak tersedia: " + html_escape(str(exc)), chat_id=chat_id)
+            elif text_lower in ("/scanall", "/scanmarket"):
+                try:
+                    send_telegram(scan_all_message(), chat_id=chat_id)
+                except Exception as exc:
+                    send_telegram("Scanner Binance tidak tersedia: " + html_escape(str(exc)), chat_id=chat_id)
+            elif text_lower in ("/multi", "/multipos", "/multitrades",
+                                  "/paper", "/position", "/trades",
+                                  "/performance"):
+                if not CFG.telegram_default_chat_id or str(chat_id) != str(CFG.telegram_default_chat_id):
+                    send_telegram("Multi-coin paper status hanya untuk chat pemilik.", chat_id=chat_id)
+                    continue
+                try:
+                    from multi_portfolio import MultiPaperPortfolio
+                    from multi_paper_trade import (
+                        format_multi_status, format_multi_fills,
+                        format_multi_positions,
+                    )
+                    portfolio = MultiPaperPortfolio(
+                        os.getenv("MULTI_PAPER_DB_PATH", "data/multi_paper.db")
+                    )
+                    if text_lower in ("/trades", "/multitrades"):
+                        result = format_multi_fills(portfolio)
+                    elif text_lower in ("/position", "/multipos"):
+                        result = format_multi_positions(portfolio)
+                    elif text_lower == "/performance":
+                        from performance_report import telegram_performance_summary
+                        result = telegram_performance_summary(portfolio.path)
+                    else:
+                        result = format_multi_status(portfolio)
+                    send_telegram(result, chat_id=chat_id)
+                except Exception as exc:
+                    print("Multi portfolio status error:", type(exc).__name__)
+                    send_telegram("Portofolio multi demo tidak tersedia; periksa terminal.",
+                                  chat_id=chat_id)
+            elif text_lower in ("/singlepaper", "/singleposition", "/singletrades"):
+                if not CFG.telegram_default_chat_id or str(chat_id) != str(CFG.telegram_default_chat_id):
+                    send_telegram("Perintah demo terbatas untuk chat pemilik yang dikonfigurasi.", chat_id=chat_id)
+                    continue
+                try:
+                    from trading_engine import PaperTrader
+                    from paper_demo import format_status, format_trades
+                    trader = PaperTrader(os.getenv("PAPER_DB_PATH", "data/paper_trading.db"))
+                    answer = (format_trades(trader)
+                              if text_lower == "/singletrades"
+                              else format_status(trader))
+                    send_telegram(answer, chat_id=chat_id)
+                except Exception as exc:
+                    print("Paper command failed:", type(exc).__name__)
+                    send_telegram("Status paper trading tidak tersedia. Periksa terminal.", chat_id=chat_id)
             elif text_lower.startswith("/analisis"):
-                coin = parse_coin_from_text(text)
+                try:
+                    coin = parse_coin_from_text(text)
+                except ValueError as exc:
+                    send_telegram(html_escape(exc) + ". Gunakan /coins.", chat_id=chat_id)
+                    continue
                 send_telegram(f"Menganalisis {html_escape(coin)}/USDT...", chat_id=chat_id)
                 send_telegram(run_full_analysis(coin), chat_id=chat_id)
             elif text_lower.startswith("/status"):
-                coin = parse_coin_from_text(text)
+                try:
+                    coin = parse_coin_from_text(text)
+                except ValueError as exc:
+                    send_telegram(html_escape(exc) + ". Gunakan /coins.", chat_id=chat_id)
+                    continue
                 price_data = get_price(coin)
                 if not price_data:
                     send_telegram(f"Gagal ambil data {html_escape(coin)}.", chat_id=chat_id)
                     continue
                 fg = get_fear_greed()
                 analysis = get_analysis(coin)
+                if not is_number(analysis.get("rsi")) or not is_number(analysis.get("macd")):
+                    send_telegram("Candle belum cukup untuk analisis " + html_escape(coin), chat_id=chat_id)
+                    continue
                 signal_data = generate_signal(price_data, analysis, fg)
                 save_market_snapshot(coin, price_data, analysis, fg, signal_data)
                 send_telegram(format_status_message(coin, price_data, analysis, fg, signal_data), chat_id=chat_id)
@@ -1750,7 +1712,11 @@ def handle_telegram_updates() -> None:
             elif text_lower == "/topnews":
                 send_telegram(get_news_for_telegram(top_n=3), chat_id=chat_id)
             elif text_lower.startswith("/mingguan"):
-                coin = parse_coin_from_text(text)
+                try:
+                    coin = parse_coin_from_text(text)
+                except ValueError as exc:
+                    send_telegram(html_escape(exc) + ". Gunakan /coins.", chat_id=chat_id)
+                    continue
                 send_telegram(get_weekly_summary(coin), chat_id=chat_id)
             elif text_lower in ("/anomaly", "/anomali"):
                 send_telegram(recent_anomalies(), chat_id=chat_id)
@@ -1828,8 +1794,13 @@ def handle_telegram_updates() -> None:
 
 def schedule_jobs() -> None:
     for coin in CFG.market_coins:
-        coin = normalize_coin(coin)
+        try:
+            coin = normalize_coin(coin)
+        except ValueError as exc:
+            print(f"Skipping unsupported scheduled coin: {exc}")
+            continue
         schedule.every(CFG.snapshot_interval_minutes).minutes.do(lambda c=coin: auto_report(c))
+    schedule.every(CFG.snapshot_interval_minutes).minutes.do(auto_scan_all)
     schedule.every(CFG.news_interval_minutes).minutes.do(check_and_push_news)
     schedule.every(CFG.anomaly_interval_minutes).minutes.do(run_anomaly_scan)
     schedule.every().saturday.at("08:00").do(lambda: send_telegram(get_weekly_summary("BTC")))
@@ -1844,11 +1815,15 @@ def validate_startup_config() -> list[str]:
         warnings.append("TELEGRAM_TOKEN missing: Telegram bot cannot run.")
     if not CFG.telegram_default_chat_id:
         warnings.append("TELEGRAM_CHAT_ID missing: default scheduled alerts cannot be sent, but replies can still use incoming chat_id.")
-    if CFG.default_coin not in COINS:
-        warnings.append(f"DEFAULT_COIN {CFG.default_coin} is not supported. BTC will be used.")
-    unsupported = [c for c in CFG.market_coins if c not in COINS]
-    if unsupported:
-        warnings.append(f"Unsupported MARKET_COINS ignored by normalize_coin: {', '.join(unsupported)}")
+    try:
+        active = BINANCE_MARKETS.catalog()
+        if CFG.default_coin not in active:
+            warnings.append(f"DEFAULT_COIN {CFG.default_coin} not an active Binance USDT spot pair.")
+        unsupported = [c for c in CFG.market_coins if c not in active]
+        if unsupported:
+            warnings.append(f"Inactive Binance spot USDT coins: {', '.join(unsupported)}")
+    except Exception as exc:
+        warnings.append(f"Binance market discovery unavailable: {exc}")
     return warnings
 
 
@@ -1857,7 +1832,8 @@ def main() -> None:
     print("Crypto Intelligence Agent - active")
     print(f"Timezone: {CFG.app_timezone_name}")
     print(f"Database: {CFG.db_path}")
-    print(f"Market coins: {', '.join(CFG.market_coins)}")
+    print(f"Detailed scheduled coins: {', '.join(CFG.market_coins)}")
+    print("Binance-wide USDT spot scan: enabled")
     for warning in validate_startup_config():
         print(f"CONFIG WARNING: {warning}")
 

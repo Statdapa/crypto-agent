@@ -1,5 +1,6 @@
 import os
 import sqlite3
+from contextlib import closing
 import tempfile
 import unittest
 from datetime import datetime, timedelta, timezone
@@ -20,7 +21,7 @@ class RepositoryTests(unittest.TestCase):
 
     def test_modern_schema(self):
         now=datetime.now(timezone.utc)
-        with sqlite3.connect(self.path) as db:
+        with closing(sqlite3.connect(self.path)) as db, db:
             db.execute("CREATE TABLE market_snapshots (id INTEGER PRIMARY KEY, coin TEXT, price REAL, change_24h REAL, rsi REAL, signal TEXT, signal_strength INTEGER, created_at TEXT)")
             db.executemany("INSERT INTO market_snapshots (coin,price,change_24h,rsi,signal,signal_strength,created_at) VALUES (?,?,?,?,?,?,?)",[
               ("BTC",100,1,28,"BUY",70,(now-timedelta(days=2)).isoformat()),
@@ -33,7 +34,7 @@ class RepositoryTests(unittest.TestCase):
         self.assertEqual(report["signals"]["buy_count"],1)
 
     def test_legacy_schema(self):
-        with sqlite3.connect(self.path) as db:
+        with closing(sqlite3.connect(self.path)) as db, db:
             db.execute("CREATE TABLE price_history (id INTEGER PRIMARY KEY, coin TEXT, price REAL, change_24h REAL, rsi REAL, signal TEXT, confidence REAL, recorded_at TEXT)")
             db.execute("INSERT INTO price_history (coin,price,change_24h,rsi,signal,confidence,recorded_at) VALUES (?,?,?,?,?,?,?)",
                        ("BTC",100,1,20,"BUY",70,datetime.now(timezone.utc).isoformat()))
