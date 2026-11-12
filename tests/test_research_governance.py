@@ -126,6 +126,8 @@ class GovernanceTests(unittest.TestCase):
                 "frozen_at":"2026-11-11T15:00:00+00:00",
                 "symbols":["BTC/USDT","SOL/USDT"],
                 "fit_positive_rate":.31,
+                "threshold":.65,"horizon_bars":6,
+                "fee_bps_per_side":10,"slippage_bps_per_side":5,
                 "promotion_to_paper_execution":False,
                 "eligible_for_live_trading":False,
             }
@@ -167,6 +169,8 @@ class GovernanceTests(unittest.TestCase):
             model={
                 "frozen_at":"2026-11-11T15:00:00+00:00",
                 "symbols":["BTC/USDT"],"fit_positive_rate":.31,
+                "threshold":.65,"horizon_bars":6,
+                "fee_bps_per_side":10,"slippage_bps_per_side":5,
                 "promotion_to_paper_execution":False,
                 "eligible_for_live_trading":False,
             }

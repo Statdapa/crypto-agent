@@ -71,6 +71,11 @@ def _shadow(model_path,ledger_path):
     model=_read_json(model_file)
     if model.get("promotion_to_paper_execution") is not False or model.get("eligible_for_live_trading") is not False:
         raise ValueError("Frozen model must explicitly prohibit execution")
+    if (model.get("threshold")!=THRESHOLD or
+            model.get("horizon_bars")!=HORIZON or
+            model.get("fee_bps_per_side")!=10 or
+            model.get("slippage_bps_per_side")!=5):
+        raise ValueError("Frozen shadow specification differs from predeclared research protocol")
     sha=model["sha256"]
     # Read-only SQLite connection: auditing must not create or alter a ledger.
     uri="file:"+quote(ledger_file.resolve().as_posix(),safe="/:")+"?mode=ro"
@@ -79,7 +84,7 @@ def _shadow(model_path,ledger_path):
     try:
         observations=connection.execute(
             "SELECT o.model_sha,o.symbol,o.signal_open,o.observed_at,"
-            "o.probability,o.baseline,s.settled_at,s.net_return,s.positive "
+            "o.probability,o.baseline,s.settled_at,s.entry_open,s.exit_open,s.net_return,s.positive "
             "FROM observations o LEFT JOIN settlements s "
             "ON o.model_sha=s.model_sha AND o.symbol=s.symbol "
             "AND o.signal_open=s.signal_open "
@@ -98,7 +103,7 @@ def _shadow(model_path,ledger_path):
         observed=datetime.fromisoformat(row["observed_at"])
         if signal.tzinfo is None or observed.tzinfo is None:
             raise ValueError("Missing timezone in shadow timestamp")
-        if not freeze_at<observed or not signal+BAR_DURATION<=observed<=signal+BAR_DURATION+timedelta(minutes=30):
+        if not freeze_at<observed or not freeze_at<signal+BAR_DURATION or not signal+BAR_DURATION<=observed<=signal+BAR_DURATION+timedelta(minutes=30):
             raise ValueError("Shadow observation does not satisfy prospective timestamp window")
         p=_finite_number(row["probability"],"shadow probability")
         b=_finite_number(row["baseline"],"shadow baseline")
@@ -108,6 +113,17 @@ def _shadow(model_path,ledger_path):
             raise ValueError("Shadow baseline differs from frozen fit prior")
         settled=row["positive"] is not None
         if settled:
+            if not row["settled_at"] or not row["entry_open"] or not row["exit_open"]:
+                raise ValueError("Missing prospective settlement timestamps")
+            entry=datetime.fromisoformat(row["entry_open"])
+            exit_=datetime.fromisoformat(row["exit_open"])
+            settled_at=datetime.fromisoformat(row["settled_at"])
+            if any(x.tzinfo is None for x in (entry,exit_,settled_at)):
+                raise ValueError("Naive prospective settlement timestamps")
+            if not (observed<entry and
+                    exit_==entry+(HORIZON-1)*BAR_DURATION and
+                    settled_at>=exit_+BAR_DURATION):
+                raise ValueError("Shadow settlement violates delayed-entry timeline")
             ret=_finite_number(row["net_return"],"shadow net return")
             if ret<=-1 or int(ret>0)!=row["positive"]:
                 raise ValueError("Shadow settlement outcome inconsistent")
