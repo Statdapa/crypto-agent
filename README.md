@@ -416,3 +416,28 @@ holds it at neutral=50. Because that differs from live agent sentiment and
 dynamic candidate selection, out-of-sample results estimate a *proxy*
 strategy, not live win-rate accuracy. No future return is used to choose
 a symbol or a fill. Do not tune strategy parameters on the held-out test set.
+
+### Download missing real Binance candles for historical multi-coin research
+
+CSV candle data lives under local \`data/raw/\` and is intentionally excluded
+from git. A fresh clone does not contain \`BTC_USDT_4h.csv\` or
+\`SOL_USDT_4h.csv\`. The previous crypto-alpha-engine project's raw files
+are not automatically copied to this repository.
+
+Download verified active Binance spot USDT candles, only fully closed 4h bars:
+
+    python download_backtest_data.py BTC SOL --limit 500
+    python backtest_multi_rules.py --csv BTC/USDT=data/raw/BTC_USDT_4h.csv SOL/USDT=data/raw/SOL_USDT_4h.csv
+
+To replace intentionally and get the latest 500 candles:
+
+    python download_backtest_data.py BTC SOL --limit 500 --overwrite
+
+This downloader uses public data only; it does not need exchange API keys,
+does not use invented historical candles and does not place any trading order.
+Each CSV has timezone-aware \`timestamp,open,high,low,close\` headers and
+contiguous UTC 4h candles. One Binance request supports at most 1,000 candles;
+for longer histories, use a separate paginated historical collector and retain
+the same schema. A Binance API outage or blocked region prevents downloading,
+and the file is not silently fabricated. The existing report is a fixed-coin
+historical proxy, *not* a full backtest of the dynamically selected scanner.

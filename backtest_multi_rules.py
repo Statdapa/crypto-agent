@@ -275,6 +275,13 @@ def main(argv=None):
         symbol=symbol.upper()
         if symbol in candles:
             p.error("Duplicate symbol")
+        if not Path(path).is_file():
+            p.error(
+                "Historical CSV not found: " + path +
+                ". Download actual Binance candles first: "
+                "python download_backtest_data.py " +
+                symbol.split("/")[0] + " --limit 500"
+            )
         candles[symbol]=read_candles(path)
     report=backtest(candles,train_fraction=args.train_fraction)
     path=Path(args.output)
