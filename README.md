@@ -610,3 +610,69 @@ book, spread impact, portfolio-level risk or genuine prospective forward
 validation is included. **Model promotion remains disabled** regardless of
 research output. No new exchange/private API, no live orders and no change to
 the existing paper trading strategy.
+
+
+## Stage 14 — Economic Edge Validation (RESEARCH ONLY)
+
+Stage 13 found 0 of 6 ablation models with a statistically significant
+positive Brier improvement and only SIX nonoverlapping fixed-horizon,
+0.65-threshold, all-features selected entries. Their average positive unit
+return should **not** be confused with a portfolio backtest or proof of edge.
+
+### Run (PowerShell, existing 6000-bar BTC/SOL historical CSVs)
+
+    git pull --ff-only origin feat/paper-trading-risk-engine-20261111
+    python -m unittest discover -s tests -v
+    python economic_edge.py --csv BTC/USDT=data/raw/BTC_USDT_4h.csv SOL/USDT=data/raw/SOL_USDT_4h.csv
+
+The last command writes a readable JSON:
+\`data/reports/economic_edge.json\`. It never accesses Binance private APIs,
+trading credentials, Telegram execution or the persistent paper portfolio
+database. It does **not** modify the live paper trading bot.
+
+### Two experiments are intentionally reported separately
+
+1. **Six-trade fixed-horizon concentration audit:** derives from the already
+   examined Stage 13 all-features model and its unchanged >=0.65 probability
+   filter and fixed six-bar horizon. Lists trade-level outputs, distributions
+   by symbol, development fold and signal-time regime, leave-one-out mean
+   return, mean excluding two best trades, top-two share of positive
+   and aggregate unit-notional returns. These ex-post deletions are
+   sensitivity analyses and never trading rules.
+2. **Portfolio OHLC proxy:** from the development model's 4h closed-bar
+   predictions, LONG entries happen only at the next candle OPEN. Uses a
+   single virtual 1000 USDT cash ledger, <=15% equity per coin, <=45% total,
+   <=3 positions, 1% equity risk budget per 3% stop, 5% take target,
+   10bps fee and 5bps slippage each direction. Decisions for simultaneous
+   coin signals sort by higher prespecified probability (coin as tie breaker).
+   Intrabar stop and take checks are conservatively STOP first; gaps trigger
+   at the OPEN, which can be much worse than a stop; positions not previously
+   closed exit at the original six-bar horizon close. Shared cash, same-bar
+   exits, bounded entry count and risk flags are modeled. All positions
+   are flat by the research end. The report includes equity curve, drawdown,
+   realized PnL, win rate, profit factor, and each simulated fill.
+
+The portfolio proxy **is not an exact historical replay of** the dynamically
+selected, quote-driven Telegram paper bot. It has no historical exchange-wide
+ranking, book depth, true spread, latency, daily funding, or intrabar price
+path. Model labels for a fixed six-bar holding period do NOT match stop/take
+outcomes, so the two experiment returns should NOT be directly compared
+as though they were the same trade set.
+
+### Research decision gate and holdout
+
+The diagnostic gate flags fewer than 30 fixed-horizon selections, fewer than
+30 completed portfolio trades, top-two-win concentration above 75%, and
+nonpositive portfolio return. These are deliberately conservative screening
+heuristics rather than validated significance tests. **Even if all passed,
+paper automation and live trading remain DISABLED.**
+
+Just like Stage 13, all ML fitting, probability scoring and simulated fills
+are confined to development data. Bar timestamps from the reserved 20%
+holdout are used only to identify the boundary. Tests mutate the holdout
+prices and verify that Stage 14 results do not change.
+
+The next genuine decision would require a *precommitted* candidate, fresh
+unseen chronological validation and prospective paper observation; repeated
+test/holdout tweaking is forbidden. Current development results have already
+been inspected, so they are exploratory, not prospective evidence.
