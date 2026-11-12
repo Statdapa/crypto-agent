@@ -38,7 +38,7 @@ def history_signal(bars, idx, neutral_fg=50):
     """Closed bars through idx inclusive only. Computes the live signal rules."""
     if idx<40:
         return "HOLD"
-    from crypto_intelligence_agent import (
+    from strategy_rules import (
         calculate_ma,calculate_macd,calculate_rsi,calculate_bollinger,
         generate_signal,
     )
