@@ -819,3 +819,64 @@ It hashes existing Stage 13/14 report bytes for reproducibility, verifies
 matching holdout boundaries, and rejects invalid freeze specifications or
 impossible timestamps. Local model files/SQLite can still be altered by a
 computer's owner: they are NOT independently notarized records.
+
+
+## Stage 17 — Forward Model Monitoring (read-only, NO trading)
+
+Stage 17 **does not** retrain or improve a model based on inspected test
+results. It reads the Stage 15 frozen model and **genuinely time-stamped**
+prospective observations, verifies each completed outcome and produces a
+calibration/forward-performance monitoring report. It never accesses the
+original historical 20% holdout, generates synthetic trades, places exchange
+orders or edits the separate paper or shadow SQLite ledgers.
+
+Run from the repository root, with your Windows \`.venv\` activated:
+
+    git pull --ff-only origin feat/paper-trading-risk-engine-20261111
+    python -m unittest discover -s tests -v
+    python shadow_monitor.py
+
+Output: \`data/reports/shadow_monitor.json\`.
+
+**If Stage 15 has not started**, this reports \`NOT_STARTED\` and zero
+observations (no win rate or invented history). To START a legitimate
+trial, use Stage 15's \`shadow_research.py freeze\` on existing completed
+BTC/SOL CSVs, and only run \`observe\` on NEW fully closed 4h candles
+within the permitted 30-minute time window **after** that model freeze.
+After enough future 4h bars have closed, run \`settle\`. Refresh the
+read-only monitor after the new settlements:
+
+    python shadow_research.py report
+    python shadow_monitor.py
+
+This monitor includes:
+- A fail-closed audit of the frozen model hash, temporal observation
+  windows, and the earliest **future** 4h bar OPEN after the observation
+  timestamp. Settlements not at the sixth future 4h bar or settled too
+  early are rejected.
+- Brier score versus the immutable frozen model's fit-time baseline,
+  log loss, average probability minus actual positive rate, reliability
+  buckets, and a per-coin comparison. Pending predictions do **not**
+  count as wins or losses.
+- A predeclared >=65% selection audit that selects from **all**
+  predictions including still-pending ones BEFORE checking outcomes,
+  and enforces a six-bar-plus-gap exclusion per coin. Overlapping
+  outcome windows and cross-coin correlation remain limitations.
+- An optional **descriptive** early/late comparison only after >=200
+  distinct settled 4h signal times. No significance claim.
+- A conservative review-only screening requirement of >=100 distinct
+  settled prediction timestamps and >=30 distinct nonoverlapping
+  settled high-probability signal timestamps, with positive Brier
+  improvement and positive selected mean net return.
+
+These numeric thresholds are *heuristics*, not calibrated statistical
+power requirements. Even if all are met, output only says
+\`ELIGIBLE_FOR_INDEPENDENT_SHADOW_REVIEW_ONLY\`; it will **never**
+activate paper or live trading. The model's prospective settlement
+assumes delayed entry after the actual observation (not the older
+historical model's next-bar-open target), and cannot be compared
+directly to Stage 13/14 returns.
+
+The monitor is a manually invoked snapshot, not a scheduler, uptime
+guarantee, exchange feed, independent audit log or source of future
+returns. There is no auto deployment or model promotion.
