@@ -507,3 +507,47 @@ unchanged. **Do not copy a high-probability prediction into a real order.**
 **Do not optimize probability threshold, indicators, assets or costs by
 looking at held-out test results repeatedly.** For later improvements,
 create a fresh untouched test period or run a prospective paper study.
+
+
+## Stage 12 — Historical Expansion and Feature Ablation (no execution)
+
+The original 500-candle, ~83-day sample produced unstable ROC-AUC across BTC
+and SOL (per-fold model AUC ranged below 0.5). Do **not** conclude that
+changing thresholds on the same test set creates an edge. This stage adds
+multi-year historical 4h candles and diagnostic ablations that retain an
+untouched final 20% of the data.
+
+From PowerShell in the repository root:
+
+    git pull origin feat/paper-trading-risk-engine-20261111
+    python -m unittest discover -s tests -v
+    python download_historical_data.py BTC SOL --bars 6000 --overwrite
+    python feature_ablation.py --csv BTC/USDT=data/raw/BTC_USDT_4h.csv SOL/USDT=data/raw/SOL_USDT_4h.csv
+
+**Historical download:** public Binance 4h klines are paginated backward in
+batches of at most 1000 and validated for UTC boundaries, contiguous timestamps,
+OHLC integrity and complete candles. 6000 candles represent about 1000 days,
+depending on exchange history. Data from a more recently listed asset can be
+shorter. CSVs live under gitignored \`data/raw/\`. The \`--overwrite\` flag
+explicitly replaces the shorter 500-candle research files, **not** the trading
+ledger. The existing paper database \`data/multi_paper.db\` is untouched.
+If Binance is unavailable (network/region/rate limit), collection fails
+without generating fake candles. Check that the two downloaded datasets
+have the same 4h timestamp interval; the research pipeline intentionally
+rejects mismatches rather than silently dropping date ranges.
+
+**Feature ablations:** the diagnostic research script compares all 9 original
+features against variants with momentum, trend, volatility or oscillator
+groups removed, plus an only-momentum baseline. Training scaling is fit on
+past data only. Each validation period uses an earlier, purged calibration
+interval. Its final 20% of historical feature timestamps is held aside
+**without computing holdout labels, probabilities or scores in this report**.
+The report is saved to \`data/reports/feature_ablation.json\` and displays
+development-period Brier improvements versus a constant-rate baseline.
+This stage makes no selection or trading decision. Variants evaluated against
+the *development windows* require a new independent test on later data before
+any prospective paper deployment. Serially overlapping label horizons and
+correlated coins limit effective sample size even when N is large.
+
+Ablation is **not** an optimizer that guarantees profit: no live trading,
+paper model promotion, or adjusted order sizing is added here.
