@@ -1464,6 +1464,7 @@ HELP_MSG = """<b>Crypto Intelligence Agent - Commands</b>
 /paper, /multi - Multi-coin demo balance, equity and PnL
 /position, /multipos - Multi-coin OPEN positions, SL/TP and PnL
 /trades, /multitrades - Multi-coin demo trade history
+/performance - Multi-coin demo win rate, expectancy, drawdown
 /singlepaper, /singleposition - Legacy BTC-only paper status
 /singletrades - Legacy BTC-only paper fills
 
@@ -1626,7 +1627,8 @@ def handle_telegram_updates() -> None:
                 except Exception as exc:
                     send_telegram("Scanner Binance tidak tersedia: " + html_escape(str(exc)), chat_id=chat_id)
             elif text_lower in ("/multi", "/multipos", "/multitrades",
-                                  "/paper", "/position", "/trades"):
+                                  "/paper", "/position", "/trades",
+                                  "/performance"):
                 if not CFG.telegram_default_chat_id or str(chat_id) != str(CFG.telegram_default_chat_id):
                     send_telegram("Multi-coin paper status hanya untuk chat pemilik.", chat_id=chat_id)
                     continue
@@ -1643,6 +1645,9 @@ def handle_telegram_updates() -> None:
                         result = format_multi_fills(portfolio)
                     elif text_lower in ("/position", "/multipos"):
                         result = format_multi_positions(portfolio)
+                    elif text_lower == "/performance":
+                        from performance_report import telegram_performance_summary
+                        result = telegram_performance_summary(portfolio.path)
                     else:
                         result = format_multi_status(portfolio)
                     send_telegram(result, chat_id=chat_id)

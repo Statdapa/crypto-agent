@@ -200,6 +200,35 @@ def read_ledger(path):
     return fills,marks,D(config["initial_cash"])
 
 
+def telegram_performance_summary(path):
+    data=report_from_ledger(path)
+    s=data["summary"]
+    dd=data["drawdown_observed_only"]
+    lines=[
+        "<b>MULTI-COIN DEMO PERFORMANCE</b>",
+        "Closed trades: "+str(s["trades"]),
+        "Win/Loss: "+str(s["wins"])+"/"+str(s["losses"]),
+        "Win rate: "+("N/A" if s["win_rate"] is None else
+                    "{:.2f}%".format(s["win_rate"]*100)),
+        "Profit factor: "+("N/A" if s["profit_factor"] is None else
+                          "{:.3f}".format(s["profit_factor"])),
+        "Expectancy per closed trade: "+(
+            "N/A" if s["expectancy_usdt_per_closed_trade"] is None else
+            "{:+,.4f} USDT".format(float(s["expectancy_usdt_per_closed_trade"]))),
+        "Realized net PnL: {:+,.4f} USDT".format(float(s["net_pnl_usdt"])),
+        "Open positions: "+str(s["currently_open_positions"]),
+        "Estimated open PnL: {:+,.4f} USDT".format(
+            float(s["current_unrealized_net_pnl_estimate_usdt"])),
+        "Observed max drawdown: "+(
+            "N/A" if dd["max_drawdown_fraction"] is None else
+            "{:.2f}%".format(dd["max_drawdown_fraction"]*100)),
+        "Equity marks observed: "+str(dd["equity_points"]),
+        "<i>Partial equity history from installation onward; no made-up returns. "
+        "Paper results only, not guaranteed live performance.</i>",
+    ]
+    return "\n".join(lines)
+
+
 def report_from_ledger(path):
     from multi_portfolio import MultiPaperPortfolio
     trader=MultiPaperPortfolio(path)

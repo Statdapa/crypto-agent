@@ -371,3 +371,48 @@ Legacy *single-coin* account queries were moved to `/singlepaper`,
 agent after updating the code; use the same working directory and configured
 ledger path for the Telegram and multi-paper processes. The reports show the
 last observed quote, which is not necessarily current if a data feed is stale.
+
+## Stage 10 — Observed Performance Analytics and Causal Research Backtest
+
+From project root with your local .venv, keep the existing shared multi-coin
+ledger unchanged. Performance analytics reads **all** BUY and SELL fills and
+matches closes to their actual entry IDs, not merely the last 200 fills.
+
+    python multi_paper_trade.py performance
+    python performance_report.py --ledger data/multi_paper.db
+    # JSON: data/reports/multi_performance.json
+    # CSV: data/reports/multi_closed_trades.csv
+    # CSV: data/reports/multi_observed_equity.csv
+
+Telegram: /performance for closed-trade win rate, realized net PnL, expectancy,
+profit factor, open estimated PnL, and observed drawdown. Null/NA metrics mean
+insufficient closed trades, **not** 0% win rate. Older data cannot be backfilled:
+equity snapshots start when this update was installed, so any historical
+drawdown is *partial* and mark-frequency dependent. No annualized Sharpe ratio
+is calculated from irregular marks. The mark history includes only accepted
+observations; missed quote changes and intra-poll drawdowns are not measured.
+
+A **research-only** backtest of the agent's canonical rule-based signal scoring
+is available for a fixed universe of 4-hour CSV candles. Signals use only
+fully completed bars through t−1, with hypothetical next-bar-open fills;
+intrabar SL/TP is evaluated conservatively (stop-first when both touched).
+Fees, slippage, shared cash, max 3 open positions and position limits are
+modeled. A 70/30 chronological train/test split reports results separately;
+it does **not** optimize parameters.
+
+Use genuine historical CSV files with timezone-aware ISO timestamp and
+timestamp,open,high,low,close columns (one file per coin):
+
+    python backtest_multi_rules.py --csv BTC/USDT=data/raw/BTC_USDT_4h.csv
+    # Additional local complete datasets:
+    python backtest_multi_rules.py --csv BTC/USDT=data/raw/BTC_USDT_4h.csv SOL/USDT=data/raw/SOL_USDT_4h.csv
+
+Results: data/reports/multi_backtest.json. Input needs >=100 synchronized
+continuous 4h bars. Do not label it a replay of the **dynamic top movers
+scanner**: historical Binance listings, volume-ranking candidates and delisted
+coins are not fully reconstructed, so fixed-universe survivorship bias remains.
+Historical Fear & Greed is unavailable here; the research run explicitly
+holds it at neutral=50. Because that differs from live agent sentiment and
+dynamic candidate selection, out-of-sample results estimate a *proxy*
+strategy, not live win-rate accuracy. No future return is used to choose
+a symbol or a fill. Do not tune strategy parameters on the held-out test set.

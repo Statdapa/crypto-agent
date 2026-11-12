@@ -278,7 +278,7 @@ def send_pending(portfolio, sender=None):
 
 def cli(argv=None):
     p=argparse.ArgumentParser(description="Shared-wallet MULTI-COIN PAPER ONLY")
-    p.add_argument("command",choices=("watch","scan","status","fills","stats","notify","halt","resume"))
+    p.add_argument("command",choices=("watch","scan","status","fills","stats","performance","notify","halt","resume"))
     p.add_argument("--ledger",default=os.getenv("MULTI_PAPER_DB_PATH","data/multi_paper.db"))
     p.add_argument("--poll-seconds",type=int,default=60)
     p.add_argument("--max-cycles",type=int,default=0)
@@ -294,6 +294,9 @@ def cli(argv=None):
         print(json.dumps(portfolio.fills(),indent=2))
     elif args.command=="stats":
         print(json.dumps(portfolio.stats(),indent=2))
+    elif args.command=="performance":
+        from performance_report import telegram_performance_summary
+        print(telegram_performance_summary(args.ledger))
     elif args.command=="notify":
         print(json.dumps(send_pending(portfolio),indent=2))
     elif args.command=="halt":
