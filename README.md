@@ -676,3 +676,78 @@ The next genuine decision would require a *precommitted* candidate, fresh
 unseen chronological validation and prospective paper observation; repeated
 test/holdout tweaking is forbidden. Current development results have already
 been inspected, so they are exploratory, not prospective evidence.
+
+
+## Stage 15 — Frozen Prospective ML Shadow Monitor (no exchange orders)
+
+**Motivation:** Stage 13 did not establish predictive statistical edge (all six
+candidate average Brier improvements negative), and Stage 14 is still an
+exploratory diagnostic. Rather than optimize on inspected historical results,
+this stage timestamp-records predictions made *after a fresh 4h bar closes*,
+then scores them only when genuinely later 4h bars have completed.
+
+### One-time freeze (no trading)
+
+Run from the project root in PowerShell:
+
+    git pull --ff-only origin feat/paper-trading-risk-engine-20261111
+    python -m unittest discover -s tests -v
+    python shadow_research.py freeze --csv BTC/USDT=data/raw/BTC_USDT_4h.csv SOL/USDT=data/raw/SOL_USDT_4h.csv
+
+This writes a hashed, immutable \`data/shadow/frozen_model.json\` model
+snapshot. Existing freeze files are never overwritten automatically.
+The 9-feature L2 logistic/calibrated parameters are refit once on the
+**development-only** data under Stage 12's reserved 20% holdout split.
+Frozen features, coefficients, training/calibration counts, historical
+boundary and original threshold (65%) are recorded. No historical holdout
+labels are used for fitting. The model remains unapproved for paper trading.
+
+### Regular manual observation of NEW completed 4h bars
+
+Refresh the original CSV files from the public Binance endpoint (read-only):
+
+    python download_historical_data.py BTC SOL --bars 6000 --overwrite
+    python shadow_research.py observe --csv BTC/USDT=data/raw/BTC_USDT_4h.csv SOL/USDT=data/raw/SOL_USDT_4h.csv
+
+**Timing matters:** observation is permitted only within 30 minutes *after*
+the latest 4h candle closes, and that close must be strictly AFTER the model
+was frozen. Typical UTC candle closes occur at 00:00, 04:00, 08:00,
+12:00, 16:00, 20:00 (Jakarta WIB: 07:00, 11:00, 15:00,
+19:00, 23:00, 03:00 respectively). Ensure the API has published the
+latest COMPLETED candle before observing. Missed observations are intentionally
+**not backfilled** as though they were live forecasts. A duplicate observation
+is safely ignored by the separate shadow SQLite database. There is no
+automated scheduler in this stage.
+
+### Settle after at least 24h of subsequent fully completed bars
+
+    python download_historical_data.py BTC SOL --bars 6000 --overwrite
+    python shadow_research.py settle --csv BTC/USDT=data/raw/BTC_USDT_4h.csv SOL/USDT=data/raw/SOL_USDT_4h.csv
+    python shadow_research.py report
+
+The outputs show new completed shadow outcomes, prediction Brier vs
+frozen fit-time base rate, settled mean net return for 65%+ signals,
+observation count, pending count and the nonpromotion marker.
+The SQLite DB \`data/shadow/observations.db\` is independent of
+\`data/multi_paper.db\`. Rows are inserted exactly once, predictions
+aren't modified during settlement, and pending forecasts aren't counted
+as losers or winners. These records are NOT live/paper orders.
+
+**Important temporal distinction:** The historical Stage 11 label used
+the immediate next bar OPEN after the signal candle (i+1), whereas a
+prediction recorded a few minutes *after* that candle closes can no longer
+fill at that open. Stage 15 therefore measures an implementable
+**research-only delayed-entry** approximation: entry at the *first
+future 4h bar OPEN strictly after the actual recorded observation time*,
+then exit at the sixth such bar's CLOSE. This evaluation target is
+**different from the model's training label** and may underperform it.
+A positive evaluation cannot be compared apples-to-apples with Stage 13/14
+backtests and cannot authorize trading.
+
+Constraints: local wall-clock timestamps are not cryptographically trusted;
+this is a local shadow experiment, not an independently certified audit.
+The current scanner universe is fixed to BTC/SOL, and fees/slippage are
+modeled constants. Model drift, missing observations, correlated coins,
+overlapping outcomes, spread/order-book depth and uncertainty remain material.
+**No execution code, private API keys, Telegram trading paths or real trades
+are touched.** Do not use this tool to approve automatic or live trading.
