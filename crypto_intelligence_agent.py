@@ -568,6 +568,45 @@ def get_ohlc(coin_symbol: str = "BTC", days: int = 30) -> list[list[Any]]:
         return []
 
 
+def get_analysis(coin_symbol: str = "BTC") -> dict[str, Any]:
+    ohlc = get_ohlc(coin_symbol, days=30)
+    default = {
+        "ma7": "N/A", "ma14": "N/A", "ma20": "N/A", "rsi": "N/A",
+        "macd": "N/A", "macd_signal": "N/A", "macd_hist": "N/A",
+        "bb_upper": "N/A", "bb_mid": "N/A", "bb_lower": "N/A",
+    }
+    if not ohlc:
+        return default
+    try:
+        closes = [float(candle[4]) for candle in ohlc]
+    except Exception as exc:
+        print(f"Error parsing OHLC {coin_symbol}: {exc}")
+        return default
+
+    ma7 = calculate_ma(closes, 7)
+    ma14 = calculate_ma(closes, 14)
+    ma20 = calculate_ma(closes, 20)
+    rsi = calculate_rsi(closes)
+    macd_line, macd_signal, macd_hist = calculate_macd(closes)
+    bb_upper, bb_mid, bb_lower = calculate_bollinger(closes, period=20)
+    return {
+        "ma7": round(ma7, 4) if ma7 is not None else "N/A",
+        "ma14": round(ma14, 4) if ma14 is not None else "N/A",
+        "ma20": round(ma20, 4) if ma20 is not None else "N/A",
+        "rsi": rsi if rsi is not None else "N/A",
+        "macd": macd_line if macd_line is not None else "N/A",
+        "macd_signal": macd_signal if macd_signal is not None else "N/A",
+        "macd_hist": macd_hist if macd_hist is not None else "N/A",
+        "bb_upper": bb_upper if bb_upper is not None else "N/A",
+        "bb_mid": bb_mid if bb_mid is not None else "N/A",
+        "bb_lower": bb_lower if bb_lower is not None else "N/A",
+    }
+
+
+# ---------------------------------------------------------------------------
+# 6. SIGNAL, STORAGE, AND ANOMALY ENGINE
+# ---------------------------------------------------------------------------
+
 def to_db_number(value: Any) -> Optional[float]:
     return float(value) if is_number(value) else None
 
