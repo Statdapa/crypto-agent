@@ -15,7 +15,7 @@ import numpy as np
 
 from backtest_baseline import read_candles
 from quant_research import (
-    FEATURES, make_samples, _fit_logistic, _sigmoid, _scores,
+    FEATURES, LOOKBACK, make_samples, validate_history, _fit_logistic, _sigmoid, _scores,
 )
 
 GROUPS={
@@ -40,7 +40,7 @@ def _auc(y,prob):
     return float((ranked+.5*ties)/(len(positives)*len(negatives)))
 
 
-def _evaluate(dev, chosen, horizon, folds=DEV_FOLDS):
+def _evaluate(dev, chosen, horizon, folds=DEV_FOLDS, return_predictions=False):
     """Strictly chronological fitting, calibration and development scoring."""
     idx=sorted({s["i"] for s in dev})
     n=len(idx)
@@ -75,7 +75,7 @@ def _evaluate(dev, chosen, horizon, folds=DEV_FOLDS):
         base=np.full(len(y_test),float(y_train.mean()))
         m=_scores(y_test,pred)
         b=_scores(y_test,base)
-        reports.append({
+        result={
             "development_start_at":test[0]["at"],
             "development_end_at":test[-1]["at"],
             "train_n":len(train),"calibration_n":len(cal),"validation_n":len(test),
@@ -88,19 +88,56 @@ def _evaluate(dev, chosen, horizon, folds=DEV_FOLDS):
             "brier_delta_baseline_minus_model":b["brier"]-m["brier"],
             "model_auc":_auc(y_test,pred),
             "positive_rate":float(y_test.mean()),
-        })
+        }
+        if return_predictions:
+            # Regime labels are determined from *features at signal time*.
+            # The volatility split is determined from the earlier fit set.
+            median_vol=float(np.median([
+                s["x"][FEATURES.index("realized_vol_20")] for s in train
+            ]))
+            predictions=[]
+            for s,p,bp in zip(test,pred,base):
+                spread=float(s["x"][FEATURES.index("ma_spread_10_30")])
+                direction=("UP" if spread>.005 else
+                           "DOWN" if spread<-.005 else "SIDEWAYS")
+                high_vol=bool(s["x"][FEATURES.index("realized_vol_20")]>median_vol)
+                predictions.append({
+                    "at":s["at"],"i":s["i"],"symbol":s["symbol"],
+                    "label":s["label"],"probability_win":float(p),
+                    "baseline_probability":float(bp),
+                    "net_return_fraction":float(s["future_net_return"]),
+                    "regime":direction+("_HIGH_VOL" if high_vol else "_LOW_VOL"),
+                    "trend":direction,"high_vol":high_vol,
+                })
+            result["predictions"]=predictions
+        reports.append(result)
     return reports
 
 
-def ablation_diagnostics(candle_map,horizon=6,fee_bps=10,slippage_bps=5):
-    all_samples=make_samples(candle_map,horizon,fee_bps,slippage_bps)
-    indices=sorted({s["i"] for s in all_samples})
-    boundary=indices[int(len(indices)*HOLDOUT_START)]
-    # Purge *development* labels that mature at or after first holdout feature.
-    dev=[s for s in all_samples if s["i"]+horizon<boundary]
-    held_out_count=sum(s["i"]>=boundary for s in all_samples)
-    if len({s["i"] for s in dev})<200:
+def development_samples(candle_map,horizon=6,fee_bps=10,slippage_bps=5):
+    """Produce *only* pre-holdout training/validation labels.
+
+    No holdout label is computed at all, including in temporary arrays.
+    """
+    times=validate_history(candle_map,horizon)
+    eligible=len(times)-horizon-LOOKBACK
+    boundary=LOOKBACK+int(eligible*HOLDOUT_START)
+    if boundary<300 or boundary-horizon-LOOKBACK<200:
         raise ValueError("Need more data for diagnostics. Download >=1000 bars per coin.")
+    # make_samples accesses only data strictly before holdout boundary.
+    earlier={symbol:bars[:boundary] for symbol,bars in candle_map.items()}
+    dev=make_samples(earlier,horizon,fee_bps,slippage_bps)
+    if max(s["i"]+horizon for s in dev)>=boundary:
+        raise AssertionError("Holdout purge failed")
+    return dev, {
+        "holdout_first_feature_index":boundary,
+        "held_out_first_timestamp":times[boundary].isoformat(),
+        "held_out_observations_reserved":(eligible-int(eligible*HOLDOUT_START))*len(candle_map),
+    }
+
+
+def ablation_diagnostics(candle_map,horizon=6,fee_bps=10,slippage_bps=5):
+    dev,holdout=development_samples(candle_map,horizon,fee_bps,slippage_bps)
     configurations={"all_features":list(FEATURES)}
     for group,features in GROUPS.items():
         configurations["without_"+group]=[f for f in FEATURES if f not in features]
@@ -121,11 +158,10 @@ def ablation_diagnostics(candle_map,horizon=6,fee_bps=10,slippage_bps=5):
     return {
         "mode":"ABLATION_DIAGNOSTICS_RESEARCH_ONLY",
         "held_out_test_scored":False,
-        "held_out_observations_reserved":held_out_count,
-        "held_out_first_timestamp":next(s["at"] for s in all_samples
-                                         if s["i"]==boundary),
+        "held_out_observations_reserved":holdout["held_out_observations_reserved"],
+        "held_out_first_timestamp":holdout["held_out_first_timestamp"],
         "development_label_last_index":max(s["i"]+horizon for s in dev),
-        "holdout_first_feature_index":boundary,
+        "holdout_first_feature_index":holdout["holdout_first_feature_index"],
         "development_observations":len(dev),
         "horizon_bars":horizon,
         "candidate_comparison":comparison,
