@@ -96,7 +96,7 @@ class HistoryTests(unittest.TestCase):
         session,now=self.make_session()
         # Inject a bar after now; pagination won't request it, but bad data
         # coming from exchange must be rejected.
-        session.rows[-1][0]+=BAR_MS
+        session.rows[-10][0]+=BAR_MS
         with self.assertRaisesRegex(ValueError,"boundaries"):
             collect_history("BTC",bars=500,universe=FakeUniverse(),
                             session=session,now_ms=now,pause=0)
