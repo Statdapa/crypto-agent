@@ -124,6 +124,14 @@ class MultiPaperPortfolio:
                     fill_id INTEGER PRIMARY KEY, delivered_at TEXT NOT NULL,
                     FOREIGN KEY(fill_id) REFERENCES portfolio_fills(id)
                 );
+                CREATE TABLE IF NOT EXISTS portfolio_equity_history (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    at TEXT NOT NULL, event TEXT NOT NULL, symbol TEXT,
+                    equity TEXT NOT NULL, cash TEXT NOT NULL,
+                    open_positions INTEGER NOT NULL
+                );
+                CREATE INDEX IF NOT EXISTS idx_equity_history_at
+                    ON portfolio_equity_history(at, id);
             """)
             settings = json.dumps(
                 {k: str(v) for k, v in asdict(self.limits).items()},
@@ -159,6 +167,25 @@ class MultiPaperPortfolio:
         positions = self._positions(db)
         return D(account["cash"]) + sum(
             (D(p["qty"]) * D(p["mark_price"]) for p in positions), D(0)
+        )
+
+    def _record_equity(self, db, when, event, symbol=None):
+        """Atomic observed portfolio equity mark, including post-fill fees.
+
+        Historical rows before installing this feature cannot be reconstructed
+        from the ledger; the analytics report will disclose partial coverage.
+        """
+        account = db.execute(
+            "SELECT cash FROM portfolio_account WHERE id=1"
+        ).fetchone()
+        num_positions = db.execute(
+            "SELECT COUNT(*) FROM portfolio_positions"
+        ).fetchone()[0]
+        db.execute(
+            "INSERT INTO portfolio_equity_history "
+            "(at,event,symbol,equity,cash,open_positions) VALUES(?,?,?,?,?,?)",
+            (ts(when),event,symbol,str(self._equity(db)),
+             str(account["cash"]),num_positions),
         )
 
     def _risk(self, db, observed_at):
@@ -268,6 +295,7 @@ class MultiPaperPortfolio:
                 )
             _,halted = self._risk(db, now)
             if p is None:
+                self._record_equity(db,now,"MARK",symbol)
                 return {"action":"HOLD","reason":"no_open_position","halted":halted}
             if halted:
                 reason = "risk_or_manual_kill"
@@ -276,8 +304,11 @@ class MultiPaperPortfolio:
             elif price >= D(p["take_price"]):
                 reason = "take_profit_triggered"
             else:
+                self._record_equity(db,now,"MARK",symbol)
                 return {"action":"HOLD","reason":"position_open","halted":False}
-            return self._sell(db,p,price,now,reason)
+            result = self._sell(db,p,price,now,reason)
+            self._record_equity(db,now,"CLOSE",symbol)
+            return result
 
     def on_signal(self, symbol, action, observed_at, now=None):
         """Process real saved strategy decisions using a verified, fresh mark."""
@@ -329,6 +360,7 @@ class MultiPaperPortfolio:
                 "INSERT INTO portfolio_decisions VALUES(?,?,?,?,?)",
                 (key,symbol,ts(observed_at),result["action"],result["reason"]),
             )
+            self._record_equity(db,when,"SIGNAL_"+result["action"],symbol)
             return result
 
     def _buy(self, db, symbol, price, equity, when):
