@@ -751,3 +751,71 @@ modeled constants. Model drift, missing observations, correlated coins,
 overlapping outcomes, spread/order-book depth and uncertainty remain material.
 **No execution code, private API keys, Telegram trading paths or real trades
 are touched.** Do not use this tool to approve automatic or live trading.
+
+
+## Stage 16 — Research Governance & Evidence Review (NO execution)
+
+Stage 16 audits **existing evidence**, rather than developing another ML model
+or searching for more profitable thresholds. It evaluates Stage 13's
+six-model familywise statistics, Stage 14's fixed-horizon profit concentration
+and shared-capital proxy, and Stage 15's *truly prospective* timestamped
+shadow observations if a frozen model and ledger exist.
+
+In Windows PowerShell, repository root:
+
+    git pull --ff-only origin feat/paper-trading-risk-engine-20261111
+    python -m unittest discover -s tests -v
+
+If Stage 14 was not run since the current 6,000-bar downloads:
+
+    python economic_edge.py --csv BTC/USDT=data/raw/BTC_USDT_4h.csv SOL/USDT=data/raw/SOL_USDT_4h.csv
+
+Stage 13 report must also exist, from:
+
+    python quant_robustness.py --csv BTC/USDT=data/raw/BTC_USDT_4h.csv SOL/USDT=data/raw/SOL_USDT_4h.csv
+
+Now run the read-only evidence gate:
+
+    python research_governance.py
+
+Output is \`data/reports/evidence_review.json\`, with explicit checks and
+\`RESEARCH_NO_GO\` unless every conservative, observational criterion passes.
+Missing or malformed Stage 13/14 report **fails closed**: no guessed trading
+statistics are substituted. A missing Stage 15 shadow file set is reported as
+\`NOT_STARTED\`, not treated as a win or a loss.
+
+If you elect to start future observations, first follow **Stage 15** to
+freeze the exact model, record a NEW candle's probability in real time,
+and settle after the required future completed bars. Stage 16 will then
+read the frozen fingerprint and shadow SQLite records in read-only mode.
+It does not create a freeze, re-fit parameters, change a pending label,
+or backfill past observations.
+
+Conservative diagnostic criteria:
+- At least one of the six Stage 13 Brier improvements must have a positive
+  familywise 95% lower bound and adjusted one-sided p<=0.05.
+- At least 30 selected Stage 14 fixed-horizon research events and 30 closed
+  portfolio-proxy trades, plus positive modeled portfolio return with
+  drawdown <=10% and no risk halt. The two best trades must account for no
+  more than 75% of positive unit-notional gains, and the mean return
+  excluding those best two must remain positive.
+- Stage 15 must include at least 30 settled and non-overlapping
+  probability>=65% selected observations across at least 30 distinct
+  signal timestamps, positive mean selected net return, and a positive
+  Brier improvement against its immutable fit-time base rate.
+
+These thresholds are deliberately conservative, **not a regulatory standard,
+statistical power calculation or guarantee of profit**. Dependent labels and
+BTC/SOL correlation reduce the effective sample. The previously inspected
+development windows can no longer supply preregistered evidence. If all
+checks happened to pass, the only decision is
+\`ELIGIBLE_FOR_INDEPENDENT_RESEARCH_REVIEW_ONLY\`.
+\`promotion_to_paper_execution\`, automated paper trading and all live orders
+**stay disabled**. Model acceptance would require a separately governed
+fresh evaluation, permissions, risk signoff and extended prospective trial.
+
+Stage 16 does not score or use the original reserved 20% historical holdout.
+It hashes existing Stage 13/14 report bytes for reproducibility, verifies
+matching holdout boundaries, and rejects invalid freeze specifications or
+impossible timestamps. Local model files/SQLite can still be altered by a
+computer's owner: they are NOT independently notarized records.
